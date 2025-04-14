@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1978 Trading Co., Ltd.</title>
+    <title>9STARX</title>
     <style>
         :root {
             --primary-color: #00a8ff;
@@ -46,9 +46,10 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             position: relative;
-            overflow: hidden;
+            overflow: auto;
+            padding: 2rem 0;
         }
 
         .container {
@@ -60,11 +61,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
         }
 
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(3, 300px);
+            grid-template-columns: repeat(2, 300px);
             gap: 2rem;
             justify-content: center;
             align-items: center;
@@ -155,7 +157,7 @@
 
         @media (max-width: 1024px) {
             .card-grid {
-                grid-template-columns: repeat(2, 300px);
+                flex-direction: column;
             }
         }
 
