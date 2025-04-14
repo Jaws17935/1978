@@ -3,247 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1978</title>
+    <title>1978 Trading Co., Ltd.</title>
     <style>
         :root {
-            --primary-color: #ff0066;
-            --secondary-color: #00ccff;
-            --accent-color: #ffcc00;
+            --primary-color: #00a8ff;
+            --secondary-color: #9c88ff;
+            --accent-color: #00d2d3;
             --bg-color: #0a0a0a;
-            --card-bg: rgba(30, 30, 30, 0.8);
+            --card-bg: rgba(15, 15, 15, 0.8);
             --text-color: #ffffff;
-            --speed-lines: #4d4d4d;
         }
 
-        @font-face {
-            font-family: 'Racing Sans One';
-            font-style: normal;
-            font-weight: 400;
-            src: url(https://fonts.gstatic.com/s/racingsansone/v13/sykr-yRtm7EvTrXNxkv5jfKKyDCAJnDnaZYWvQ.woff2) format('woff2');
-            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        @keyframes speedLines {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        @keyframes enginePulse {
-            0% { box-shadow: 0 0 10px var(--primary-color); }
-            50% { box-shadow: 0 0 20px var(--primary-color), 0 0 40px var(--primary-color); }
-            100% { box-shadow: 0 0 10px var(--primary-color); }
-        }
-
-        @keyframes nitroGlow {
-            0% { text-shadow: 0 0 5px var(--secondary-color); }
-            25% { text-shadow: 0 0 10px var(--secondary-color), 0 0 20px var(--secondary-color); }
-            50% { text-shadow: 0 0 5px var(--secondary-color); }
-            75% { text-shadow: 0 0 15px var(--accent-color), 0 0 30px var(--accent-color); }
-            100% { text-shadow: 0 0 5px var(--secondary-color); }
+        @keyframes neonGlow {
+            0%, 100% {
+                text-shadow: 0 0 5px var(--primary-color);
+            }
+            50% {
+                text-shadow: 0 0 10px var(--secondary-color);
+            }
         }
 
         body {
-            font-family: 'Racing Sans One', 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            background-image: 
-                linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
-                url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1283&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+            font-family: 'Orbitron', sans-serif;
+            background: 
+                linear-gradient(90deg, 
+                    rgba(10, 10, 10, 0.9) 0%,
+                    rgba(15, 15, 15, 0.7) 50%,
+                    rgba(10, 10, 10, 0.9) 100%
+                ),
+                url('https://images.unsplash.com/photo-1607860108855-64acf2078ed9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: 200% 100%, cover;
+            background-position: 0% 0%, center;
             background-attachment: fixed;
+            color: var(--text-color);
+            line-height: 1.6;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: var(--text-color);
-            overflow-x: hidden;
-        }
-
-        .speed-lines {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: relative;
             overflow: hidden;
-            z-index: 0;
         }
-
-        .speed-line {
-            position: absolute;
-            background: linear-gradient(90deg, transparent, var(--speed-lines), transparent);
-            height: 1px;
-            width: 100%;
-            opacity: 0.4;
-            animation: speedLines 2s linear infinite;
-        }
-
-        .speed-line:nth-child(1) { top: 10%; animation-duration: 1.5s; }
-        .speed-line:nth-child(2) { top: 25%; animation-duration: 1.8s; }
-        .speed-line:nth-child(3) { top: 40%; animation-duration: 2.2s; }
-        .speed-line:nth-child(4) { top: 55%; animation-duration: 1.7s; }
-        .speed-line:nth-child(5) { top: 70%; animation-duration: 2.1s; }
-        .speed-line:nth-child(6) { top: 85%; animation-duration: 1.9s; }
 
         .container {
+            max-width: 1200px;
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 30px 20px;
+            padding: 2rem;
             position: relative;
-            z-index: 1;
-            background: none;
-            border-radius: 0;
-            overflow: visible;
-        }
-
-        .container::before {
-            display: none;
-        }
-
-        .tachometer {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin: 0 auto 30px;
-            position: relative;
-            background: radial-gradient(circle at center, #333 0%, #000 90%);
-            border: 3px solid var(--accent-color);
-            box-shadow: 0 0 20px var(--accent-color);
+            z-index: 2;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
         }
 
-        .needle {
-            position: absolute;
-            width: 3px;
-            height: 30px;
-            background-color: var(--accent-color);
-            bottom: 40px;
-            transform-origin: bottom center;
-            transform: rotate(135deg);
-            animation: needleMove 2s ease-in-out infinite alternate;
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 300px);
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
         }
 
-        @keyframes needleMove {
-            0% { transform: rotate(135deg); }
-            100% { transform: rotate(405deg); }
-        }
-
-        .location-grid {
+        .service-card, .info-box {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 0 20px rgba(0, 168, 255, 0.3);
+            border: 2px solid var(--primary-color);
+            backdrop-filter: blur(5px);
+            width: 300px;
+            height: 200px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            padding: 0;
-            position: relative;
-        }
-
-        .location-card {
-            background-color: rgba(0, 0, 0, 0.6);
-            border-radius: 6px;
-            padding: 20px 15px;
-            text-align: center;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            transform: skewX(-5deg);
-            border-left: 5px solid var(--primary-color);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
         }
 
-        .location-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 204, 0, 0.2), transparent);
-            z-index: 1;
-            transition: left 0.7s ease;
-        }
-        
-        .location-card:hover::before {
-            left: 100%;
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(156, 136, 255, 0.5);
+            border-color: var(--secondary-color);
         }
 
-        .location-card:nth-child(2) { border-left-color: var(--secondary-color); }
-        .location-card:nth-child(3) { border-left-color: var(--accent-color); }
-        .location-card:nth-child(4) { border-left-color: var(--secondary-color); }
-        .location-card:nth-child(5) { border-left-color: var(--accent-color); }
-
-        .location-card:hover {
-            transform: skewX(-5deg) translateY(-5px) scale(1.03);
-            box-shadow: 0 15px 30px rgba(255, 0, 102, 0.4);
+        .service-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--primary-color);
+            animation: neonGlow 2s infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .location-card a {
-            text-decoration: none;
+        .service-title {
             color: var(--text-color);
-            font-weight: 400;
-            font-size: 1.2em;
-            display: block;
-            transition: all 0.2s ease;
-            position: relative;
-            z-index: 2;
-            transform: skewX(5deg);
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
-        }
-        
-        .location-card:hover a {
-            color: var(--accent-color);
-            animation: nitroGlow 1.5s infinite;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--primary-color);
+            text-align: center;
+            width: 100%;
         }
 
-        @media (max-width: 480px) {
-            .container {
-                width: 90%;
-                padding: 20px 10px;
-            }
+        .info-box {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin: 0;
+            justify-items: center;
+        }
 
-            .location-card {
-                padding: 15px 10px;
-            }
+        .info-item {
+            text-align: center;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 40px;
+            width: 100%;
+        }
 
-            .location-card a {
-                font-size: 1.1em;
+        .temperature-row {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            gap: 2rem;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            font-weight: 500;
+            text-shadow: 0 0 10px var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        @media (max-width: 1024px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 300px);
+            }
+        }
+
+        @media (max-width: 680px) {
+            .card-grid {
+                grid-template-columns: 300px;
             }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        function openInNewWindow(url) {
+            window.open(url, '_blank');
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const dateElement = document.getElementById('date');
+            const timeElement = document.getElementById('time');
+            
+            // 格式化日期
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = now.toLocaleDateString('zh-TW', options);
+            
+            // 格式化時間 (24小時制)
+            timeElement.textContent = now.toLocaleTimeString('zh-TW', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+        }
+
+        // 每分鐘更新一次時間
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // 初始顯示
+    </script>
 </head>
 <body>
-    <div class="speed-lines">
-        <div class="speed-line"></div>
-        <div class="speed-line"></div>
-        <div class="speed-line"></div>
-        <div class="speed-line"></div>
-        <div class="speed-line"></div>
-        <div class="speed-line"></div>
-    </div>
-    
     <div class="container">
-        <div class="tachometer">
-            <div class="needle"></div>
-        </div>
-        <div class="location-grid">
-            <div class="location-card">
-                <a href="https://jaws17935.github.io/1978Computer/" target="_blank">損益計算機</a>
+        <div class="card-grid">
+            <div class="info-box">
+                <div class="info-item">
+                    <div class="info-value" id="date"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="time"></div>
+                </div>
+                <div class="info-item">
+                    <div class="temperature-row">
+                        <div class="info-value">☀️ 25°C</div>
+                        <div class="info-value">🌡️ 27°C</div>
+                    </div>
+                </div>
             </div>
-            <div class="location-card">
-                <a href="https://jaws17935.github.io/1978CNY/" target="_blank">大草原計算機</a>
+            <div class="service-card" onclick="openInNewWindow('https://jaws17935.github.io/1978Computer/')">
+                <div class="service-icon">💰</div>
+                <h3 class="service-title">損益計算機</h3>
             </div>
-            <div class="location-card">
-                <a href="https://jaws17935.github.io/1978Oder/" target="_blank">外送裝備訂購單</a>
+            <div class="service-card" onclick="openInNewWindow('https://jaws17935.github.io/1978CNY/')">
+                <div class="service-icon">📈</div>
+                <h3 class="service-title">大草原計算機</h3>
             </div>
-            <div class="location-card">
-                <a href="https://jaws17935.github.io/1978BlankQuote/" target="_blank">商品銷售報價單</a>
+            <div class="service-card" onclick="openInNewWindow('https://jaws17935.github.io/1978Oder/')">
+                <div class="service-icon">📝</div>
+                <h3 class="service-title">外送裝備訂購單</h3>
             </div>
-            <div class="location-card">
-                <a href="https://jaws17935.github.io/1978Quotation/" target="_blank">9StarMax報價單</a>
+            <div class="service-card" onclick="openInNewWindow('https://jaws17935.github.io/1978BlankQuote/')">
+                <div class="service-icon">📋</div>
+                <h3 class="service-title">商品銷售報價單</h3>
+            </div>
+            <div class="service-card" onclick="openInNewWindow('https://jaws17935.github.io/1978Quotation/')">
+                <div class="service-icon">📑</div>
+                <h3 class="service-title">9StarMax<br>報價單</h3>
             </div>
         </div>
     </div>
