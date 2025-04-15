@@ -71,6 +71,7 @@
             justify-content: center;
             align-items: center;
             margin: 0 auto;
+            width: 100%;
         }
 
         .service-card, .info-box {
@@ -157,13 +158,31 @@
 
         @media (max-width: 1024px) {
             .card-grid {
-                flex-direction: column;
+                grid-template-columns: repeat(2, minmax(250px, 300px));
+                gap: 1.5rem;
             }
         }
 
         @media (max-width: 680px) {
             .card-grid {
-                grid-template-columns: 300px;
+                grid-template-columns: repeat(2, minmax(150px, 1fr));
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+            
+            .service-card, .info-box {
+                width: 100%;
+                height: auto;
+                min-height: 150px;
+                padding: 1.5rem;
+            }
+            
+            .service-title {
+                font-size: 1.2rem;
+            }
+            
+            .service-icon {
+                font-size: 2rem;
             }
         }
     </style>
