@@ -119,11 +119,13 @@
         }
 
         .info-box {
-            display: grid;
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 1rem;
             margin: 0;
-            justify-items: center;
+            justify-content: center;
+            align-items: center;
+            cursor: default;
         }
 
         .info-item {
@@ -164,10 +166,15 @@
         }
 
         @media (max-width: 680px) {
+            .container {
+                padding: 1rem;
+            }
+
             .card-grid {
-                grid-template-columns: repeat(2, minmax(150px, 1fr));
+                grid-template-columns: 1fr;
                 gap: 1rem;
                 padding: 0 1rem;
+                max-width: 400px;
             }
             
             .service-card, .info-box {
@@ -183,6 +190,14 @@
             
             .service-icon {
                 font-size: 2rem;
+            }
+
+            .info-value {
+                font-size: 1.1rem;
+            }
+
+            .temperature-row {
+                gap: 1rem;
             }
         }
     </style>
