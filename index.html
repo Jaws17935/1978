@@ -179,17 +179,23 @@
             
             .service-card, .info-box {
                 width: 100%;
-                height: auto;
-                min-height: 120px;
+                height: 140px;
+                min-height: 140px;
                 padding: 0.8rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
             }
             
             .service-title {
                 font-size: 1.1rem;
+                margin-top: 0.5rem;
             }
             
             .service-icon {
                 font-size: 1.8rem;
+                margin-bottom: 0.5rem;
             }
 
             .info-value {
@@ -199,10 +205,12 @@
             .info-item {
                 padding: 0.3rem;
                 min-height: 30px;
+                width: 100%;
             }
 
             .temperature-row {
                 gap: 0.5rem;
+                width: 100%;
             }
         }
     </style>
