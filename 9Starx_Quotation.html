@@ -1280,12 +1280,18 @@ function setupPrintHandlers() {
 
 function N(e,t='info'){if(!e)return null;const r=document.querySelector('.notification-overlay');r&&(r.classList.remove('show'),setTimeout(()=>r.remove(),300));const n=document.createElement('div');n.className=`notification-overlay notification-${t}`;let i='',s='通知';t==='warning'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',s='注意'):t==='error'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',s='錯誤'):t==='success'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',s='成功'):i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',n.innerHTML=`<div class="notification-modal"><div class="notification-header"><div class="notification-title"><span class="notification-icon">${i}</span><span>${s}</span></div></div><div class="notification-content">${e}</div><div class="notification-footer"><button class="notification-btn">我知道了</button></div></div>`,document.body.appendChild(n),n.offsetHeight,n.classList.add('show');const c=n.querySelector('.notification-btn');c&&(c.addEventListener('click',()=>{n.classList.remove('show'),setTimeout(()=>n.remove(),300)}),setTimeout(()=>c.focus(),100));const l=e=>{(e.key==='Escape'||e.key==='Enter')&&(n.classList.remove('show'),setTimeout(()=>{n.remove(),document.removeEventListener('keydown',l)},300))};return document.addEventListener('keydown',l),n}
 
-function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().slice(-2),i=String(e.getMonth()+1).padStart(2,"0"),s=String(e.getDate()).padStart(2,"0"),c=Math.random().toString(36).substring(2,4).toUpperCase();return`${t}${r}-${n}${i}${s}${c}`}catch{return`${t}${Math.random().toString(36).substring(2,8).toUpperCase()}`}}function E(){try{const e=d('quoteDate'),t=e?.value||T.toISOString().split("T")[0],r=new Date(t),n=d('quoteNumber');n&&(n.textContent=y(r))}catch{}}function I(){
+function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().slice(-2),i=String(e.getMonth()+1).padStart(2,"0"),s=String(e.getDate()).padStart(2,"0"),c=Math.random().toString(36).substring(2,4).toUpperCase();return`${t}${r}-${n}${i}${s}${c}`}catch{return`${t}${Math.random().toString(36).substring(2,8).toUpperCase()}`}}function E(){try{const e=d('quoteDate');let t;if(e?.value){t=e.value}else{const today=new Date();t=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0')}const r=new Date(t),n=d('quoteNumber');n&&(n.textContent=y(r))}catch{}}function I(){
   try{
+    const today = new Date();
+    const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const todayString = todayLocal.getFullYear() + '-' + 
+                      String(todayLocal.getMonth() + 1).padStart(2, '0') + '-' + 
+                      String(todayLocal.getDate()).padStart(2, '0');
+    
     const e=d('quoteDate'),
           t=d('quoteDateText');
     if(e&&t){
-      e.value=T.toISOString().split("T")[0];
+      e.value=todayString;
       t.textContent=F.formatDate(e.value);
       
       const r=new Date(e.value),
@@ -1294,7 +1300,10 @@ function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().sl
       if(n&&i){
         const s=new Date(r);
         s.setDate(r.getDate()+C.DEFAULT_VALID_DAYS);
-        n.value=s.toISOString().split("T")[0];
+        const validString = s.getFullYear() + '-' + 
+                           String(s.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(s.getDate()).padStart(2, '0');
+        n.value=validString;
         i.textContent=F.formatDate(n.value);
       }
       
@@ -1303,7 +1312,10 @@ function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().sl
       if(o&&l){
         const s=new Date(r);
         s.setDate(r.getDate()+C.DEFAULT_DELIVERY_DAYS);
-        o.value=s.toISOString().split("T")[0];
+        const deliveryString = s.getFullYear() + '-' + 
+                              String(s.getMonth() + 1).padStart(2, '0') + '-' + 
+                              String(s.getDate()).padStart(2, '0');
+        o.value=deliveryString;
         l.textContent=F.formatDate(o.value);
       }
     }
@@ -1437,7 +1449,10 @@ function q(e){
         }
         
         // 更新日期值
-        e.value = newDate.toISOString().split('T')[0];
+        const newDateString = newDate.getFullYear() + '-' + 
+                             String(newDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                             String(newDate.getDate()).padStart(2, '0');
+        e.value = newDateString;
         t.textContent = F.formatDate(e.value);
         return;
       }
@@ -1453,14 +1468,20 @@ function q(e){
       if (validUntil && validUntilText) {
         const newValidDate = new Date(quoteDateValue);
         newValidDate.setDate(quoteDateValue.getDate() + C.DEFAULT_VALID_DAYS);
-        validUntil.value = newValidDate.toISOString().split('T')[0];
+        const validDateString = newValidDate.getFullYear() + '-' + 
+                               String(newValidDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                               String(newValidDate.getDate()).padStart(2, '0');
+        validUntil.value = validDateString;
         validUntilText.textContent = F.formatDate(validUntil.value);
       }
 
       if (deliveryDate && deliveryDateText) {
         const newDeliveryDate = new Date(quoteDateValue);
         newDeliveryDate.setDate(quoteDateValue.getDate() + C.DEFAULT_DELIVERY_DAYS);
-        deliveryDate.value = newDeliveryDate.toISOString().split('T')[0];
+        const deliveryDateString = newDeliveryDate.getFullYear() + '-' + 
+                                  String(newDeliveryDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                                  String(newDeliveryDate.getDate()).padStart(2, '0');
+        deliveryDate.value = deliveryDateString;
         deliveryDateText.textContent = F.formatDate(deliveryDate.value);
       }
     }
