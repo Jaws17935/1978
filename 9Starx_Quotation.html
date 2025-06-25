@@ -1569,10 +1569,11 @@ const AuthManager = {
     // 顯示彈窗
     modal.classList.add('show');
     
-    // 按鈕點擊事件
-    const handleClick = () => {
+    // 清理函數
+    const closeModal = () => {
       modal.classList.remove('show');
       modalBtn.removeEventListener('click', handleClick);
+      document.removeEventListener('keydown', handleKeydown);
       
       // 執行回調
       if (callback) {
@@ -1580,21 +1581,24 @@ const AuthManager = {
       }
     };
     
+    // 按鈕點擊事件
+    const handleClick = closeModal;
     modalBtn.addEventListener('click', handleClick);
     
     // ESC鍵關閉
     const handleKeydown = (e) => {
       if (e.key === 'Escape') {
-        modal.classList.remove('show');
-        document.removeEventListener('keydown', handleKeydown);
-        
-        if (callback) {
-          setTimeout(callback, 300);
-        }
+        closeModal();
       }
     };
-    
     document.addEventListener('keydown', handleKeydown);
+    
+    // 15秒後自動關閉
+    setTimeout(() => {
+      if (modal.classList.contains('show')) {
+        closeModal();
+      }
+    }, 15000);
     
     // 自動聚焦按鈕
     setTimeout(() => {
