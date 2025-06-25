@@ -1670,19 +1670,19 @@ const AuthManager = {
     // 隱藏登錄介面，顯示主要內容
     loginOverlay.classList.add('hidden');
     
-          setTimeout(() => {
-        mainContent.classList.remove('hidden');
-        mainContent.classList.add('fade-in');
-        
-        // 初始化報價單功能
-        if (typeof initQuotationSystem === 'function') {
-          initQuotationSystem();
-        }
-        // 執行主要初始化函數
-        if (typeof K === 'function') {
-          K();
-        }
-      }, 300);
+    setTimeout(() => {
+      mainContent.classList.remove('hidden');
+      mainContent.classList.add('fade-in');
+      
+      // 初始化報價單功能
+      if (typeof initQuotationSystem === 'function') {
+        initQuotationSystem();
+      }
+      // 執行主要初始化函數
+      if (typeof K === 'function') {
+        K();
+      }
+    }, 300);
   },
   
 
@@ -1729,18 +1729,93 @@ const AuthManager = {
     const mainContent = document.getElementById('mainContent');
     
     if (loginOverlay) loginOverlay.classList.add('hidden');
-          if (mainContent) {
-        mainContent.classList.remove('hidden');
-        
-        // 初始化報價單功能
-        if (typeof initQuotationSystem === 'function') {
-          initQuotationSystem();
-        }
-        // 執行主要初始化函數
-        if (typeof K === 'function') {
-          K();
-        }
+    if (mainContent) {
+      mainContent.classList.remove('hidden');
+      
+      // 初始化報價單功能
+      if (typeof initQuotationSystem === 'function') {
+        initQuotationSystem();
       }
+      // 執行主要初始化函數
+      if (typeof K === 'function') {
+        K();
+      }
+      
+      // 額外確保日期正確顯示
+      setTimeout(() => {
+        const quoteDateText = document.getElementById('quoteDateText');
+        const quoteValidText = document.getElementById('quoteValidText');
+        const deliveryDateText = document.getElementById('deliveryDateText');
+        
+        if (quoteDateText && !quoteDateText.textContent.trim()) {
+          const today = new Date();
+          const todayString = today.getFullYear() + '-' + 
+                            String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(today.getDate()).padStart(2, '0');
+          
+          const quoteDate = document.getElementById('quoteDate');
+          if (quoteDate) {
+            quoteDate.value = todayString;
+            quoteDateText.textContent = new Date(todayString).toLocaleDateString('zh-TW', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          }
+        }
+        
+        if (quoteValidText && !quoteValidText.textContent.trim()) {
+          const today = new Date();
+          const validDate = new Date(today);
+          validDate.setDate(today.getDate() + 7);
+          const validString = validDate.getFullYear() + '-' + 
+                            String(validDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(validDate.getDate()).padStart(2, '0');
+          
+          const quoteValidUntil = document.getElementById('quoteValidUntil');
+          if (quoteValidUntil) {
+            quoteValidUntil.value = validString;
+            quoteValidText.textContent = new Date(validString).toLocaleDateString('zh-TW', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          }
+        }
+        
+        if (deliveryDateText && !deliveryDateText.textContent.trim()) {
+          const today = new Date();
+          const deliveryDate = new Date(today);
+          deliveryDate.setDate(today.getDate() + 28);
+          const deliveryString = deliveryDate.getFullYear() + '-' + 
+                               String(deliveryDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                               String(deliveryDate.getDate()).padStart(2, '0');
+          
+          const deliveryDateInput = document.getElementById('deliveryDate');
+          if (deliveryDateInput) {
+            deliveryDateInput.value = deliveryString;
+            deliveryDateText.textContent = new Date(deliveryString).toLocaleDateString('zh-TW', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          }
+        }
+        
+        // 確保報價單號也正確顯示
+        const quoteNumber = document.getElementById('quoteNumber');
+        if (quoteNumber && !quoteNumber.textContent.trim()) {
+          const today = new Date();
+          const months = ["JA","FE","MR","AP","MY","JN","JL","AU","SE","OC","NO","DE"];
+          const month = months[today.getMonth()];
+          const year = today.getFullYear().toString().slice(-2);
+          const monthPad = String(today.getMonth() + 1).padStart(2, "0");
+          const dayPad = String(today.getDate()).padStart(2, "0");
+          const random = Math.random().toString(36).substring(2, 4).toUpperCase();
+          quoteNumber.textContent = `${month}-${year}${monthPad}${dayPad}${random}`;
+        }
+      }, 100);
+    }
   },
   
   logout() {
