@@ -1039,6 +1039,7 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
   transition: all 0.2s ease;
   background-color: var(--bg-light);
   box-sizing: border-box;
+  text-align: center;
 }
 
 .login-field input:focus {
@@ -1159,15 +1160,14 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
         <input 
           type="password" 
           id="loginPassword" 
-          placeholder="請輸入密碼" 
+          placeholder="登陸報價" 
           autocomplete="current-password"
           maxlength="20"
           required
+          style="text-align: center;"
         >
       </div>
-      <button type="submit" class="login-btn" id="loginBtn">
-        🚀 進入系統
-      </button>
+
       <div class="login-error" id="loginError">
         ❌ 密碼錯誤，請重新輸入
       </div>
@@ -1372,6 +1372,8 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 const AuthManager = {
   PASSWORD: '085978',
   SESSION_KEY: 'quotation_authenticated',
+  ERROR_COUNT_KEY: 'login_error_count',
+  LAST_ERROR_TIME_KEY: 'last_error_time',
   
   init() {
     this.setupLoginEvents();
@@ -1381,27 +1383,32 @@ const AuthManager = {
   setupLoginEvents() {
     const loginForm = document.getElementById('loginForm');
     const passwordInput = document.getElementById('loginPassword');
-    const loginBtn = document.getElementById('loginBtn');
     const loginError = document.getElementById('loginError');
     
-    if (!loginForm) return;
+    if (!loginForm || !passwordInput) return;
     
-    // 表單提交事件
+    // 表單提交事件（防止默認提交）
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      this.handleLogin();
     });
     
-    // 密碼輸入事件
+    // 密碼輸入事件 - 直接識別登錄
     passwordInput.addEventListener('input', () => {
       this.clearError();
+      const enteredPassword = passwordInput.value.trim();
+      
+      // 當輸入完整密碼時自動驗證
+      if (enteredPassword.length >= this.PASSWORD.length) {
+        this.handleDirectLogin(enteredPassword);
+      }
     });
     
     // Enter鍵快捷登錄
     passwordInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        this.handleLogin();
+        const enteredPassword = passwordInput.value.trim();
+        this.handleDirectLogin(enteredPassword);
       }
     });
     
@@ -1411,27 +1418,88 @@ const AuthManager = {
     }, 300);
   },
   
-  handleLogin() {
+  handleDirectLogin(enteredPassword) {
     const passwordInput = document.getElementById('loginPassword');
-    const loginBtn = document.getElementById('loginBtn');
-    const enteredPassword = passwordInput.value.trim();
     
-    // 禁用按鈕防止重複提交
-    loginBtn.disabled = true;
-    loginBtn.textContent = '🔐 驗證中...';
+    // 防止重複處理
+    if (passwordInput.dataset.processing === 'true') return;
+    passwordInput.dataset.processing = 'true';
     
-    // 模擬驗證延遲（增強安全感）
+    // 驗證密碼
+    if (enteredPassword === this.PASSWORD) {
+      this.loginSuccess();
+    } else if (enteredPassword.length >= this.PASSWORD.length) {
+      this.handleLoginError();
+    }
+    
+    // 重置處理狀態
     setTimeout(() => {
-      if (enteredPassword === this.PASSWORD) {
-        this.loginSuccess();
+      passwordInput.dataset.processing = 'false';
+    }, 100);
+  },
+  
+  handleLoginError() {
+    const passwordInput = document.getElementById('loginPassword');
+    const loginError = document.getElementById('loginError');
+    
+    // 獲取錯誤次數
+    let errorCount = parseInt(sessionStorage.getItem(this.ERROR_COUNT_KEY) || '0');
+    errorCount++;
+    sessionStorage.setItem(this.ERROR_COUNT_KEY, errorCount.toString());
+    sessionStorage.setItem(this.LAST_ERROR_TIME_KEY, Date.now().toString());
+    
+    if (errorCount === 1) {
+      // 第一次錯誤：等候5秒
+      this.showErrorWithDelay();
+    } else if (errorCount >= 2) {
+      // 第二次及以上錯誤：導向LINE聯絡
+      this.redirectToLine();
+    }
+  },
+  
+  showErrorWithDelay() {
+    const passwordInput = document.getElementById('loginPassword');
+    const loginError = document.getElementById('loginError');
+    
+    // 顯示錯誤並禁用輸入
+    passwordInput.classList.add('error');
+    passwordInput.disabled = true;
+    passwordInput.value = '';
+    
+    loginError.textContent = '❌ 密碼錯誤，請等候 5 秒後重試';
+    loginError.classList.add('show');
+    
+    // 倒數計時
+    let countdown = 5;
+    const timer = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        loginError.textContent = `❌ 密碼錯誤，請等候 ${countdown} 秒後重試`;
       } else {
-        this.loginError();
+        clearInterval(timer);
+        this.clearError();
+        passwordInput.disabled = false;
+        passwordInput.focus();
       }
-      
-      // 恢復按鈕狀態
-      loginBtn.disabled = false;
-      loginBtn.textContent = '🚀 進入系統';
-    }, 800);
+    }, 1000);
+  },
+  
+  redirectToLine() {
+    const passwordInput = document.getElementById('loginPassword');
+    const loginError = document.getElementById('loginError');
+    
+    // 顯示LINE聯絡訊息
+    passwordInput.classList.add('error');
+    passwordInput.disabled = true;
+    passwordInput.value = '';
+    
+    loginError.innerHTML = '🔒 多次錯誤，請聯絡客服<br><a href="https://manager.line.biz/account/@700ctnlq" target="_blank" style="color: #00C300; text-decoration: underline;">點擊前往 LINE 客服</a>';
+    loginError.classList.add('show');
+    
+    // 3秒後自動導向
+    setTimeout(() => {
+      window.open('https://manager.line.biz/account/@700ctnlq', '_blank');
+    }, 3000);
   },
   
   loginSuccess() {
@@ -1460,23 +1528,7 @@ const AuthManager = {
       }, 300);
   },
   
-  loginError() {
-    const passwordInput = document.getElementById('loginPassword');
-    const loginError = document.getElementById('loginError');
-    
-    // 顯示錯誤訊息
-    passwordInput.classList.add('error');
-    loginError.classList.add('show');
-    
-    // 清空密碼
-    passwordInput.value = '';
-    passwordInput.focus();
-    
-    // 3秒後自動隱藏錯誤訊息
-    setTimeout(() => {
-      this.clearError();
-    }, 3000);
-  },
+
   
   clearError() {
     const passwordInput = document.getElementById('loginPassword');
