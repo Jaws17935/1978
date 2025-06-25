@@ -1,0 +1,33 @@
+# 網站SEO屏蔽設定
+# 禁止所有搜尋引擎抓取敏感頁面
+
+User-agent: *
+Disallow: /9Starx_Quotation.html
+Disallow: /Blank_Quotation.html
+Disallow: /*9Star*
+Disallow: /*quotation*
+Disallow: /*Quotation*
+
+# 禁止特定搜尋引擎
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: BaiduSpider
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /
+
+# 禁止圖片索引
+User-agent: Googlebot-Image
+Disallow: /
+
+# 禁止快取
+User-agent: ia_archiver
+Disallow: /
+
+# Sitemap位置（如果需要）
+# Sitemap: https://yourdomain.com/sitemap.xml 

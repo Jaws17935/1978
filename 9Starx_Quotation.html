@@ -3,7 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>9StarMax報價單</title>
+<!-- SEO 屏蔽設定 - 防止搜尋引擎索引 -->
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="author" content="">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="expires" content="0">
+<!-- 防止頁面被嵌入框架 -->
+<meta http-equiv="X-Frame-Options" content="DENY">
+<title>商品報價單系統</title>
 <style>
 /* CSS 變數定義 */
 :root {
@@ -599,6 +611,9 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
   
   .company-logo img {
     max-height: 40px !important;
+    object-fit: contain !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   
   .default-logo-text {
@@ -954,313 +969,15 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
     box-shadow: none !important;
   }
 }
-
-/* 登錄介面樣式 */
-.login-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  opacity: 1;
-  visibility: visible;
-  transition: all 0.3s ease;
-}
-
-.login-overlay.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.login-container {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 40px;
-  max-width: 420px;
-  width: 90%;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  transform: translateY(0);
-  transition: all 0.3s ease;
-}
-
-.login-overlay.hidden .login-container {
-  transform: translateY(-30px);
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.login-header h2 {
-  color: var(--primary);
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.login-header p {
-  color: var(--text-light);
-  font-size: 16px;
-  margin: 0;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.login-field {
-  position: relative;
-}
-
-.login-field label {
-  display: block;
-  color: var(--text);
-  font-weight: 600;
-  margin-bottom: 8px;
-  font-size: 14px;
-}
-
-.login-field input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.2s ease;
-  background-color: var(--bg-light);
-  box-sizing: border-box;
-  text-align: center;
-}
-
-.login-field input::-ms-reveal,
-.login-field input::-ms-clear {
-  display: none;
-}
-
-.login-field input::-webkit-credentials-auto-fill-button,
-.login-field input::-webkit-caps-lock-indicator {
-  display: none;
-}
-
-.login-field input[type="password"] {
-  font-family: monospace;
-  letter-spacing: 0;
-  -webkit-text-security: disc;
-}
-
-.login-field input:focus {
-  outline: none;
-  border-color: var(--accent);
-  background-color: #fff;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.login-field input.error {
-  border-color: var(--danger);
-  background-color: #fef2f2;
-}
-
-.login-field input.error:focus {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.login-btn {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-  color: white;
-  border: none;
-  padding: 14px 24px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 10px;
-}
-
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-}
-
-.login-btn:active {
-  transform: translateY(0);
-}
-
-.login-btn:disabled {
-  background: var(--text-light);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.login-error {
-  color: var(--danger);
-  font-size: 14px;
-  text-align: center;
-  margin-top: 10px;
-  padding: 8px;
-  background-color: #fef2f2;
-  border-radius: 6px;
-  border: 1px solid #fecaca;
-  display: none;
-}
-
-.login-error.show {
-  display: block;
-  animation: shake 0.5s ease-in-out;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
-}
-
-.login-footer {
-  text-align: center;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-}
-
-.login-footer p {
-  color: var(--text-light);
-  font-size: 12px;
-  margin: 0;
-}
-
-/* 主內容隱藏狀態 */
-.main-content {
-  transition: opacity 0.3s ease;
-}
-
-.main-content.hidden {
-  display: none;
-}
-
-/* 登錄成功動畫 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.main-content.fade-in {
-  animation: fadeInUp 0.5s ease-out;
-}
-
-/* 自定義錯誤彈窗 */
-.error-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 20000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.error-modal-overlay.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-.error-modal {
-  background: transparent;
-  backdrop-filter: blur(20px);
-  border-radius: 16px;
-  padding: 30px;
-  max-width: 280px;
-  width: 80%;
-  box-shadow: 
-    0 20px 40px rgba(220, 38, 38, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 0 0 1px rgba(220, 38, 38, 0.3);
-  border: 1px solid rgba(220, 38, 38, 0.4);
-  transform: translateY(-20px) scale(0.9);
-  transition: all 0.3s ease;
-  text-align: center;
-}
-
-.error-modal-overlay.show .error-modal {
-  transform: translateY(0) scale(1);
-}
-
-.error-modal-text {
-  color: #dc2626;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.4;
-  margin: 0;
-  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
-}
 </style>
 </head>
 <body>
-<!-- 登錄介面 -->
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-container">
-    <div class="login-header">
-    </div>
-    <form class="login-form" id="loginForm">
-      <div class="login-field">
-        <input 
-          type="password" 
-          id="loginPassword" 
-          placeholder="登陸報價" 
-          autocomplete="current-password"
-          maxlength="20"
-          required
-          style="text-align: center;"
-        >
-      </div>
-
-      <div class="login-error" id="loginError">
-        ❌ 密碼錯誤，請重新輸入
-      </div>
-    </form>
-    <div class="login-footer">
-      <p>© 2025 玖星吉國際貿易</p>
-    </div>
-  </div>
-</div>
-
-<!-- 自定義錯誤彈窗 -->
-<div class="error-modal-overlay" id="errorModal">
-  <div class="error-modal">
-    <div class="error-modal-text" id="errorModalText">密碼錯誤</div>
-  </div>
-</div>
-
-<!-- 主要內容 -->
-<div class="main-content hidden" id="mainContent">
 <div class="container">
 <div class="header section">
 <div class="company-info">
-<div class="company-logo" id="logo-container"><span class="default-logo-text">玖星吉國際貿易</span></div>
+<div class="company-logo" id="logo-container"><img src="9StarMax.png" alt="玖星吉國際貿易" style="max-height: 50px; object-fit: contain;"></div>
 <input type="file" id="upload-logo" class="upload-logo" accept="image/*">
-<p>統編：89061654</p><p>電話：02-7709-4666</p><p>信箱：Service@9Starmax.com</p>
+<p>統編：89061654</p><p>電話：02-7709-4666</p><p>信箱：<span data-sensitive="email">Service@9Starmax.com</span></p>
 </div>
 <div class="document-title">
 <h2>商品報價單</h2>
@@ -1419,7 +1136,7 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 <div class="info-group">
 <p><span class="info-label">姓名：</span> <span contenteditable="true" class="editable-field"></span></p>
 <p><span class="info-label">電話：</span> <span contenteditable="true" data-type="phone" class="editable-field">02-7709-4666</span></p>
-<p><span class="info-label">信箱：</span> <span contenteditable="true" data-type="email" class="editable-field">Service@9Starmax.com</span></p>
+<p><span class="info-label">信箱：</span> <span contenteditable="true" data-type="email" data-sensitive="email" class="editable-field">Service@9Starmax.com</span></p>
 </div>
 </div>
 <div class="client-confirmation" id="client-confirmation">
@@ -1438,440 +1155,10 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 <button id="printPdfBtn">產出PDF</button>
 </div>
 </div>
-</div>
-<!-- 結束主要內容 -->
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-// 登錄系統管理
-const AuthManager = {
-  PASSWORD: '085978',
-  SESSION_KEY: 'quotation_authenticated',
-  ERROR_COUNT_KEY: 'login_error_count',
-  LAST_ERROR_TIME_KEY: 'last_error_time',
-  
-  init() {
-    this.setupLoginEvents();
-    this.checkAuthStatus();
-  },
-  
-  setupLoginEvents() {
-    const loginForm = document.getElementById('loginForm');
-    const passwordInput = document.getElementById('loginPassword');
-    const loginError = document.getElementById('loginError');
-    
-    if (!loginForm || !passwordInput) return;
-    
-    // 表單提交事件（防止默認提交）
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-    });
-    
-    // 密碼輸入事件 - 直接識別登錄
-    passwordInput.addEventListener('input', () => {
-      this.clearError();
-      const enteredPassword = passwordInput.actualValue || passwordInput.dataset.actualPassword || '';
-      
-      // 當輸入完整密碼時自動驗證
-      if (enteredPassword.length >= this.PASSWORD.length) {
-        this.handleDirectLogin(enteredPassword);
-      }
-    });
-    
-    // Enter鍵快捷登錄
-    passwordInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const enteredPassword = passwordInput.actualValue || passwordInput.dataset.actualPassword || '';
-        this.handleDirectLogin(enteredPassword);
-      }
-    });
-    
-    // 自動聚焦密碼輸入框
-    setTimeout(() => {
-      passwordInput.focus();
-    }, 300);
-    
-    // 設置固定字符顯示
-    this.setupFixedPasswordDisplay(passwordInput);
-  },
-  
-  setupFixedPasswordDisplay(passwordInput) {
-    if (!passwordInput) return;
-    
-    let actualPassword = '';
-    
-    // 處理按鍵輸入
-    passwordInput.addEventListener('keydown', (e) => {
-      // 允許特殊按鍵
-      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight'];
-      
-      if (allowedKeys.includes(e.key)) {
-        if (e.key === 'Backspace' || e.key === 'Delete') {
-          // 刪除最後一個字符
-          if (actualPassword.length > 0) {
-            actualPassword = actualPassword.substring(0, actualPassword.length - 1);
-            passwordInput.dataset.actualPassword = actualPassword;
-            
-            // 更新顯示
-            if (actualPassword.length > 0) {
-              passwordInput.value = '●';
-            } else {
-              passwordInput.value = '';
-            }
-          }
-        }
-        return; // 允許這些按鍵的默認行為
-      }
-      
-      // 阻止所有其他按鍵的默認行為
-      e.preventDefault();
-      
-      // 如果是可打印字符，添加到實際密碼
-      if (e.key.length === 1) {
-        actualPassword += e.key;
-        passwordInput.dataset.actualPassword = actualPassword;
-        
-        // 始終只顯示一個圓點
-        passwordInput.value = '●';
-        
-        // 觸發自動識別檢查
-        this.checkAutoLogin(actualPassword);
-      }
-    });
-    
-    // 防止input事件改變顯示
-    passwordInput.addEventListener('input', (e) => {
-      // 如果有實際密碼，始終顯示一個圓點
-      if (actualPassword.length > 0) {
-        e.target.value = '●';
-      } else {
-        e.target.value = '';
-      }
-    });
-    
-    // 防止粘貼操作
-    passwordInput.addEventListener('paste', (e) => {
-      e.preventDefault();
-      const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-      if (pastedText) {
-        actualPassword += pastedText;
-        passwordInput.dataset.actualPassword = actualPassword;
-        passwordInput.value = '●';
-        
-        // 觸發自動識別檢查
-        this.checkAutoLogin(actualPassword);
-      }
-    });
-    
-    // 重寫 value getter
-    Object.defineProperty(passwordInput, 'actualValue', {
-      get: function() {
-        return this.dataset.actualPassword || '';
-      }
-    });
-  },
-  
-  checkAutoLogin(actualPassword) {
-    // 當輸入完整密碼時自動驗證
-    if (actualPassword.length >= this.PASSWORD.length) {
-      this.handleDirectLogin(actualPassword);
-    }
-  },
-  
-  handleDirectLogin(enteredPassword) {
-    const passwordInput = document.getElementById('loginPassword');
-    
-    // 防止重複處理
-    if (passwordInput.dataset.processing === 'true') return;
-    passwordInput.dataset.processing = 'true';
-    
-    // 驗證密碼
-    if (enteredPassword === this.PASSWORD) {
-      this.loginSuccess();
-    } else if (enteredPassword.length >= this.PASSWORD.length) {
-      this.handleLoginError();
-    }
-    
-    // 重置處理狀態
-    setTimeout(() => {
-      passwordInput.dataset.processing = 'false';
-    }, 100);
-  },
-  
-  handleLoginError() {
-    const passwordInput = document.getElementById('loginPassword');
-    
-    // 清空密碼
-    passwordInput.value = '';
-    passwordInput.dataset.actualPassword = '';
-    
-    // 顯示錯誤彈窗
-    this.showCustomErrorModal('密碼錯誤', () => {
-      // 3秒後直接跳轉到LINE
-      this.redirectToLine();
-    });
-  },
-  
-
-  
-  showCustomErrorModal(message, callback) {
-    const modal = document.getElementById('errorModal');
-    const modalText = document.getElementById('errorModalText');
-    
-    if (!modal || !modalText) return;
-    
-    // 設置訊息
-    modalText.textContent = message;
-    
-    // 顯示彈窗
-    modal.classList.add('show');
-    
-    // 清理函數
-    const closeModal = () => {
-      modal.classList.remove('show');
-      document.removeEventListener('keydown', handleKeydown);
-      
-      // 執行回調
-      if (callback) {
-        setTimeout(callback, 300);
-      }
-    };
-    
-    // ESC鍵關閉
-    const handleKeydown = (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
-      }
-    };
-    document.addEventListener('keydown', handleKeydown);
-    
-    // 3秒後自動關閉
-    setTimeout(() => {
-      if (modal.classList.contains('show')) {
-        closeModal();
-      }
-    }, 3000);
-  },
-  
-  redirectToLine() {
-    // 直接導向LINE客服
-    window.open('https://manager.line.biz/account/@700ctnlq', '_blank');
-  },
-  
-  loginSuccess() {
-    const loginOverlay = document.getElementById('loginOverlay');
-    const mainContent = document.getElementById('mainContent');
-    
-    // 儲存登錄狀態
-    sessionStorage.setItem(this.SESSION_KEY, 'true');
-    sessionStorage.setItem(this.SESSION_KEY + '_time', Date.now().toString());
-    
-    // 隱藏登錄介面，顯示主要內容
-    loginOverlay.classList.add('hidden');
-    
-    setTimeout(() => {
-      mainContent.classList.remove('hidden');
-      mainContent.classList.add('fade-in');
-      
-      // 初始化報價單功能
-      if (typeof initQuotationSystem === 'function') {
-        initQuotationSystem();
-      }
-      // 執行主要初始化函數
-      if (typeof K === 'function') {
-        K();
-      }
-    }, 300);
-  },
-  
-
-  
-  clearError() {
-    const passwordInput = document.getElementById('loginPassword');
-    const loginError = document.getElementById('loginError');
-    
-    if (passwordInput) passwordInput.classList.remove('error');
-    if (loginError) loginError.classList.remove('show');
-  },
-  
-  checkAuthStatus() {
-    const isAuthenticated = sessionStorage.getItem(this.SESSION_KEY);
-    const authTime = sessionStorage.getItem(this.SESSION_KEY + '_time');
-    const currentTime = Date.now();
-    const maxSessionTime = 8 * 60 * 60 * 1000; // 8小時
-    
-    // 檢查是否已登錄且未過期
-    if (isAuthenticated && authTime && (currentTime - parseInt(authTime)) < maxSessionTime) {
-      // 已登錄且未過期，直接顯示內容
-      this.showMainContent();
-    } else {
-      // 需要登錄或會話已過期
-      this.showLoginForm();
-      // 清除過期的會話
-      if (isAuthenticated) {
-        sessionStorage.removeItem(this.SESSION_KEY);
-        sessionStorage.removeItem(this.SESSION_KEY + '_time');
-      }
-    }
-  },
-  
-  showLoginForm() {
-    const loginOverlay = document.getElementById('loginOverlay');
-    const mainContent = document.getElementById('mainContent');
-    
-    if (loginOverlay) loginOverlay.classList.remove('hidden');
-    if (mainContent) mainContent.classList.add('hidden');
-  },
-  
-  showMainContent() {
-    const loginOverlay = document.getElementById('loginOverlay');
-    const mainContent = document.getElementById('mainContent');
-    
-    if (loginOverlay) loginOverlay.classList.add('hidden');
-    if (mainContent) {
-      mainContent.classList.remove('hidden');
-      
-      // 初始化報價單功能
-      if (typeof initQuotationSystem === 'function') {
-        initQuotationSystem();
-      }
-      // 執行主要初始化函數
-      if (typeof K === 'function') {
-        K();
-      }
-      
-      // 額外確保日期正確顯示
-      setTimeout(() => {
-        const quoteDateText = document.getElementById('quoteDateText');
-        const quoteValidText = document.getElementById('quoteValidText');
-        const deliveryDateText = document.getElementById('deliveryDateText');
-        
-        if (quoteDateText && !quoteDateText.textContent.trim()) {
-          const today = new Date();
-          const todayString = today.getFullYear() + '-' + 
-                            String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                            String(today.getDate()).padStart(2, '0');
-          
-          const quoteDate = document.getElementById('quoteDate');
-          if (quoteDate) {
-            quoteDate.value = todayString;
-            quoteDateText.textContent = new Date(todayString).toLocaleDateString('zh-TW', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            });
-          }
-        }
-        
-        if (quoteValidText && !quoteValidText.textContent.trim()) {
-          const today = new Date();
-          const validDate = new Date(today);
-          validDate.setDate(today.getDate() + 7);
-          const validString = validDate.getFullYear() + '-' + 
-                            String(validDate.getMonth() + 1).padStart(2, '0') + '-' + 
-                            String(validDate.getDate()).padStart(2, '0');
-          
-          const quoteValidUntil = document.getElementById('quoteValidUntil');
-          if (quoteValidUntil) {
-            quoteValidUntil.value = validString;
-            quoteValidText.textContent = new Date(validString).toLocaleDateString('zh-TW', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            });
-          }
-        }
-        
-        if (deliveryDateText && !deliveryDateText.textContent.trim()) {
-          const today = new Date();
-          const deliveryDate = new Date(today);
-          deliveryDate.setDate(today.getDate() + 28);
-          const deliveryString = deliveryDate.getFullYear() + '-' + 
-                               String(deliveryDate.getMonth() + 1).padStart(2, '0') + '-' + 
-                               String(deliveryDate.getDate()).padStart(2, '0');
-          
-          const deliveryDateInput = document.getElementById('deliveryDate');
-          if (deliveryDateInput) {
-            deliveryDateInput.value = deliveryString;
-            deliveryDateText.textContent = new Date(deliveryString).toLocaleDateString('zh-TW', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            });
-          }
-        }
-        
-        // 確保報價單號也正確顯示
-        const quoteNumber = document.getElementById('quoteNumber');
-        if (quoteNumber && !quoteNumber.textContent.trim()) {
-          const today = new Date();
-          const months = ["JA","FE","MR","AP","MY","JN","JL","AU","SE","OC","NO","DE"];
-          const month = months[today.getMonth()];
-          const year = today.getFullYear().toString().slice(-2);
-          const monthPad = String(today.getMonth() + 1).padStart(2, "0");
-          const dayPad = String(today.getDate()).padStart(2, "0");
-          const random = Math.random().toString(36).substring(2, 4).toUpperCase();
-          quoteNumber.textContent = `${month}-${year}${monthPad}${dayPad}${random}`;
-        }
-        
-        // 重新綁定日期點擊事件
-        const dateMapping = {
-          quoteDateText: 'quoteDate',
-          quoteValidText: 'quoteValidUntil',
-          deliveryDateText: 'deliveryDate'
-        };
-        
-        Object.entries(dateMapping).forEach(([textId, inputId]) => {
-          const textElement = document.getElementById(textId);
-          const inputElement = document.getElementById(inputId);
-          if (textElement && inputElement) {
-            // 移除可能存在的舊事件監聽器
-            textElement.removeEventListener('click', q);
-            // 重新添加點擊事件
-            textElement.addEventListener('click', q);
-          }
-        });
-      }, 100);
-    }
-  },
-  
-  logout() {
-    sessionStorage.removeItem(this.SESSION_KEY);
-    sessionStorage.removeItem(this.SESSION_KEY + '_time');
-    window.location.reload();
-  }
-};
-
-// 初始化登錄系統
-document.addEventListener('DOMContentLoaded', () => {
-  AuthManager.init();
-});
-
-// 日期點擊事件處理函數（全域作用域）
-function q(e){
-  e.preventDefault();
-  const dateMapping = {
-    quoteDateText: 'quoteDate',
-    quoteValidText: 'quoteValidUntil',
-    deliveryDateText: 'deliveryDate'
-  };
-  const targetInputId = dateMapping[e.target.id];
-  if(!targetInputId) return;
-  const dateInput = document.getElementById(targetInputId);
-  if(!dateInput) return;
-  if('showPicker' in dateInput) {
-    dateInput.showPicker();
-  } else {
-    dateInput.focus();
-    dateInput.click();
-  }
-  dateInput.dataset.pickerOpened = 'true';
-}
-
-// 報價單系統初始化函數
-function initQuotationSystem() {
-const C={TAX_RATE:.05,DEPOSIT_RATE:.3,DEFAULT_VALID_DAYS:7,DEFAULT_DELIVERY_DAYS:28,MAX_VALUE:999999999,MIN_VALUE:-999999999},M=["JA","FE","MR","AP","MY","JN","JL","AU","SE","OC","NO","DE"],T=new Date,d=e=>document.getElementById(e),b=(e,t)=>function(){let r;clearTimeout(r),r=setTimeout(()=>e.apply(this,arguments),t)},F={parseNumber:(e,t=!1)=>{if(!e)return 0;try{const r=String(e).replace(/[^\d.-]/g,'').trim(),n=t?parseInt(r):parseFloat(r);return isNaN(n)?0:Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,n))}catch{return 0}},formatCurrency:e=>{try{return isNaN(e)?'0':(t=Math.round(Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,e))),new Intl.NumberFormat('zh-TW',{style:'decimal',minimumFractionDigits:0}).format(t));var t}catch{return Math.round(e).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}},formatText:(e,t)=>{if(!e)return'';if(t==="phone"){const cleanPhone=e.replace(/[^\d+\-() #,]/g,'').trim();if(cleanPhone.length===0)return'';return cleanPhone.substring(0,25)}if(t==="email")return e.replace(/\s/g,"").trim().substring(0,50);return e.trim().substring(0,500)},formatDate:e=>{if(!e)return'';try{return new Date(e).toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'})}catch{return e}}};
+document.addEventListener('DOMContentLoaded',()=>{
+const C={TAX_RATE:.05,DEPOSIT_RATE:.3,DEFAULT_VALID_DAYS:7,DEFAULT_DELIVERY_DAYS:28,MAX_VALUE:999999999,MIN_VALUE:-999999999},M=["JA","FE","MR","AP","MY","JN","JL","AU","SE","OC","NO","DE"],T=new Date,d=e=>document.getElementById(e),D={quoteDateText:'quoteDate',quoteValidText:'quoteValidUntil',deliveryDateText:'deliveryDate'},b=(e,t)=>function(){let r;clearTimeout(r),r=setTimeout(()=>e.apply(this,arguments),t)},F={parseNumber:(e,t=!1)=>{if(!e)return 0;try{const r=String(e).replace(/[^\d.-]/g,'').trim(),n=t?parseInt(r):parseFloat(r);return isNaN(n)?0:Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,n))}catch{return 0}},formatCurrency:e=>{try{return isNaN(e)?'0':(t=Math.round(Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,e))),new Intl.NumberFormat('zh-TW',{style:'decimal',minimumFractionDigits:0}).format(t));var t}catch{return Math.round(e).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}},formatText:(e,t)=>{if(!e)return'';if(t==="phone"){const cleanPhone=e.replace(/[^\d+\-() #,]/g,'').trim();if(cleanPhone.length===0)return'';return cleanPhone.substring(0,25)}if(t==="email")return e.replace(/\s/g,"").trim().substring(0,50);return e.trim().substring(0,500)},formatDate:e=>{if(!e)return'';try{return new Date(e).toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'})}catch{return e}}};
 
 function setupPrintHandlers() {
   window.prepareDocumentForDisplay = function() {
@@ -2008,18 +1295,12 @@ function setupPrintHandlers() {
 
 function N(e,t='info'){if(!e)return null;const r=document.querySelector('.notification-overlay');r&&(r.classList.remove('show'),setTimeout(()=>r.remove(),300));const n=document.createElement('div');n.className=`notification-overlay notification-${t}`;let i='',s='通知';t==='warning'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',s='注意'):t==='error'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',s='錯誤'):t==='success'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',s='成功'):i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',n.innerHTML=`<div class="notification-modal"><div class="notification-header"><div class="notification-title"><span class="notification-icon">${i}</span><span>${s}</span></div></div><div class="notification-content">${e}</div><div class="notification-footer"><button class="notification-btn">我知道了</button></div></div>`,document.body.appendChild(n),n.offsetHeight,n.classList.add('show');const c=n.querySelector('.notification-btn');c&&(c.addEventListener('click',()=>{n.classList.remove('show'),setTimeout(()=>n.remove(),300)}),setTimeout(()=>c.focus(),100));const l=e=>{(e.key==='Escape'||e.key==='Enter')&&(n.classList.remove('show'),setTimeout(()=>{n.remove(),document.removeEventListener('keydown',l)},300))};return document.addEventListener('keydown',l),n}
 
-function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().slice(-2),i=String(e.getMonth()+1).padStart(2,"0"),s=String(e.getDate()).padStart(2,"0"),c=Math.random().toString(36).substring(2,4).toUpperCase();return`${t}${r}-${n}${i}${s}${c}`}catch{return`${t}${Math.random().toString(36).substring(2,8).toUpperCase()}`}}function E(){try{const e=d('quoteDate');let t;if(e?.value){t=e.value}else{const today=new Date();t=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0')}const r=new Date(t),n=d('quoteNumber');n&&(n.textContent=y(r))}catch{}}function I(){
+function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().slice(-2),i=String(e.getMonth()+1).padStart(2,"0"),s=String(e.getDate()).padStart(2,"0"),c=Math.random().toString(36).substring(2,4).toUpperCase();return`${t}${r}-${n}${i}${s}${c}`}catch{return`${t}${Math.random().toString(36).substring(2,8).toUpperCase()}`}}function E(){try{const e=d('quoteDate'),t=e?.value||T.toISOString().split("T")[0],r=new Date(t),n=d('quoteNumber');n&&(n.textContent=y(r))}catch{}}function I(){
   try{
-    const today = new Date();
-    const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const todayString = todayLocal.getFullYear() + '-' + 
-                      String(todayLocal.getMonth() + 1).padStart(2, '0') + '-' + 
-                      String(todayLocal.getDate()).padStart(2, '0');
-    
     const e=d('quoteDate'),
           t=d('quoteDateText');
     if(e&&t){
-      e.value=todayString;
+      e.value=T.toISOString().split("T")[0];
       t.textContent=F.formatDate(e.value);
       
       const r=new Date(e.value),
@@ -2028,10 +1309,7 @@ function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().sl
       if(n&&i){
         const s=new Date(r);
         s.setDate(r.getDate()+C.DEFAULT_VALID_DAYS);
-        const validString = s.getFullYear() + '-' + 
-                           String(s.getMonth() + 1).padStart(2, '0') + '-' + 
-                           String(s.getDate()).padStart(2, '0');
-        n.value=validString;
+        n.value=s.toISOString().split("T")[0];
         i.textContent=F.formatDate(n.value);
       }
       
@@ -2040,10 +1318,7 @@ function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().sl
       if(o&&l){
         const s=new Date(r);
         s.setDate(r.getDate()+C.DEFAULT_DELIVERY_DAYS);
-        const deliveryString = s.getFullYear() + '-' + 
-                              String(s.getMonth() + 1).padStart(2, '0') + '-' + 
-                              String(s.getDate()).padStart(2, '0');
-        o.value=deliveryString;
+        o.value=s.toISOString().split("T")[0];
         l.textContent=F.formatDate(o.value);
       }
     }
@@ -2132,7 +1407,20 @@ function setupTotalsInputs() {
 
 function _(e){if(!e)return;const t=e.value;if(t==='')return;try{(e.classList.contains('price-input')||e.classList.contains('shipping-input')||e.classList.contains('installation-input'))&&(t=>{const r=F.parseNumber(t);return r>C.MAX_VALUE?(N("數值超出最大限制","warning"),e.value=F.formatCurrency(C.MAX_VALUE)):r<C.MIN_VALUE?(N("數值超出最小限制","warning"),e.value=F.formatCurrency(C.MIN_VALUE)):e.value=F.formatCurrency(r),!0})(t)}catch{e.value=F.formatCurrency(0)}}
 
-function H(e,t,r){
+function q(e){
+  e.preventDefault();
+  const t=D[e.target.id];
+  if(!t) return;
+  const r=d(t);
+  if(!r) return;
+  if('showPicker' in r) {
+    r.showPicker();
+  } else {
+    r.focus();
+    r.click();
+  }
+  r.dataset.pickerOpened = 'true';
+}function H(e,t,r){
   if(!e||!t) return;
   
   // 即時更新顯示文字（不進行驗證）
@@ -2164,10 +1452,7 @@ function H(e,t,r){
         }
         
         // 更新日期值
-        const newDateString = newDate.getFullYear() + '-' + 
-                             String(newDate.getMonth() + 1).padStart(2, '0') + '-' + 
-                             String(newDate.getDate()).padStart(2, '0');
-        e.value = newDateString;
+        e.value = newDate.toISOString().split('T')[0];
         t.textContent = F.formatDate(e.value);
         return;
       }
@@ -2183,20 +1468,14 @@ function H(e,t,r){
       if (validUntil && validUntilText) {
         const newValidDate = new Date(quoteDateValue);
         newValidDate.setDate(quoteDateValue.getDate() + C.DEFAULT_VALID_DAYS);
-        const validDateString = newValidDate.getFullYear() + '-' + 
-                               String(newValidDate.getMonth() + 1).padStart(2, '0') + '-' + 
-                               String(newValidDate.getDate()).padStart(2, '0');
-        validUntil.value = validDateString;
+        validUntil.value = newValidDate.toISOString().split('T')[0];
         validUntilText.textContent = F.formatDate(validUntil.value);
       }
 
       if (deliveryDate && deliveryDateText) {
         const newDeliveryDate = new Date(quoteDateValue);
         newDeliveryDate.setDate(quoteDateValue.getDate() + C.DEFAULT_DELIVERY_DAYS);
-        const deliveryDateString = newDeliveryDate.getFullYear() + '-' + 
-                                  String(newDeliveryDate.getMonth() + 1).padStart(2, '0') + '-' + 
-                                  String(newDeliveryDate.getDate()).padStart(2, '0');
-        deliveryDate.value = deliveryDateString;
+        deliveryDate.value = newDeliveryDate.toISOString().split('T')[0];
         deliveryDateText.textContent = F.formatDate(deliveryDate.value);
       }
     }
@@ -2464,13 +1743,7 @@ function Q(){
         uploadLogo = d('upload-logo');
   
   // Add date picker event handlers
-  const dateMapping = {
-    quoteDateText: 'quoteDate',
-    quoteValidText: 'quoteValidUntil',
-    deliveryDateText: 'deliveryDate'
-  };
-  
-  Object.entries(dateMapping).forEach(([textId, inputId]) => {
+  Object.entries(D).forEach(([textId, inputId]) => {
     const textElement = d(textId);
     const inputElement = d(inputId);
     if (textElement && inputElement) {
@@ -2822,10 +2095,8 @@ function K(){
     setupPhoneFormatting();
   }catch{}
 }
-
-// 系統初始化將由 AuthManager 控制，確保已登錄後才執行
-}
-
+K();
+});
 </script>
 </body>
 </html>
