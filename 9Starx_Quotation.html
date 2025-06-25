@@ -1147,6 +1147,81 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 .main-content.fade-in {
   animation: fadeInUp 0.5s ease-out;
 }
+
+/* 自定義錯誤彈窗 */
+.error-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.error-modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.error-modal {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 320px;
+  width: 85%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  transform: translateY(-20px) scale(0.9);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.error-modal-overlay.show .error-modal {
+  transform: translateY(0) scale(1);
+}
+
+.error-modal-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.error-modal-text {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.error-modal-btn {
+  background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.error-modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+.error-modal-btn:active {
+  transform: translateY(0);
+}
 </style>
 </head>
 <body>
@@ -1175,6 +1250,15 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
     <div class="login-footer">
       <p>© 2025 玖星吉國際貿易</p>
     </div>
+  </div>
+</div>
+
+<!-- 自定義錯誤彈窗 -->
+<div class="error-modal-overlay" id="errorModal">
+  <div class="error-modal">
+    <div class="error-modal-icon">❌</div>
+    <div class="error-modal-text" id="errorModalText">密碼錯誤</div>
+    <button class="error-modal-btn" id="errorModalBtn">確定</button>
   </div>
 </div>
 
@@ -1460,15 +1544,61 @@ const AuthManager = {
   showErrorWithDelay() {
     const passwordInput = document.getElementById('loginPassword');
     
-    // 清空密碼並重新聚焦
+    // 清空密碼
     passwordInput.value = '';
     
-    // 顯示彈出提示
-    alert('❌ 密碼錯誤');
+    // 顯示自定義彈窗
+    this.showCustomErrorModal('密碼錯誤', () => {
+      // 關閉彈窗後重新聚焦
+      setTimeout(() => {
+        passwordInput.focus();
+      }, 100);
+    });
+  },
+  
+  showCustomErrorModal(message, callback) {
+    const modal = document.getElementById('errorModal');
+    const modalText = document.getElementById('errorModalText');
+    const modalBtn = document.getElementById('errorModalBtn');
     
-    // 重新聚焦
+    if (!modal || !modalText || !modalBtn) return;
+    
+    // 設置訊息
+    modalText.textContent = message;
+    
+    // 顯示彈窗
+    modal.classList.add('show');
+    
+    // 按鈕點擊事件
+    const handleClick = () => {
+      modal.classList.remove('show');
+      modalBtn.removeEventListener('click', handleClick);
+      
+      // 執行回調
+      if (callback) {
+        setTimeout(callback, 300);
+      }
+    };
+    
+    modalBtn.addEventListener('click', handleClick);
+    
+    // ESC鍵關閉
+    const handleKeydown = (e) => {
+      if (e.key === 'Escape') {
+        modal.classList.remove('show');
+        document.removeEventListener('keydown', handleKeydown);
+        
+        if (callback) {
+          setTimeout(callback, 300);
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeydown);
+    
+    // 自動聚焦按鈕
     setTimeout(() => {
-      passwordInput.focus();
+      modalBtn.focus();
     }, 100);
   },
   
