@@ -1814,6 +1814,24 @@ const AuthManager = {
           const random = Math.random().toString(36).substring(2, 4).toUpperCase();
           quoteNumber.textContent = `${month}-${year}${monthPad}${dayPad}${random}`;
         }
+        
+        // 重新綁定日期點擊事件
+        const dateMapping = {
+          quoteDateText: 'quoteDate',
+          quoteValidText: 'quoteValidUntil',
+          deliveryDateText: 'deliveryDate'
+        };
+        
+        Object.entries(dateMapping).forEach(([textId, inputId]) => {
+          const textElement = document.getElementById(textId);
+          const inputElement = document.getElementById(inputId);
+          if (textElement && inputElement) {
+            // 移除可能存在的舊事件監聽器
+            textElement.removeEventListener('click', q);
+            // 重新添加點擊事件
+            textElement.addEventListener('click', q);
+          }
+        });
       }, 100);
     }
   },
@@ -1830,9 +1848,30 @@ document.addEventListener('DOMContentLoaded', () => {
   AuthManager.init();
 });
 
+// 日期點擊事件處理函數（全域作用域）
+function q(e){
+  e.preventDefault();
+  const dateMapping = {
+    quoteDateText: 'quoteDate',
+    quoteValidText: 'quoteValidUntil',
+    deliveryDateText: 'deliveryDate'
+  };
+  const targetInputId = dateMapping[e.target.id];
+  if(!targetInputId) return;
+  const dateInput = document.getElementById(targetInputId);
+  if(!dateInput) return;
+  if('showPicker' in dateInput) {
+    dateInput.showPicker();
+  } else {
+    dateInput.focus();
+    dateInput.click();
+  }
+  dateInput.dataset.pickerOpened = 'true';
+}
+
 // 報價單系統初始化函數
 function initQuotationSystem() {
-const C={TAX_RATE:.05,DEPOSIT_RATE:.3,DEFAULT_VALID_DAYS:7,DEFAULT_DELIVERY_DAYS:28,MAX_VALUE:999999999,MIN_VALUE:-999999999},M=["JA","FE","MR","AP","MY","JN","JL","AU","SE","OC","NO","DE"],T=new Date,d=e=>document.getElementById(e),D={quoteDateText:'quoteDate',quoteValidText:'quoteValidUntil',deliveryDateText:'deliveryDate'},b=(e,t)=>function(){let r;clearTimeout(r),r=setTimeout(()=>e.apply(this,arguments),t)},F={parseNumber:(e,t=!1)=>{if(!e)return 0;try{const r=String(e).replace(/[^\d.-]/g,'').trim(),n=t?parseInt(r):parseFloat(r);return isNaN(n)?0:Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,n))}catch{return 0}},formatCurrency:e=>{try{return isNaN(e)?'0':(t=Math.round(Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,e))),new Intl.NumberFormat('zh-TW',{style:'decimal',minimumFractionDigits:0}).format(t));var t}catch{return Math.round(e).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}},formatText:(e,t)=>{if(!e)return'';if(t==="phone"){const cleanPhone=e.replace(/[^\d+\-() #,]/g,'').trim();if(cleanPhone.length===0)return'';return cleanPhone.substring(0,25)}if(t==="email")return e.replace(/\s/g,"").trim().substring(0,50);return e.trim().substring(0,500)},formatDate:e=>{if(!e)return'';try{return new Date(e).toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'})}catch{return e}}};
+const C={TAX_RATE:.05,DEPOSIT_RATE:.3,DEFAULT_VALID_DAYS:7,DEFAULT_DELIVERY_DAYS:28,MAX_VALUE:999999999,MIN_VALUE:-999999999},M=["JA","FE","MR","AP","MY","JN","JL","AU","SE","OC","NO","DE"],T=new Date,d=e=>document.getElementById(e),b=(e,t)=>function(){let r;clearTimeout(r),r=setTimeout(()=>e.apply(this,arguments),t)},F={parseNumber:(e,t=!1)=>{if(!e)return 0;try{const r=String(e).replace(/[^\d.-]/g,'').trim(),n=t?parseInt(r):parseFloat(r);return isNaN(n)?0:Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,n))}catch{return 0}},formatCurrency:e=>{try{return isNaN(e)?'0':(t=Math.round(Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,e))),new Intl.NumberFormat('zh-TW',{style:'decimal',minimumFractionDigits:0}).format(t));var t}catch{return Math.round(e).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}},formatText:(e,t)=>{if(!e)return'';if(t==="phone"){const cleanPhone=e.replace(/[^\d+\-() #,]/g,'').trim();if(cleanPhone.length===0)return'';return cleanPhone.substring(0,25)}if(t==="email")return e.replace(/\s/g,"").trim().substring(0,50);return e.trim().substring(0,500)},formatDate:e=>{if(!e)return'';try{return new Date(e).toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'})}catch{return e}}};
 
 function setupPrintHandlers() {
   window.prepareDocumentForDisplay = function() {
@@ -2093,20 +2132,7 @@ function setupTotalsInputs() {
 
 function _(e){if(!e)return;const t=e.value;if(t==='')return;try{(e.classList.contains('price-input')||e.classList.contains('shipping-input')||e.classList.contains('installation-input'))&&(t=>{const r=F.parseNumber(t);return r>C.MAX_VALUE?(N("數值超出最大限制","warning"),e.value=F.formatCurrency(C.MAX_VALUE)):r<C.MIN_VALUE?(N("數值超出最小限制","warning"),e.value=F.formatCurrency(C.MIN_VALUE)):e.value=F.formatCurrency(r),!0})(t)}catch{e.value=F.formatCurrency(0)}}
 
-function q(e){
-  e.preventDefault();
-  const t=D[e.target.id];
-  if(!t) return;
-  const r=d(t);
-  if(!r) return;
-  if('showPicker' in r) {
-    r.showPicker();
-  } else {
-    r.focus();
-    r.click();
-  }
-  r.dataset.pickerOpened = 'true';
-}function H(e,t,r){
+function H(e,t,r){
   if(!e||!t) return;
   
   // 即時更新顯示文字（不進行驗證）
@@ -2438,7 +2464,13 @@ function Q(){
         uploadLogo = d('upload-logo');
   
   // Add date picker event handlers
-  Object.entries(D).forEach(([textId, inputId]) => {
+  const dateMapping = {
+    quoteDateText: 'quoteDate',
+    quoteValidText: 'quoteValidUntil',
+    deliveryDateText: 'deliveryDate'
+  };
+  
+  Object.entries(dateMapping).forEach(([textId, inputId]) => {
     const textElement = d(textId);
     const inputElement = d(inputId);
     if (textElement && inputElement) {
