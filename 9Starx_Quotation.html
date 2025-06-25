@@ -1448,15 +1448,19 @@ const AuthManager = {
     // 隱藏登錄介面，顯示主要內容
     loginOverlay.classList.add('hidden');
     
-    setTimeout(() => {
-      mainContent.classList.remove('hidden');
-      mainContent.classList.add('fade-in');
-      
-      // 初始化報價單功能
-      if (typeof initQuotationSystem === 'function') {
-        initQuotationSystem();
-      }
-    }, 300);
+          setTimeout(() => {
+        mainContent.classList.remove('hidden');
+        mainContent.classList.add('fade-in');
+        
+        // 初始化報價單功能
+        if (typeof initQuotationSystem === 'function') {
+          initQuotationSystem();
+        }
+        // 執行主要初始化函數
+        if (typeof K === 'function') {
+          K();
+        }
+      }, 300);
   },
   
   loginError() {
@@ -1491,21 +1495,18 @@ const AuthManager = {
     const currentTime = Date.now();
     const maxSessionTime = 8 * 60 * 60 * 1000; // 8小時
     
-    // 檢查是否需要登錄
-    const requiresLogin = window.location.hash === '#login' || 
-                         window.location.search.includes('login=true');
-    
-    if (requiresLogin) {
-      if (isAuthenticated && authTime && (currentTime - parseInt(authTime)) < maxSessionTime) {
-        // 已登錄且未過期，直接顯示內容
-        this.showMainContent();
-      } else {
-        // 需要登錄
-        this.showLoginForm();
-      }
-    } else {
-      // 不需要登錄驗證的訪問
+    // 檢查是否已登錄且未過期
+    if (isAuthenticated && authTime && (currentTime - parseInt(authTime)) < maxSessionTime) {
+      // 已登錄且未過期，直接顯示內容
       this.showMainContent();
+    } else {
+      // 需要登錄或會話已過期
+      this.showLoginForm();
+      // 清除過期的會話
+      if (isAuthenticated) {
+        sessionStorage.removeItem(this.SESSION_KEY);
+        sessionStorage.removeItem(this.SESSION_KEY + '_time');
+      }
     }
   },
   
@@ -1522,14 +1523,18 @@ const AuthManager = {
     const mainContent = document.getElementById('mainContent');
     
     if (loginOverlay) loginOverlay.classList.add('hidden');
-    if (mainContent) {
-      mainContent.classList.remove('hidden');
-      
-      // 初始化報價單功能
-      if (typeof initQuotationSystem === 'function') {
-        initQuotationSystem();
+          if (mainContent) {
+        mainContent.classList.remove('hidden');
+        
+        // 初始化報價單功能
+        if (typeof initQuotationSystem === 'function') {
+          initQuotationSystem();
+        }
+        // 執行主要初始化函數
+        if (typeof K === 'function') {
+          K();
+        }
       }
-    }
   },
   
   logout() {
@@ -1538,11 +1543,6 @@ const AuthManager = {
     window.location.reload();
   }
 };
-
-// 監聽hash變化
-window.addEventListener('hashchange', () => {
-  AuthManager.checkAuthStatus();
-});
 
 // 初始化登錄系統
 document.addEventListener('DOMContentLoaded', () => {
@@ -2510,10 +2510,7 @@ function K(){
   }catch{}
 }
 
-// 如果不需要登錄驗證，直接初始化
-if (window.location.hash !== '#login' && !window.location.search.includes('login=true')) {
-  K();
-}
+// 系統初始化將由 AuthManager 控制，確保已登錄後才執行
 }
 
 </script>
