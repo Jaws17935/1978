@@ -1042,6 +1042,24 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
   text-align: center;
 }
 
+.login-field input::-ms-reveal,
+.login-field input::-ms-clear {
+  display: none;
+}
+
+.login-field input::-webkit-credentials-auto-fill-button,
+.login-field input::-webkit-caps-lock-indicator {
+  display: none;
+}
+
+.login-field input[type="password"] {
+  font-family: monospace;
+  letter-spacing: 0;
+  text-security: disc;
+  -webkit-text-security: disc;
+  -moz-text-security: disc;
+}
+
 .login-field input:focus {
   outline: none;
   border-color: var(--accent);
@@ -1171,14 +1189,17 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 }
 
 .error-modal {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  backdrop-filter: blur(10px);
+  background: transparent;
+  backdrop-filter: blur(20px);
   border-radius: 16px;
   padding: 30px;
   max-width: 280px;
   width: 80%;
-  box-shadow: 0 20px 40px rgba(220, 38, 38, 0.4);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 20px 40px rgba(220, 38, 38, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 0 1px rgba(220, 38, 38, 0.3);
+  border: 1px solid rgba(220, 38, 38, 0.4);
   transform: translateY(-20px) scale(0.9);
   transition: all 0.3s ease;
   text-align: center;
@@ -1189,12 +1210,12 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 }
 
 .error-modal-text {
-  color: #ffffff;
+  color: #dc2626;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.4;
   margin: 0;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
 }
 </style>
 </head>
@@ -1451,7 +1472,7 @@ const AuthManager = {
     // 密碼輸入事件 - 直接識別登錄
     passwordInput.addEventListener('input', () => {
       this.clearError();
-      const enteredPassword = passwordInput.value.trim();
+      const enteredPassword = passwordInput.actualValue || passwordInput.dataset.actualPassword || '';
       
       // 當輸入完整密碼時自動驗證
       if (enteredPassword.length >= this.PASSWORD.length) {
@@ -1463,7 +1484,7 @@ const AuthManager = {
     passwordInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        const enteredPassword = passwordInput.value.trim();
+        const enteredPassword = passwordInput.actualValue || passwordInput.dataset.actualPassword || '';
         this.handleDirectLogin(enteredPassword);
       }
     });
@@ -1472,6 +1493,79 @@ const AuthManager = {
     setTimeout(() => {
       passwordInput.focus();
     }, 300);
+    
+    // 設置固定字符顯示
+    this.setupFixedPasswordDisplay(passwordInput);
+  },
+  
+  setupFixedPasswordDisplay(passwordInput) {
+    if (!passwordInput) return;
+    
+    let actualPassword = '';
+    
+    // 處理按鍵輸入
+    passwordInput.addEventListener('keydown', (e) => {
+      // 允許特殊按鍵
+      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight'];
+      
+      if (allowedKeys.includes(e.key)) {
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+          // 刪除最後一個字符
+          if (actualPassword.length > 0) {
+            actualPassword = actualPassword.substring(0, actualPassword.length - 1);
+            passwordInput.dataset.actualPassword = actualPassword;
+            
+            // 更新顯示
+            if (actualPassword.length > 0) {
+              passwordInput.value = '●';
+            } else {
+              passwordInput.value = '';
+            }
+          }
+        }
+        return; // 允許這些按鍵的默認行為
+      }
+      
+      // 阻止所有其他按鍵的默認行為
+      e.preventDefault();
+      
+      // 如果是可打印字符，添加到實際密碼
+      if (e.key.length === 1) {
+        actualPassword += e.key;
+        passwordInput.dataset.actualPassword = actualPassword;
+        
+        // 始終只顯示一個圓點
+        passwordInput.value = '●';
+      }
+    });
+    
+    // 防止input事件改變顯示
+    passwordInput.addEventListener('input', (e) => {
+      // 如果有實際密碼，始終顯示一個圓點
+      if (actualPassword.length > 0) {
+        e.target.value = '●';
+      } else {
+        e.target.value = '';
+      }
+    });
+    
+    // 防止粘貼操作
+    passwordInput.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+      if (pastedText) {
+        actualPassword += pastedText;
+        passwordInput.dataset.actualPassword = actualPassword;
+        passwordInput.value = '●';
+      }
+    });
+    
+    // 重寫 value getter
+    Object.defineProperty(passwordInput, 'actualValue', {
+      get: function() {
+        return this.dataset.actualPassword || '';
+      }
+    });
   },
   
   handleDirectLogin(enteredPassword) {
