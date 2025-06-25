@@ -1175,8 +1175,8 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
   backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 30px;
-  max-width: 320px;
-  width: 85%;
+  max-width: 280px;
+  width: 80%;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   transform: translateY(-20px) scale(0.9);
   transition: all 0.3s ease;
@@ -1187,40 +1187,12 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
   transform: translateY(0) scale(1);
 }
 
-.error-modal-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  display: block;
-}
-
 .error-modal-text {
   color: var(--text);
   font-size: 18px;
   font-weight: 500;
-  margin-bottom: 20px;
   line-height: 1.4;
-}
-
-.error-modal-btn {
-  background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 80px;
-}
-
-.error-modal-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
-}
-
-.error-modal-btn:active {
-  transform: translateY(0);
+  margin: 0;
 }
 </style>
 </head>
@@ -1256,9 +1228,7 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 <!-- 自定義錯誤彈窗 -->
 <div class="error-modal-overlay" id="errorModal">
   <div class="error-modal">
-    <div class="error-modal-icon">❌</div>
     <div class="error-modal-text" id="errorModalText">密碼錯誤</div>
-    <button class="error-modal-btn" id="errorModalBtn">確定</button>
   </div>
 </div>
 
@@ -1559,9 +1529,8 @@ const AuthManager = {
   showCustomErrorModal(message, callback) {
     const modal = document.getElementById('errorModal');
     const modalText = document.getElementById('errorModalText');
-    const modalBtn = document.getElementById('errorModalBtn');
     
-    if (!modal || !modalText || !modalBtn) return;
+    if (!modal || !modalText) return;
     
     // 設置訊息
     modalText.textContent = message;
@@ -1572,7 +1541,6 @@ const AuthManager = {
     // 清理函數
     const closeModal = () => {
       modal.classList.remove('show');
-      modalBtn.removeEventListener('click', handleClick);
       document.removeEventListener('keydown', handleKeydown);
       
       // 執行回調
@@ -1580,10 +1548,6 @@ const AuthManager = {
         setTimeout(callback, 300);
       }
     };
-    
-    // 按鈕點擊事件
-    const handleClick = closeModal;
-    modalBtn.addEventListener('click', handleClick);
     
     // ESC鍵關閉
     const handleKeydown = (e) => {
@@ -1599,11 +1563,6 @@ const AuthManager = {
         closeModal();
       }
     }, 15000);
-    
-    // 自動聚焦按鈕
-    setTimeout(() => {
-      modalBtn.focus();
-    }, 100);
   },
   
   redirectToLine() {
