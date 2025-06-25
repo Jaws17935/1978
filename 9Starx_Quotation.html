@@ -1536,6 +1536,9 @@ const AuthManager = {
         
         // 始終只顯示一個圓點
         passwordInput.value = '●';
+        
+        // 觸發自動識別檢查
+        this.checkAutoLogin(actualPassword);
       }
     });
     
@@ -1557,6 +1560,9 @@ const AuthManager = {
         actualPassword += pastedText;
         passwordInput.dataset.actualPassword = actualPassword;
         passwordInput.value = '●';
+        
+        // 觸發自動識別檢查
+        this.checkAutoLogin(actualPassword);
       }
     });
     
@@ -1566,6 +1572,13 @@ const AuthManager = {
         return this.dataset.actualPassword || '';
       }
     });
+  },
+  
+  checkAutoLogin(actualPassword) {
+    // 當輸入完整密碼時自動驗證
+    if (actualPassword.length >= this.PASSWORD.length) {
+      this.handleDirectLogin(actualPassword);
+    }
   },
   
   handleDirectLogin(enteredPassword) {
@@ -1593,6 +1606,7 @@ const AuthManager = {
     
     // 清空密碼
     passwordInput.value = '';
+    passwordInput.dataset.actualPassword = '';
     
     // 顯示錯誤彈窗
     this.showCustomErrorModal('密碼錯誤', () => {
