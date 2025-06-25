@@ -2,11 +2,14 @@
 # 禁止所有搜尋引擎抓取敏感頁面
 
 User-agent: *
+Disallow: /
+Disallow: /index.html
 Disallow: /9Starx_Quotation.html
 Disallow: /Blank_Quotation.html
 Disallow: /*9Star*
 Disallow: /*quotation*
 Disallow: /*Quotation*
+Disallow: /*78Lion*
 
 # 禁止特定搜尋引擎
 User-agent: Googlebot
