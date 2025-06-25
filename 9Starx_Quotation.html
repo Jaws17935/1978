@@ -1459,47 +1459,22 @@ const AuthManager = {
   
   showErrorWithDelay() {
     const passwordInput = document.getElementById('loginPassword');
-    const loginError = document.getElementById('loginError');
     
-    // 顯示錯誤並禁用輸入
-    passwordInput.classList.add('error');
-    passwordInput.disabled = true;
+    // 清空密碼並重新聚焦
     passwordInput.value = '';
     
-    loginError.textContent = '❌ 密碼錯誤，請等候 5 秒後重試';
-    loginError.classList.add('show');
+    // 顯示彈出提示
+    alert('❌ 密碼錯誤');
     
-    // 倒數計時
-    let countdown = 5;
-    const timer = setInterval(() => {
-      countdown--;
-      if (countdown > 0) {
-        loginError.textContent = `❌ 密碼錯誤，請等候 ${countdown} 秒後重試`;
-      } else {
-        clearInterval(timer);
-        this.clearError();
-        passwordInput.disabled = false;
-        passwordInput.focus();
-      }
-    }, 1000);
+    // 重新聚焦
+    setTimeout(() => {
+      passwordInput.focus();
+    }, 100);
   },
   
   redirectToLine() {
-    const passwordInput = document.getElementById('loginPassword');
-    const loginError = document.getElementById('loginError');
-    
-    // 顯示LINE聯絡訊息
-    passwordInput.classList.add('error');
-    passwordInput.disabled = true;
-    passwordInput.value = '';
-    
-    loginError.innerHTML = '🔒 多次錯誤，請聯絡客服<br><a href="https://manager.line.biz/account/@700ctnlq" target="_blank" style="color: #00C300; text-decoration: underline;">點擊前往 LINE 客服</a>';
-    loginError.classList.add('show');
-    
-    // 3秒後自動導向
-    setTimeout(() => {
-      window.open('https://manager.line.biz/account/@700ctnlq', '_blank');
-    }, 3000);
+    // 直接導向LINE客服
+    window.open('https://manager.line.biz/account/@700ctnlq', '_blank');
   },
   
   loginSuccess() {
