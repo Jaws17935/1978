@@ -3,19 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- SEO 屏蔽設定 - 防止搜尋引擎索引 -->
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
-<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
-<meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
-<meta name="description" content="">
-<meta name="keywords" content="">
-<meta name="author" content="">
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="expires" content="0">
-<!-- 防止頁面被嵌入框架 -->
-<meta http-equiv="X-Frame-Options" content="DENY">
-<title>商品報價單系統</title>
+<title>9StarMax報價單</title>
 <style>
 /* CSS 變數定義 */
 :root {
@@ -611,9 +599,6 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
   
   .company-logo img {
     max-height: 40px !important;
-    object-fit: contain !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
   }
   
   .default-logo-text {
@@ -975,9 +960,9 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 <div class="container">
 <div class="header section">
 <div class="company-info">
-<div class="company-logo" id="logo-container"><img src="9StarMax.png" alt="玖星吉國際貿易" style="max-height: 50px; object-fit: contain;"></div>
+<div class="company-logo" id="logo-container"><span class="default-logo-text">玖星吉國際貿易</span></div>
 <input type="file" id="upload-logo" class="upload-logo" accept="image/*">
-<p>統編：89061654</p><p>電話：02-7709-4666</p><p>信箱：<span data-sensitive="email">Service@9Starmax.com</span></p>
+<p>統編：89061654</p><p>電話：02-7709-4666</p><p>信箱：Service@9Starmax.com</p>
 </div>
 <div class="document-title">
 <h2>商品報價單</h2>
@@ -1136,7 +1121,7 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 <div class="info-group">
 <p><span class="info-label">姓名：</span> <span contenteditable="true" class="editable-field"></span></p>
 <p><span class="info-label">電話：</span> <span contenteditable="true" data-type="phone" class="editable-field">02-7709-4666</span></p>
-<p><span class="info-label">信箱：</span> <span contenteditable="true" data-type="email" data-sensitive="email" class="editable-field">Service@9Starmax.com</span></p>
+<p><span class="info-label">信箱：</span> <span contenteditable="true" data-type="email" class="editable-field">Service@9Starmax.com</span></p>
 </div>
 </div>
 <div class="client-confirmation" id="client-confirmation">
