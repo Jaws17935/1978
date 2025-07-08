@@ -8,8 +8,6 @@
         :root {
             --primary-color: #00a8ff;
             --secondary-color: #9c88ff;
-            --accent-color: #00d2d3;
-            --bg-color: #0a0a0a;
             --card-bg: rgba(15, 15, 15, 0.8);
             --text-color: #ffffff;
         }
@@ -89,12 +87,61 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
         }
 
-        .service-card:hover {
+        .service-card:not(.locked):hover {
             transform: translateY(-5px);
             box-shadow: 0 0 30px rgba(156, 136, 255, 0.5);
             border-color: var(--secondary-color);
+        }
+
+        .service-card.locked {
+            background: linear-gradient(135deg, 
+                var(--card-bg) 0%,
+                rgba(15, 15, 15, 0.6) 100%
+            );
+            transition: all 0.3s ease;
+        }
+
+        .service-card.locked:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(156, 136, 255, 0.5);
+            border-color: var(--secondary-color);
+        }
+
+        .service-card.locked::before {
+            content: '🔒';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            opacity: 0.3;
+            filter: grayscale(100%);
+            z-index: 10;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .service-card.locked:hover::before {
+            content: '🔓';
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .service-card.locked .service-icon,
+        .service-card.locked .service-title {
+            position: relative;
+            z-index: 1;
+            filter: blur(2px) brightness(0.7);
+            transition: all 0.5s ease;
+        }
+
+        .service-card.locked:hover .service-icon,
+        .service-card.locked:hover .service-title {
+            filter: none;
+            transform: scale(1.05);
         }
 
         .service-icon {
@@ -158,6 +205,103 @@
             justify-content: center;
         }
 
+        /* 改進的密碼彈窗樣式 */
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .password-modal.active {
+            display: flex;
+        }
+
+        .password-box {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 30px rgba(0, 168, 255, 0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .password-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--primary-color);
+            border-radius: 4px;
+            padding: 0.8rem 1rem;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            width: 100%;
+            margin: 1rem 0 0.5rem 0;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .password-input::placeholder {
+            color: transparent;
+        }
+
+        .password-error {
+            color: #ff4757;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            min-height: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .password-error.show {
+            opacity: 1;
+        }
+
+        .password-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .password-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .password-button {
+            background: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .password-button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--secondary-color);
+        }
+
+        .password-button.cancel {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .password-button.cancel:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         @media (max-width: 1024px) {
             .card-grid {
                 grid-template-columns: repeat(2, minmax(250px, 300px));
@@ -212,35 +356,111 @@
                 gap: 0.5rem;
                 width: 100%;
             }
+
+            .service-card.locked::before {
+                font-size: 2rem;
+            }
+
+            .password-box {
+                max-width: 350px;
+                padding: 1.5rem;
+            }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
     <script>
-        function openInNewWindow(url) {
-            window.open(url, '_blank');
-        }
-
-        function updateDateTime() {
-            const now = new Date();
-            const dateElement = document.getElementById('date');
-            const timeElement = document.getElementById('time');
+        // 應用程式命名空間
+        const App = {
+            PASSWORD: '085978',
             
-            // 格式化日期
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            dateElement.textContent = now.toLocaleDateString('zh-TW', options);
-            
-            // 格式化時間 (24小時制)
-            timeElement.textContent = now.toLocaleTimeString('zh-TW', { 
-                hour: '2-digit', 
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-        }
+            // 工具函數
+            openInNewWindow(url) {
+                window.open(url, '_blank');
+            },
 
-        // 每分鐘更新一次時間
-        setInterval(updateDateTime, 1000);
-        updateDateTime(); // 初始顯示
+            // 密碼驗證系統
+            checkPassword(url) {
+                const modal = document.createElement('div');
+                modal.className = 'password-modal';
+                modal.innerHTML = `
+                    <div class="password-box">
+                        <input type="password" class="password-input" onkeypress="App.handleKeyPress(event, this, '${url}')">
+                        <div class="password-error">密碼錯誤，請重試</div>
+                        <div class="password-buttons">
+                            <button class="password-button" onclick="App.submitPassword(this.parentElement.parentElement, '${url}')">確認</button>
+                            <button class="password-button cancel" onclick="App.closeModal(this.parentElement.parentElement.parentElement)">取消</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                setTimeout(() => modal.classList.add('active'), 10);
+                modal.querySelector('.password-input').focus();
+            },
+
+            handleKeyPress(event, input, url) {
+                if (event.key === 'Enter') {
+                    const passwordBox = input.parentElement;
+                    this.submitPassword(passwordBox, url);
+                }
+            },
+
+            submitPassword(passwordBox, url) {
+                const input = passwordBox.querySelector('.password-input');
+                if (input.value === this.PASSWORD) {
+                    this.closeModal(passwordBox.parentElement);
+                    window.open(url, '_blank');
+                } else {
+                    input.value = '';
+                    const errorDiv = passwordBox.querySelector('.password-error');
+                    input.style.borderColor = 'red';
+                    errorDiv.classList.add('show');
+                    setTimeout(() => {
+                        input.style.borderColor = 'var(--primary-color)';
+                        errorDiv.classList.remove('show');
+                    }, 2000);
+                }
+            },
+
+            closeModal(modal) {
+                modal.classList.remove('active');
+                setTimeout(() => modal.remove(), 300);
+            },
+
+            // 時間顯示系統
+            updateDateTime() {
+                const now = new Date();
+                const dateElement = document.getElementById('date');
+                const timeElement = document.getElementById('time');
+                
+                if (dateElement && timeElement) {
+                    // 格式化日期
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    dateElement.textContent = now.toLocaleDateString('zh-TW', options);
+                    
+                    // 格式化時間 (24小時制)
+                    timeElement.textContent = now.toLocaleTimeString('zh-TW', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false
+                    });
+                }
+            },
+
+            // 初始化函數
+            init() {
+                // 啟動時間更新
+                this.updateDateTime();
+                setInterval(() => this.updateDateTime(), 1000);
+            }
+        };
+
+        // 向後兼容的全局函數
+        const openInNewWindow = (url) => App.openInNewWindow(url);
+        const checkPassword = (url) => App.checkPassword(url);
+
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', () => App.init());
     </script>
 </head>
 <body>
@@ -260,7 +480,7 @@
                     </div>
                 </div>
             </div>
-            <div class="service-card" onclick="openInNewWindow('https://jaws17935.github.io/1978Calculator/')">
+            <div class="service-card locked" onclick="checkPassword('https://jaws17935.github.io/1978Calculator/')">
                 <div class="service-icon">💰</div>
                 <h3 class="service-title">損益計算機</h3>
             </div>
@@ -280,11 +500,11 @@
                 <div class="service-icon">📋</div>
                 <h3 class="service-title">商品銷售報價單</h3>
             </div>
-            <div class="service-card" onclick="openInNewWindow('Transport.html')">
+            <div class="service-card locked" onclick="checkPassword('Transport.html')">
                 <div class="service-icon">🚛</div>
                 <h3 class="service-title">運輸計算機</h3>
             </div>
-            <div class="service-card" onclick="openInNewWindow('CNY.html')">
+            <div class="service-card locked" onclick="checkPassword('CNY.html')">
                 <div class="service-icon">📈</div>
                 <h3 class="service-title">大草原計算機</h3>
             </div>
