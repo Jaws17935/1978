@@ -226,43 +226,34 @@
 
         .password-box {
             background: var(--card-bg);
-            padding: 2rem;
+            padding: 1.2rem 1.2rem 1.2rem 1.2rem;
             border-radius: 8px;
             border: 2px solid var(--primary-color);
             box-shadow: 0 0 30px rgba(0, 168, 255, 0.5);
             text-align: center;
-            max-width: 400px;
-            width: 90%;
+            max-width: 250px;
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 120px;
         }
 
         .password-input {
             background: rgba(0, 0, 0, 0.3);
             border: 2px solid var(--primary-color);
             border-radius: 4px;
-            padding: 0.8rem 1rem;
+            padding: 0.6rem 0.8rem;
             color: var(--text-color);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             width: 100%;
-            margin: 1rem 0 0.5rem 0;
+            margin: 0;
             text-align: center;
             font-family: 'Orbitron', sans-serif;
         }
 
         .password-input::placeholder {
             color: transparent;
-        }
-
-        .password-error {
-            color: #ff4757;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            min-height: 1.2rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .password-error.show {
-            opacity: 1;
         }
 
         .password-input:focus {
@@ -371,7 +362,7 @@
     <script>
         // 應用程式命名空間
         const App = {
-            PASSWORD: '085978',
+            PASSWORD: '0878',
             
             // 工具函數
             openInNewWindow(url) {
@@ -384,21 +375,18 @@
                 modal.className = 'password-modal';
                 modal.innerHTML = `
                     <div class="password-box">
-                        <input type="password" class="password-input" onkeypress="App.handleKeyPress(event, this, '${url}')">
-                        <div class="password-error">密碼錯誤，請重試</div>
-                        <div class="password-buttons">
-                            <button class="password-button" onclick="App.submitPassword(this.parentElement.parentElement, '${url}')">確認</button>
-                            <button class="password-button cancel" onclick="App.closeModal(this.parentElement.parentElement.parentElement)">取消</button>
-                        </div>
+                        <input type="password" class="password-input" oninput="App.handleInput(this, '${url}')" maxlength="${this.PASSWORD.length}">
                     </div>
                 `;
                 document.body.appendChild(modal);
-                setTimeout(() => modal.classList.add('active'), 10);
-                modal.querySelector('.password-input').focus();
+                setTimeout(() => {
+                    modal.classList.add('active');
+                    modal.querySelector('.password-input').focus();
+                }, 10);
             },
 
-            handleKeyPress(event, input, url) {
-                if (event.key === 'Enter') {
+            handleInput(input, url) {
+                if (input.value.length === this.PASSWORD.length) {
                     const passwordBox = input.parentElement;
                     this.submitPassword(passwordBox, url);
                 }
@@ -407,17 +395,9 @@
             submitPassword(passwordBox, url) {
                 const input = passwordBox.querySelector('.password-input');
                 if (input.value === this.PASSWORD) {
-                    this.closeModal(passwordBox.parentElement);
-                    window.open(url, '_blank');
+                    window.location.href = url;
                 } else {
-                    input.value = '';
-                    const errorDiv = passwordBox.querySelector('.password-error');
-                    input.style.borderColor = 'red';
-                    errorDiv.classList.add('show');
-                    setTimeout(() => {
-                        input.style.borderColor = 'var(--primary-color)';
-                        errorDiv.classList.remove('show');
-                    }, 2000);
+                    this.closeModal(passwordBox.parentElement);
                 }
             },
 
@@ -484,19 +464,19 @@
                 <div class="service-icon">💰</div>
                 <h3 class="service-title">損益計算機</h3>
             </div>
-            <div class="service-card" onclick="openInNewWindow('Delivery_PC.html')">
+            <div class="service-card locked" onclick="checkPassword('Delivery_PC.html')">
                 <div class="service-icon">🖥️</div>
                 <h3 class="service-title">外送資產【電腦版】</h3>
             </div>
-            <div class="service-card" onclick="openInNewWindow('Delivery_Mobile.html')">
+            <div class="service-card locked" onclick="checkPassword('Delivery_Mobile.html')">
                 <div class="service-icon">📝</div>
                 <h3 class="service-title">外送資產【手機版】</h3>
             </div>
-            <div class="service-card" onclick="openInNewWindow('9Starx_Quotation.html')">
+            <div class="service-card locked" onclick="checkPassword('9Starx_Quotation.html')">
                 <div class="service-icon">📑</div>
                 <h3 class="service-title">9Starx報價單</h3>
             </div>
-            <div class="service-card" onclick="openInNewWindow('Blank_Quotation.html')">
+            <div class="service-card locked" onclick="checkPassword('Blank_Quotation.html')">
                 <div class="service-icon">📋</div>
                 <h3 class="service-title">商品銷售報價單</h3>
             </div>
