@@ -379,29 +379,27 @@
                     </div>
                 `;
                 document.body.appendChild(modal);
-                setTimeout(() => {
-                    modal.classList.add('active');
-                    modal.querySelector('.password-input').focus();
-                }, 10);
+                // 移除 setTimeout 以加速顯示
+                modal.classList.add('active');
+                modal.querySelector('.password-input').focus();
             },
 
             handleInput(input, url) {
                 if (input.value.length === this.PASSWORD.length) {
-                    const passwordBox = input.parentElement;
-                    this.submitPassword(passwordBox, url);
+                    this.submitPassword(input, url);
                 }
             },
 
-            submitPassword(passwordBox, url) {
-                const input = passwordBox.querySelector('.password-input');
+            submitPassword(input, url) {
                 if (input.value === this.PASSWORD) {
                     window.location.href = url;
                 } else {
-                    this.closeModal(passwordBox.parentElement);
+                    this.closeModal(input.closest('.password-modal'));
                 }
             },
 
             closeModal(modal) {
+                if (!modal) return;
                 modal.classList.remove('active');
                 setTimeout(() => modal.remove(), 300);
             },
