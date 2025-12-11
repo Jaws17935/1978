@@ -1008,8 +1008,8 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 <table id="quoteTable">
 <thead>
 <tr>
-<th style="width:20%">種類</th>
-<th style="width:32%">名稱</th>
+<th style="width:12%">種類</th>
+<th style="width:40%">名稱</th>
 <th style="width:9.6%" class="text-center">單價</th>
 <th style="width:9.6%" class="text-center">數量</th>
 <th style="width:9.6%" class="text-center">單位</th>
@@ -1147,8 +1147,9 @@ function setupPrintHandlers() {
   window.prepareDocumentForDisplay = function() {
     const quoteNumber = d('quoteNumber');
     if (quoteNumber && quoteNumber.textContent) {
-      document.dataset = document.dataset || {};
-      document.dataset.originalTitle = document.title;
+      if (!window._originalDocumentTitle) {
+        window._originalDocumentTitle = document.title;
+      }
       document.title = quoteNumber.textContent;
     }
     
@@ -1227,8 +1228,9 @@ function setupPrintHandlers() {
   };
   
   window.restoreDocumentAfterDisplay = function() {
-    if (document.dataset && document.dataset.originalTitle) {
-      document.title = document.dataset.originalTitle;
+    if (window._originalDocumentTitle) {
+      document.title = window._originalDocumentTitle;
+      window._originalDocumentTitle = null;
     }
     
     const textarea = d('notes-textarea');
@@ -1329,7 +1331,7 @@ function g(){const e=d('itemsTableBody');if(e)try{e.innerHTML='';for(let t=0;t<7
       const V=F.parseNumber(L.value||"0"),
             W=Math.max(0,F.parseNumber(w.value||"0",!1)),
             O=F.parseNumber(k?.value||"0"),
-            P=F.parseNumber(B?.value||"0");
+            P=B?.value&&B.value.trim()!=="N/A"?F.parseNumber(B.value||"0"):0;
       o+=Math.round(V*W);
       p+=O;
       m+=Math.round(P*W);
@@ -1480,20 +1482,29 @@ function q(e){
 }function G(){
   const textarea = d('notes-textarea');
   if(textarea){
-    // 設定基本事件監聽器
-    textarea.addEventListener('blur', function() {
-      if (this.value) {
-        this.value = this.value.trim();
+    // 確保 ENTER 鍵可以正常換行
+    textarea.addEventListener('keydown', function(e) {
+      // ENTER 鍵和 Shift+ENTER 都允許正常換行
+      // 不阻止默認行為，讓 textarea 正常處理換行
+      if (e.key === 'Enter') {
+        // 允許默認的換行行為
+        return;
       }
     });
     
-    // 允許正常的換行輸入
-    textarea.addEventListener('input', function() {
+    // 設定基本事件監聽器
+    textarea.addEventListener('blur', function() {
       if (this.value) {
-        // 只在結尾處移除多餘的空白
-        this.value = this.value.replace(/\s+$/, '');
+        // 保留換行符，只移除每行開頭和結尾的空白，以及整個文本開頭結尾的空白
+        let lines = this.value.split('\n');
+        lines = lines.map(line => line.trim());
+        // 移除開頭和結尾的空行
+        while (lines.length > 0 && lines[0] === '') lines.shift();
+        while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
+        this.value = lines.join('\n');
       }
     });
+    
   }
 }
 
@@ -1681,7 +1692,7 @@ function setupButtonHandlers() {
     }
   });
 
-  generateImageBtn.addEventListener('click', () => {
+  generateImageBtn.addEventListener('click', async () => {
     const container = document.querySelector('.container');
     const buttonSection = container.querySelector('.button-section');
     
@@ -1690,28 +1701,115 @@ function setupButtonHandlers() {
       return;
     }
     
-    window.prepareDocumentForDisplay();
-    buttonSection.style.display = 'none';
-
-    html2canvas(container, {
-      scale: 6,
-      useCORS: true,
-      logging: false,
-      allowTaint: true,
-      backgroundColor: '#ffffff'
-    }).then(canvas => {
+    // 顯示載入提示
+    const loadingMsg = N('正在生成圖片，請稍候...', 'info');
+    
+    try {
+      // 準備文檔用於顯示
+      window.prepareDocumentForDisplay();
+      buttonSection.style.display = 'none';
+      
+      // 確保所有圖片都已載入完成
+      const images = container.querySelectorAll('img');
+      const imagePromises = Array.from(images).map(img => {
+        if (img.complete && img.naturalHeight !== 0) {
+          return Promise.resolve();
+        }
+        return new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = resolve; // 即使載入失敗也繼續
+          // 設置超時，避免無限等待
+          setTimeout(resolve, 5000);
+        });
+      });
+      
+      // 等待所有圖片載入完成
+      await Promise.all(imagePromises);
+      
+      // 額外等待一小段時間確保渲染完成
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // 生成 canvas
+      const canvas = await html2canvas(container, {
+        scale: 3, // 提高解析度
+        useCORS: true,
+        logging: false,
+        allowTaint: false, // 改為 false 以避免跨域污染
+        backgroundColor: '#ffffff',
+        removeContainer: false,
+        imageTimeout: 15000,
+        onclone: (clonedDoc) => {
+          // 確保克隆文檔中的圖片也能正確顯示
+          const clonedImages = clonedDoc.querySelectorAll('img');
+          const originalImages = container.querySelectorAll('img');
+          clonedImages.forEach((clonedImg, index) => {
+            if (clonedImg.src && !clonedImg.complete && originalImages[index]) {
+              // 如果圖片未載入，嘗試使用原始圖片的 src
+              const originalImg = originalImages[index];
+              if (originalImg && originalImg.src && originalImg.src.startsWith('data:')) {
+                clonedImg.src = originalImg.src;
+              }
+            }
+          });
+        }
+      });
+      
+      // 檢查 canvas 是否有效
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        throw new Error('Canvas 生成失敗：尺寸為 0');
+      }
+      
+      // 檢查 canvas 是否為全黑
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, Math.min(100, canvas.width), Math.min(100, canvas.height));
+      const pixels = imageData.data;
+      let hasNonBlackPixels = false;
+      
+      for (let i = 0; i < pixels.length; i += 4) {
+        const r = pixels[i];
+        const g = pixels[i + 1];
+        const b = pixels[i + 2];
+        // 檢查是否為非黑色像素（容許一些誤差）
+        if (r > 10 || g > 10 || b > 10) {
+          hasNonBlackPixels = true;
+          break;
+        }
+      }
+      
+      if (!hasNonBlackPixels) {
+        throw new Error('生成的圖片為全黑，可能是渲染問題');
+      }
+      
+      // 轉換為圖片數據
       const imgData = canvas.toDataURL('image/png', 1.0);
+      
+      // 檢查數據 URL 是否有效
+      if (!imgData || imgData === 'data:,') {
+        throw new Error('圖片數據生成失敗');
+      }
+      
+      // 創建下載連結
       const link = document.createElement('a');
       link.href = imgData;
       link.download = `${d('quoteNumber').textContent || 'quote'}.png`;
+      document.body.appendChild(link);
       link.click();
-    }).catch(err => {
+      document.body.removeChild(link);
+      
+      // 移除載入提示
+      if (loadingMsg) {
+        loadingMsg.classList.remove('show');
+        setTimeout(() => loadingMsg.remove(), 300);
+      }
+      
+    } catch (err) {
       console.error('Error generating image:', err);
-      N('生成圖片失敗', 'error');
-    }).finally(() => {
+      N(`生成圖片失敗：${err.message || '未知錯誤'}`, 'error');
+    } finally {
+      // 恢復顯示
       buttonSection.style.display = '';
       window.restoreDocumentAfterDisplay();
-    });
+    }
   });
 
   printPdfBtn.addEventListener('click', () => {
@@ -1737,6 +1835,37 @@ function Q(){
     const priceInputs = '.price-input, .shipping-input, .installation-input',
           allInputs = `${priceInputs}, .quantity-input, .category-input, .name-input, .unit-input`;
     
+    // 檢查安裝欄位是否需要顯示 N/A
+    function checkInstallationField(installationInput) {
+      if (!installationInput || !installationInput.classList.contains('installation-input')) return;
+      
+      const row = installationInput.closest('tr');
+      if (!row) return;
+      
+      const categoryInput = row.querySelector('.category-input');
+      const nameInput = row.querySelector('.name-input');
+      const priceInput = row.querySelector('.price-input');
+      const quantityInput = row.querySelector('.quantity-input');
+      
+      // 檢查前方欄位是否有數據
+      const hasData = (categoryInput && categoryInput.value.trim()) ||
+                      (nameInput && nameInput.value.trim()) ||
+                      (priceInput && priceInput.value.trim()) ||
+                      (quantityInput && quantityInput.value.trim());
+      
+      // 如果前方有數據但安裝欄位為空，顯示 N/A
+      if (hasData && (!installationInput.value || installationInput.value.trim() === '')) {
+        installationInput.value = 'N/A';
+        installationInput.style.color = 'var(--text-light)';
+        installationInput.style.fontStyle = 'italic';
+      } else if (installationInput.value === 'N/A') {
+        // 如果用戶要輸入，清除 N/A
+        installationInput.value = '';
+        installationInput.style.color = '';
+        installationInput.style.fontStyle = '';
+      }
+    }
+    
     // Consolidated input handling
     function handleInput(event) {
       const target = event.target;
@@ -1747,25 +1876,93 @@ function Q(){
         if (target.matches(priceInputs)) {
           _(target);
         }
+        
+        // 如果是其他欄位變更，檢查安裝欄位
+        if (target.matches('.category-input, .name-input, .price-input, .quantity-input')) {
+          const row = target.closest('tr');
+          if (row) {
+            const installationInput = row.querySelector('.installation-input');
+            if (installationInput) {
+              checkInstallationField(installationInput);
+            }
+          }
+        }
+        
         updateTotals();
       }
     }
+    
+    // 處理安裝欄位的 focus 和 blur
+    function handleInstallationField(event) {
+      const target = event.target;
+      if (!target.classList.contains('installation-input')) return;
+      
+      if (event.type === 'focus') {
+        // 聚焦時，如果是 N/A，清空以便輸入
+        if (target.value === 'N/A') {
+          target.value = '';
+          target.style.color = '';
+          target.style.fontStyle = '';
+        }
+      } else if (event.type === 'blur') {
+        // 失焦時，檢查是否需要顯示 N/A
+        if (!target.value || target.value.trim() === '') {
+          checkInstallationField(target);
+        } else {
+          // 如果有輸入，確保格式正確
+          _(target);
+          target.style.color = '';
+          target.style.fontStyle = '';
+        }
+      }
+    }
 
+    // 初始化時檢查所有安裝欄位
+    function initializeInstallationFields() {
+      const tableBody = d('itemsTableBody');
+      if (tableBody) {
+        const rows = tableBody.querySelectorAll('tr');
+        rows.forEach(row => {
+          const installationInput = row.querySelector('.installation-input');
+          if (installationInput) {
+            checkInstallationField(installationInput);
+          }
+        });
+      }
+    }
+    
     // Add event listeners
     quoteTable.addEventListener('input', handleInput);
-    quoteTable.addEventListener('blur', handleInput, true);
     quoteTable.addEventListener('paste', event => {
       if (event.target.matches(allInputs)) {
         setTimeout(() => handleInput(event), 0);
       }
     });
-
-    // Add focus event handler
+    
+    // 合併 blur 事件處理（包含 handleInput 和 handleInstallationField）
+    quoteTable.addEventListener('blur', event => {
+      const target = event.target;
+      // 先執行 handleInput 處理
+      handleInput(event);
+      // 然後處理安裝欄位的 blur
+      handleInstallationField(event);
+    }, true);
+    
+    // 合併 focus 事件處理（包含安裝欄位處理和選擇文字）
     quoteTable.addEventListener('focus', event => {
-      if (event.target.tagName === 'INPUT' && event.target.matches(allInputs)) {
-        event.target.select();
+      const target = event.target;
+      if (target.tagName === 'INPUT' && target.matches(allInputs)) {
+        // 選擇文字
+        target.select();
+        // 處理安裝欄位的 focus
+        handleInstallationField(event);
+      } else if (target.classList.contains('installation-input')) {
+        handleInstallationField(event);
       }
     }, true);
+    
+    // 初始化檢查
+    setTimeout(initializeInstallationFields, 100);
 
     // Add keydown event handler for Tab key
     quoteTable.addEventListener('keydown', event => {
