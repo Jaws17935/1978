@@ -40,6 +40,10 @@ body{background-color:var(--bg-light);color:var(--text);line-height:1.5;font-siz
 .client-info .info-label{width:auto;min-width:40px}
 .quote-meta-row{margin-bottom:6px;line-height:1.2}
 [contenteditable=true],.editable-field{border-bottom:none;padding:1px;min-height:18px;min-width:80px;display:inline-block;color:var(--text);background-color:transparent;cursor:text}
+/* Header 區域的可編輯欄位保持白色，確保貼上時不改變顏色 */
+.header [contenteditable=true],.header .editable-field{color:#fff!important}
+.company-info [contenteditable=true],.company-info .editable-field{color:#fff!important}
+.company-info p [contenteditable=true],.company-info p .editable-field{color:#fff!important}
 
 /* 電話號碼欄位輸入優化 */
 [data-type="phone"] {
@@ -228,9 +232,6 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 .client-info:hover{background-color:rgba(241,245,249,.5);border-color:var(--border);box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .client-info .section-title{color:var(--primary);font-weight:600;margin-bottom:5px;padding-bottom:2px;height:18px;font-size:13px}
 .client-info .section-title:after{height:2px;width:32px}
-.client-info .info-group h4{font-weight:600;color:var(--primary);margin-bottom:3px;font-size:14px}
-.client-info .info-group p{margin-bottom:3px;line-height:1.3}
-.client-info .editable-field{border-bottom:1px dashed rgba(203,213,225,.5);padding:1px 3px;border-radius:2px;transition:all .2s ease;min-width:100px;min-height:16px}
 .client-info .editable-field:empty{min-height:18px;background-color:rgba(241,245,249,.3)}
 .client-info p:last-child{margin-bottom:1px}
 .contact-info,.quote-details{position:relative;padding:4px 8px;border-radius:4px;border:1px solid transparent;margin:-1px}
@@ -587,269 +588,6 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
   color: var(--primary);
 }
 
-.client-info .info-group h4 {
-    font-weight: 600;
-    color: var(--primary);
-    margin-bottom: 3px;
-    font-size: 14px;
-    line-height: 1.4;
-}
-
-.client-info .info-group h4:nth-of-type(1) {
-    margin-bottom: 8px; /* Add extra space *below* the customer name */
-}
-
-.client-info .info-group p,
-.client-info .info-group h4 {
-    display: block; 
-    width: 100%;
-    /* margin-bottom removed, using gap now */
-}
-
-.client-info .info-group h4 {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 14px;
-    line-height: 1.4; 
-}
-
-/* Target the first h4 (customer name) specifically */
-.client-info .info-group h4:nth-of-type(1) { /* Using nth-of-type(1) for clarity */
-    margin-bottom: 8px; /* Add extra space *below* the customer name */
-}
-
-/* Target the second h4 (address) specifically */
-.client-info .info-group h4:nth-of-type(2) {
-    font-weight: normal;
-    color: var(--text);
-    font-size: 14px;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    line-height: 0.8 !important; /* 更緊湊的行高 */
-    margin-top: -5px !important; /* 更大的負邊距使地址更靠近名稱 */
-    margin-bottom: 0 !important;
-}
-
-/* Remove all previous custom rules for .client-info .info-group children */
-
-.client-info .info-group p,
-.client-info .info-group h4 {
-    display: block; /* Ensure block display */
-    width: 100%;
-    margin: 0 0 3px 0; /* Default margin: 0 top, 0 right, 3px bottom, 0 left */
-    padding: 0; /* Reset padding */
-    line-height: 1.4; /* Consistent line height */
-}
-
-.client-info .info-group p {
-    color: var(--text-light);
-    word-wrap: break-word;
-}
-
-.client-info .info-group h4 {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Target the FIRST h4 element within .client-info .info-group */
-.client-info .info-group h4:nth-of-type(1) { /* Using nth-of-type(1) for clarity */
-    margin-bottom: 15px !important; /* Force a large margin below the first h4 (customer name) */
-}
-
-/* Ensure the SECOND h4 (address) has no extra top margin */
-.client-info .info-group h4:nth-of-type(2) {
-    margin-top: 0 !important; /* Force no top margin */
-    margin-bottom: 3px !important; /* Keep default bottom margin */
-}
-
-/* Restore basic styles for p and h4 within client-info */
-.client-info .info-group p,
-.client-info .info-group h4 {
-    display: block; 
-    width: 100%;
-    margin: 0 0 3px 0; 
-    padding: 0; 
-    line-height: 1.4; 
-}
-
-.client-info .info-group p {
-    color: var(--text-light);
-    word-wrap: break-word;
-}
-
-.client-info .info-group h4 {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Target the FIRST h4 element within .client-info .info-group */
-.client-info .info-group h4:nth-of-type(1) {
-    margin-bottom: 0; /* Remove margin-bottom */
-    padding-bottom: 15px; /* Add padding below the first h4 */
-}
-
-/* Ensure the SECOND h4 (address) has no extra top margin */
-.client-info .info-group h4:nth-of-type(2) {
-    margin-top: 0; /* Ensure no top margin */
-    margin-bottom: 3px !important; /* Keep default bottom margin */
-}
-
-.client-info .info-group p,
-.client-info .info-group h4 {
-    display: block; 
-    width: 100%;
-    margin: 0 0 2px 0; /* Reduced from 3px to 2px */
-    padding: 0; 
-    line-height: 1.2; /* Reduced from 1.4 to 1.2 */
-}
-
-.client-info .info-group p {
-    color: var(--text-light);
-    word-wrap: break-word;
-}
-
-.client-info .info-group h4 {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Target the FIRST h4 element within .client-info .info-group */
-.client-info .info-group h4:nth-of-type(1) {
-    margin-bottom: 0; /* Remove margin-bottom */
-    padding-bottom: 8px; /* Reduced from 15px to 8px */
-}
-
-/* Ensure the SECOND h4 (address) has no extra top margin */
-.client-info .info-group h4:nth-of-type(2) {
-    margin-top: 0; /* Ensure no top margin */
-    padding-bottom: 0; /* Ensure no bottom padding */
-    margin-bottom: 2px; /* Reduced from 3px to 2px */
-}
-
-.client-info .info-group p,
-.client-info .info-group h4 {
-    display: block; 
-    width: 100%;
-    margin: 0 0 1px 0; /* Reduced from 2px to 1px */
-    padding: 0; 
-    line-height: 1.1; /* Reduced from 1.2 to 1.1 */
-}
-
-.client-info .info-group p {
-    color: var(--text-light);
-    word-wrap: break-word;
-}
-
-.client-info .info-group h4 {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Target the FIRST h4 element within .client-info .info-group */
-.client-info .info-group h4:nth-of-type(1) {
-    margin-bottom: 0; /* Remove margin-bottom */
-    padding-bottom: 4px; /* Reduced from 8px to 4px */
-}
-
-/* Ensure the SECOND h4 (address) has no extra top margin */
-.client-info .info-group h4:nth-of-type(2) {
-    margin-top: 0; /* Ensure no top margin */
-    padding-bottom: 0; /* Ensure no bottom padding */
-    margin-bottom: 1px; /* Reduced from 2px to 1px */
-}
-
-.client-info .info-group p,
-.client-info .info-group h4 {
-    display: block; 
-    width: 100%;
-    margin: 0; /* Remove all margins */
-    padding: 0; 
-    line-height: 1; /* Set to 1 for minimal spacing */
-}
-
-.client-info .info-group p {
-    color: var(--text-light);
-    word-wrap: break-word;
-}
-
-.client-info .info-group h4 {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Target the FIRST h4 element within .client-info .info-group */
-.client-info .info-group h4:nth-of-type(1) {
-    margin-bottom: 0;
-    padding-bottom: 2px; /* Minimal padding between name and address */
-}
-
-/* Restore original style for the SECOND h4 (address) */
-.client-info .info-group h4:nth-of-type(2) {
-    margin: 0;
-    padding: 0;
-    font-weight: normal; /* Restore normal font weight */
-    color: var(--text); /* Restore original text color */
-    white-space: normal; /* Allow text wrapping */
-    overflow: visible; /* Show all text */
-    text-overflow: clip; /* No ellipsis */
-}
-
-/* Ensure the SECOND h4 (address) has no extra spacing */
-.client-info .info-group h4:nth-of-type(2) {
-    margin: 0;
-    padding: 0;
-}
-
-/* Remove all previous spacing rules */
-.client-info .info-group h4:nth-of-type(1),
-.client-info .info-group h4:nth-of-type(2) {
-    margin: 0;
-    padding: 0;
-    line-height: 1;
-}
-
-/* Style for customer name (second line) */
-.client-info .info-group h4:nth-of-type(1) {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-bottom: 1px; /* Minimal spacing */
-}
-
-/* Style for address (third line) */
-.client-info .info-group h4:nth-of-type(2) {
-    font-weight: normal;
-    color: var(--text);
-    font-size: 14px;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-}
-
 .client-info .info-group p {
     margin-bottom: 2px;
     line-height: 1.3;
@@ -875,24 +613,6 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
     min-height: 16px;
     margin-left: -6px;
     display: inline-block;
-}
-
-.client-info .info-group h4 {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 16px; /* 從 14px 增加到 16px */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3; /* 保持行高不變 */
-}
-
-/* 特別針對客戶名稱（第一個 h4） */
-.client-info .info-group h4:nth-of-type(1) {
-    font-size: 16px; /* 從 14px 增加到 16px */
-    line-height: 1.3; /* 保持行高不變 */
-    margin: 0;
-    padding: 0;
 }
 
 /* 客戶資訊基本樣式 */
@@ -951,14 +671,6 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
     }
 }
 
-.section-title-with-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 5px;
-  padding-bottom: 5px;
-  border-bottom: 1px solid var(--border);
-}
 
 .items-controls {
   display: flex;
@@ -1133,8 +845,8 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 <div class="company-logo" id="logo-container"><span class="default-logo-text" contenteditable="true" data-placeholder="請輸入公司名稱" class="editable-field"></span></div>
 <input type="file" id="upload-logo" class="upload-logo" accept="image/*">
 <p><span class="info-label">統編：</span><span contenteditable="true" data-placeholder="請輸入統編" class="editable-field"></span></p>
-<p><span class="info-label">電話：</span><span contenteditable="true" data-type="phone" data-placeholder="請輸入電話號碼" class="editable-field"></span></p>
-<p><span class="info-label">信箱：</span><span contenteditable="true" data-type="email" data-placeholder="請輸入電子郵件" class="editable-field"></span></p>
+<p><span class="info-label">電話：</span><span contenteditable="true" data-placeholder="請輸入電話號碼" data-type="phone" class="editable-field"></span></p>
+<p><span class="info-label">信箱：</span><span contenteditable="true" data-placeholder="請輸入電子郵件" data-type="email" class="editable-field"></span></p>
 </div>
 <div class="document-title">
 <h2>商品報價單</h2>
@@ -1314,7 +1026,7 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
-const C={TAX_RATE:.05,DEPOSIT_RATE:.3,DEFAULT_VALID_DAYS:7,DEFAULT_DELIVERY_DAYS:28,MAX_VALUE:999999999,MIN_VALUE:-999999999},M=["JA","FE","MR","AP","MY","JN","JL","AU","SE","OC","NO","DE"],T=new Date,d=e=>document.getElementById(e),D={quoteDateText:'quoteDate',quoteValidText:'quoteValidUntil',deliveryDateText:'deliveryDate'},b=(e,t)=>function(){let r;clearTimeout(r),r=setTimeout(()=>e.apply(this,arguments),t)},F={parseNumber:(e,t=!1)=>{if(!e)return 0;try{const r=String(e).replace(/[^\d.-]/g,'').trim(),n=t?parseInt(r):parseFloat(r);return isNaN(n)?0:Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,n))}catch{return 0}},formatCurrency:e=>{try{return isNaN(e)?'0':(t=Math.round(Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,e))),new Intl.NumberFormat('zh-TW',{style:'decimal',minimumFractionDigits:0}).format(t));var t}catch{return Math.round(e).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}},formatText:(e,t)=>{if(!e)return'';if(t==="phone"){const cleanPhone=e.replace(/[^\d+\-() #,]/g,'').trim();if(cleanPhone.length===0)return'';return cleanPhone.substring(0,25)}if(t==="email")return e.replace(/\s/g,"").trim().substring(0,50);return e.trim().substring(0,500)},formatDate:e=>{if(!e)return'';try{return new Date(e).toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'})}catch{return e}}};
+const C={TAX_RATE:.05,DEPOSIT_RATE:.3,DEFAULT_VALID_DAYS:7,DEFAULT_DELIVERY_DAYS:28,MAX_VALUE:999999999,MIN_VALUE:-999999999},M=["JA","FE","MR","AP","MY","JN","JL","AU","SE","OC","NO","DE"],T=new Date,d=e=>document.getElementById(e),D={quoteDateText:'quoteDate',quoteValidText:'quoteValidUntil',deliveryDateText:'deliveryDate'},b=(e,t)=>function(){let r;clearTimeout(r),r=setTimeout(()=>e.apply(this,arguments),t)},F={parseNumber:(e,t=!1)=>{if(!e)return 0;try{const r=String(e).replace(/[^\d.-]/g,'').trim(),n=t?parseInt(r):parseFloat(r);return isNaN(n)?0:Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,n))}catch{return 0}},formatCurrency:e=>{try{const t=Math.round(Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,e)));return isNaN(e)?'0':new Intl.NumberFormat('zh-TW',{style:'decimal',minimumFractionDigits:0}).format(t)}catch{return Math.round(e).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}},formatText:(e,t)=>{if(!e)return'';if(t==="phone"){const cleanPhone=e.replace(/[^\d+\-() #,]/g,'').trim();if(cleanPhone.length===0)return'';return cleanPhone.substring(0,25)}if(t==="email")return e.replace(/\s/g,"").trim().substring(0,50);return e.trim().substring(0,500)},formatDate:e=>{if(!e)return'';try{return new Date(e).toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'})}catch{return e}}};
 
 function setupPrintHandlers() {
   window.prepareDocumentForDisplay = function() {
@@ -1507,10 +1219,10 @@ function g(){const e=d('itemsTableBody');if(e)try{e.innerHTML='';for(let t=0;t<7
       const V=F.parseNumber(L.value||"0"),
             W=Math.max(0,F.parseNumber(w.value||"0",!1)),
             O=F.parseNumber(k?.value||"0"),
-            X=F.parseNumber(B?.value||"0");
+            P=F.parseNumber(B?.value||"0");
       o+=Math.round(V*W);
       p+=O;
-      m+=Math.round(X*W);
+      m+=Math.round(P*W);
     });
     
     // Update totals inputs
@@ -1568,7 +1280,7 @@ function setupTotalsInputs() {
   });
 }
 
-function _(e){if(!e)return;const t=e.value;if(t==='')return;try{(e.classList.contains('price-input')||e.classList.contains('shipping-input')||e.classList.contains('installation-input'))&&(t=>{const r=F.parseNumber(t);return r>C.MAX_VALUE?(N("數值超出最大限制","warning"),e.value=F.formatCurrency(C.MAX_VALUE)):r<C.MIN_VALUE?(N("數值超出最小限制","warning"),e.value=F.formatCurrency(C.MIN_VALUE)):e.value=F.formatCurrency(r),!0})(t)}catch{e.value=F.formatCurrency(0)}}function $(e){if(!e)return;try{const t=F.formatText(e.innerText.replace(/\n/g,"").trim(),e.getAttribute("data-type"));if(t===e.innerText)return;const r=window.getSelection();if(!r)return;const n=document.createRange();n.selectNodeContents(e),r.removeAllRanges(),r.addRange(n),document.execCommand("insertText",!1,t),h(e)}catch{}}function q(e){
+function _(e){if(!e)return;const t=e.value;if(t==='')return;try{(e.classList.contains('price-input')||e.classList.contains('shipping-input')||e.classList.contains('installation-input'))&&(t=>{const r=F.parseNumber(t);return r>C.MAX_VALUE?(N("數值超出最大限制","warning"),e.value=F.formatCurrency(C.MAX_VALUE)):r<C.MIN_VALUE?(N("數值超出最小限制","warning"),e.value=F.formatCurrency(C.MIN_VALUE)):e.value=F.formatCurrency(r),!0})(t)}catch{e.value=F.formatCurrency(0)}}function $(e){if(!e)return;try{const t=F.formatText(e.innerText.replace(/\n/g,"").trim(),e.getAttribute("data-type"));if(t===e.innerText)return;const r=window.getSelection();if(!r)return;const n=document.createRange();n.selectNodeContents(e),r.removeAllRanges(),r.addRange(n),document.execCommand("insertText",!1,t)}catch{}}function q(e){
   e.preventDefault();
   const t=D[e.target.id];
   if(!t) return;
@@ -1917,10 +1629,7 @@ function setupButtonHandlers() {
 }
 
 function Q(){
-  const container = document.querySelector('.container'),
-        updateTotals = b(f,200),
-        logoContainer = d('logo-container'),
-        uploadLogo = d('upload-logo');
+  const updateTotals = b(f,200);
   
   // Add date picker event handlers
   Object.entries(D).forEach(([textId, inputId]) => {
@@ -2264,6 +1973,166 @@ function K(){
     
     // Initialize phone formatting
     setupPhoneFormatting();
+    
+    // 為所有 contenteditable 欄位添加純文字貼上功能
+    // 確保貼上時只保留純文字，不保留格式，依照表格現有格式為主
+    function setupPlainTextPasteHandling() {
+      // 獲取所有 contenteditable 欄位
+      const allEditableFields = document.querySelectorAll('[contenteditable="true"].editable-field, [contenteditable="true"]');
+      
+      allEditableFields.forEach(field => {
+        // 檢查是否已經有貼上事件監聽器（避免重複添加）
+        if (field.dataset.pasteHandlerAdded) return;
+        field.dataset.pasteHandlerAdded = 'true';
+        
+        // 為電話號碼欄位使用特殊處理（已在 setupPhoneFormatting 中處理）
+        if (field.dataset.type === 'phone') {
+          return; // 電話號碼欄位已有專門的貼上處理
+        }
+        
+        field.addEventListener('paste', function(e) {
+          e.preventDefault();
+          
+          // 獲取剪貼簿中的純文字內容
+          const paste = (e.clipboardData || window.clipboardData).getData('text');
+          
+          // 如果是 email 欄位，移除所有空格
+          let cleanText = paste;
+          if (this.dataset.type === 'email') {
+            cleanText = paste.replace(/\s/g, '').trim();
+          } else {
+            cleanText = paste.trim();
+          }
+          
+          // 獲取當前選取範圍
+          const selection = window.getSelection();
+          if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            
+            // 刪除選取的內容
+            range.deleteContents();
+            
+            // 插入純文字（不帶格式）
+            const textNode = document.createTextNode(cleanText);
+            range.insertNode(textNode);
+            
+            // 將光標移動到插入文字的末尾
+            range.setStartAfter(textNode);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          } else {
+            // 如果沒有選取範圍，直接替換整個內容
+            this.textContent = cleanText;
+            
+            // 將光標移動到文字末尾
+            const range = document.createRange();
+            range.selectNodeContents(this);
+            range.collapse(false);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+          
+          // 觸發 input 事件以確保其他監聽器能正確處理
+          this.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+      });
+    }
+    
+    // Initialize plain text paste handling for all editable fields
+    setupPlainTextPasteHandling();
+    
+    // 為所有輸入框添加鍵盤快捷鍵功能
+    // Delete 鍵：當光標在末尾時，清空整個欄位
+    // Backspace 鍵：逐一刪除（保持默認行為）
+    function setupKeyboardShortcuts() {
+      // 處理所有 input 輸入框
+      const allInputs = document.querySelectorAll('input.input-field, input.totals-input');
+      
+      allInputs.forEach(input => {
+        // 檢查是否已經添加過事件監聽器
+        if (input.dataset.keyboardHandlerAdded) return;
+        input.dataset.keyboardHandlerAdded = 'true';
+        
+        input.addEventListener('keydown', function(e) {
+          // Delete 鍵：當光標在文字末尾且沒有選取文字時，清空整個欄位
+          if (e.key === 'Delete' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+            const hasSelection = this.selectionStart !== this.selectionEnd;
+            const isAtEnd = this.selectionStart === this.value.length;
+            
+            // 如果光標在末尾且沒有選取文字，清空整個欄位
+            if (!hasSelection && isAtEnd && this.value.length > 0) {
+              e.preventDefault();
+              this.value = '';
+              // 觸發 input 事件以更新相關計算
+              this.dispatchEvent(new Event('input', { bubbles: true }));
+              this.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            // 如果有選取文字或光標不在末尾，使用默認行為（刪除選取或下一個字符）
+          }
+          // Backspace 鍵保持默認行為（逐一刪除）
+        });
+      });
+      
+      // 處理所有 contenteditable 欄位
+      const allEditableFields = document.querySelectorAll('[contenteditable="true"].editable-field, [contenteditable="true"]');
+      
+      allEditableFields.forEach(field => {
+        // 檢查是否已經添加過事件監聽器（避免與電話號碼欄位的處理衝突）
+        if (field.dataset.keyboardHandlerAdded) return;
+        
+        // 跳過電話號碼欄位，它們已經有專門的 keydown 處理
+        if (field.dataset.type === 'phone') return;
+        
+        field.dataset.keyboardHandlerAdded = 'true';
+        
+        field.addEventListener('keydown', function(e) {
+          // Delete 鍵：當光標在文字末尾且沒有選取文字時，清空整個欄位
+          if (e.key === 'Delete' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+              const hasSelection = !range.collapsed;
+              
+              // 如果沒有選取文字，檢查光標位置
+              if (!hasSelection) {
+                const textContent = this.textContent || '';
+                
+                // 檢查光標是否在文字末尾
+                let isAtEnd = false;
+                if (range.startContainer === this || range.startContainer.parentNode === this) {
+                  // 如果光標在元素本身或直接子節點
+                  if (this.firstChild && this.firstChild.nodeType === Node.TEXT_NODE) {
+                    const textNode = this.firstChild;
+                    isAtEnd = range.startOffset === textNode.textContent.length;
+                  } else {
+                    // 如果沒有文字節點，檢查是否在末尾
+                    isAtEnd = range.startOffset === textContent.length;
+                  }
+                } else if (range.startContainer.nodeType === Node.TEXT_NODE) {
+                  const textNode = range.startContainer;
+                  isAtEnd = range.startOffset === textNode.textContent.length;
+                }
+                
+                // 如果光標在末尾且有內容，清空整個欄位
+                if (isAtEnd && textContent.length > 0) {
+                  e.preventDefault();
+                  this.textContent = '';
+                  // 觸發 input 事件
+                  this.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+              }
+              // 如果有選取文字，使用默認行為（刪除選取的文字）
+            }
+          }
+          // Backspace 鍵保持默認行為（逐一刪除）
+        });
+      });
+    }
+    
+    // Initialize keyboard shortcuts
+    setupKeyboardShortcuts();
   }catch{}
 }
 K();
