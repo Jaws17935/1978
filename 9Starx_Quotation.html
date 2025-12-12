@@ -1134,15 +1134,44 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 document.addEventListener('DOMContentLoaded',()=>{
 const C={TAX_RATE:.05,DEPOSIT_RATE:.3,DEFAULT_VALID_DAYS:7,DEFAULT_DELIVERY_DAYS:28,MAX_VALUE:999999999,MIN_VALUE:-999999999},M=["JA","FE","MR","AP","MY","JN","JL","AU","SE","OC","NO","DE"],T=new Date,d=e=>document.getElementById(e),D={quoteDateText:'quoteDate',quoteValidText:'quoteValidUntil',deliveryDateText:'deliveryDate'},b=(e,t)=>function(){let r;clearTimeout(r),r=setTimeout(()=>e.apply(this,arguments),t)},F={parseNumber:(e,t=!1)=>{if(!e)return 0;try{const r=String(e).replace(/[^\d.-]/g,'').trim(),n=t?parseInt(r):parseFloat(r);return isNaN(n)?0:Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,n))}catch{return 0}},formatCurrency:e=>{try{const t=Math.round(Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,e)));return isNaN(e)?'0':new Intl.NumberFormat('zh-TW',{style:'decimal',minimumFractionDigits:0}).format(t)}catch{return Math.round(e).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}},formatText:(e,t)=>{if(!e)return'';if(t==="phone"){const cleanPhone=e.replace(/[^\d+\-() #,]/g,'').trim();if(cleanPhone.length===0)return'';return cleanPhone.substring(0,25)}if(t==="email")return e.replace(/\s/g,"").trim().substring(0,50);return e.trim().substring(0,500)},formatDate:e=>{if(!e)return'';try{return new Date(e).toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'})}catch{return e}}};
 
+// 共用函數：設置文檔標題
+function setDocumentTitleForPrint() {
+  const quoteNumber = d('quoteNumber');
+  if (!window._originalDocumentTitle) {
+    window._originalDocumentTitle = document.title;
+  }
+  
+  let newTitle;
+  if (quoteNumber && quoteNumber.textContent && quoteNumber.textContent.trim()) {
+    newTitle = quoteNumber.textContent.trim();
+  } else {
+    // 如果報價單號為空，使用預設檔名
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
+    newTitle = `報價單_${dateStr}`;
+  }
+  
+  document.title = newTitle;
+  
+  // 強制更新標題元素
+  const existingTitle = document.querySelector('title');
+  if (existingTitle) {
+    existingTitle.textContent = newTitle;
+  } else {
+    const titleElement = document.createElement('title');
+    titleElement.textContent = newTitle;
+    document.head.appendChild(titleElement);
+  }
+}
+
 function setupPrintHandlers() {
   window.prepareDocumentForDisplay = function() {
-    const quoteNumber = d('quoteNumber');
-    if (quoteNumber && quoteNumber.textContent) {
-      if (!window._originalDocumentTitle) {
-        window._originalDocumentTitle = document.title;
-      }
-      document.title = quoteNumber.textContent;
+    // 如果標題已經被設置（例如從按鈕點擊），則不再覆蓋
+    if (window._titleAlreadySet) {
+      return;
     }
+    
+    setDocumentTitleForPrint();
     
     const textarea = d('notes-textarea');
     if (textarea) {
@@ -1221,7 +1250,8 @@ function setupPrintHandlers() {
   window.restoreDocumentAfterDisplay = function() {
     if (window._originalDocumentTitle) {
       document.title = window._originalDocumentTitle;
-      window._originalDocumentTitle = null;
+      // 不要設置為 null，保留原始標題以便後續使用
+      // window._originalDocumentTitle = null;
     }
     
     const textarea = d('notes-textarea');
@@ -1804,7 +1834,20 @@ function setupButtonHandlers() {
   });
 
   printPdfBtn.addEventListener('click', () => {
-    window.print();
+    // 設置標題標記，防止 beforeprint 事件覆蓋
+    window._titleAlreadySet = true;
+    
+    // 使用共用函數設置標題
+    setDocumentTitleForPrint();
+    
+    // 短暫延遲確保標題設置完成後再觸發打印
+    setTimeout(() => {
+      window.print();
+      // 打印後清除標記
+      setTimeout(() => {
+        window._titleAlreadySet = false;
+      }, 100);
+    }, 100);
   });
 }
 
