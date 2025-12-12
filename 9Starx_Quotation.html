@@ -98,12 +98,6 @@ body {
   line-height: 1.3;
 }
 
-.default-logo-text {
-  font-size: 22px;
-  font-weight: 600;
-  color: #fff;
-}
-
 /* 文件標題 */
 .document-title h2 {
   font-size: 20px;
@@ -298,15 +292,16 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 .input-field:hover{background-color:rgba(241,245,249,.5)}
 .category-input{font-weight:500;color:var(--secondary)}
 .name-input{font-weight:500}
-.quantity-input::-webkit-inner-spin-button,.quantity-input::-webkit-outer-spin-button{
-    -webkit-appearance:none;
-    appearance: none;
-    margin:0
-}
-.quantity-input{
-    -moz-appearance:textfield;
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button {
     -webkit-appearance: none;
-    appearance:none
+    appearance: none;
+    margin: 0;
+}
+.quantity-input {
+    -moz-appearance: textfield;
+    -webkit-appearance: none;
+    appearance: none;
 }
 .original-price{text-decoration:line-through;color:var(--text-light);font-size:11px;display:block;text-align:center;padding-top:2px;opacity:.7}
 
@@ -597,10 +592,6 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
   
   .company-logo img {
     max-height: 40px !important;
-  }
-  
-  .default-logo-text {
-    font-size: 18px !important;
   }
   
   .document-title h2 {
@@ -958,7 +949,7 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 <div class="container">
 <div class="header section">
 <div class="company-info">
-<div class="company-logo" id="logo-container"><span class="default-logo-text">玖星吉國際貿易</span></div>
+<div class="company-logo" id="logo-container"><img src="9StarMax.png" alt="玖星吉國際貿易" style="max-height: 50px; object-fit: contain;"></div>
 <input type="file" id="upload-logo" class="upload-logo" accept="image/*">
 <p>統編：89061654</p><p>電話：02-7709-4666</p><p>信箱：Service@9Starmax.com</p>
 </div>
