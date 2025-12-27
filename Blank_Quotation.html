@@ -549,6 +549,82 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
     margin: 0 !important;
     padding: 0 !important;
   }
+  
+  /* 客戶資訊樣式調整 */
+  .client-info .info-group h4:nth-of-type(1) {
+    font-size: 16px !important;
+    line-height: 1.1 !important;
+    margin-bottom: 2px !important;
+  }
+  
+  .client-info .info-group h4:nth-of-type(2) {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+  }
+  
+  .client-info .info-group p {
+    margin-bottom: 2px !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* 法律條款和備註區域樣式 */
+  .legal-terms-section {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 5px !important;
+    padding: 3px 10px !important;
+    align-items: stretch !important;
+  }
+  
+  .legal-notice-container, .right-side-container {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+  }
+  
+  .legal-notice, .terms-content {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+  }
+  
+  .terms-container {
+    margin-bottom: 12px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .notes-container {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin-top: 12px !important;
+    min-height: 0 !important;
+  }
+  
+  #notes-textarea, #notes-print-preview {
+    flex: 1 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    margin-top: 4px !important;
+  }
+  
+  /* 總計輸入框樣式 */
+  .totals-input {
+    border: none !important;
+    background: transparent !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  .totals-input:focus,
+  .totals-input:hover {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
 }
 
 /* 添加自訂樣式 */
@@ -631,27 +707,6 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
     margin-bottom: 2px;
 }
 
-/* 打印樣式調整 */
-@media print {
-    .client-info .info-group h4:nth-of-type(1) {
-        font-size: 16px !important;
-        line-height: 1.1 !important;
-        margin-bottom: 2px !important;
-    }
-    
-    .client-info .info-group h4:nth-of-type(2) {
-        font-size: 12px !important;
-        line-height: 1.2 !important;
-        margin-top: 2px !important;
-        margin-bottom: 2px !important;
-    }
-    
-    .client-info .info-group p {
-        margin-bottom: 2px !important;
-        line-height: 1.2 !important;
-    }
-}
-
 .legal-terms-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -693,65 +748,6 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
   height: 100%;
   min-height: 0;
   margin: 0;
-}
-
-@media print {
-  .legal-terms-section {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 5px !important;
-    padding: 3px 10px !important;
-    align-items: stretch !important;
-  }
-  
-  .legal-notice-container, .right-side-container {
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
-  }
-  
-  .legal-notice, .terms-content {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
-  }
-  
-  .terms-container {
-    margin-bottom: 12px !important; /* 從 8px 增加到 12px */
-    flex-shrink: 0 !important;
-  }
-  
-  .notes-container {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    margin-top: 12px !important; /* 從 8px 增加到 12px */
-    min-height: 0 !important;
-  }
-  
-  #notes-textarea, #notes-print-preview {
-    flex: 1 !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    margin-top: 4px !important; /* 從 2px 增加到 4px */
-  }
-}
-
-@media print {
-  .totals-input {
-    border: none !important;
-    background: transparent !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  
-  .totals-input:focus,
-  .totals-input:hover {
-    background: transparent !important;
-    box-shadow: none !important;
-  }
 }
 </style>
 </head>
@@ -1086,7 +1082,7 @@ function setupPrintHandlers() {
   window.addEventListener('afterprint', window.restoreDocumentAfterDisplay);
 }
 
-function N(e,t='info'){if(!e)return null;const r=document.querySelector('.notification-overlay');r&&(r.classList.remove('show'),setTimeout(()=>r.remove(),300));const n=document.createElement('div');n.className=`notification-overlay notification-${t}`;let i='',s='通知';t==='warning'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',s='注意'):t==='error'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',s='錯誤'):t==='success'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',s='成功'):i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',n.innerHTML=`<div class="notification-modal"><div class="notification-header"><div class="notification-title"><span class="notification-icon">${i}</span><span>${s}</span></div></div><div class="notification-content">${e}</div><div class="notification-footer"><button class="notification-btn">我知道了</button></div></div>`,document.body.appendChild(n),n.offsetHeight,n.classList.add('show');const c=n.querySelector('.notification-btn');c&&(c.addEventListener('click',()=>{n.classList.remove('show'),setTimeout(()=>n.remove(),300)}),setTimeout(()=>c.focus(),100));const l=e=>{(e.key==='Escape'||e.key==='Enter')&&(n.classList.remove('show'),setTimeout(()=>{n.remove(),document.removeEventListener('keydown',l)},300))};return document.addEventListener('keydown',l),n}function h(e){if(e)try{const t=document.createRange(),r=window.getSelection();r&&(t.selectNodeContents(e),t.collapse(!1),r.removeAllRanges(),r.addRange(t))}catch{}}function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().slice(-2),i=String(e.getMonth()+1).padStart(2,"0"),s=String(e.getDate()).padStart(2,"0"),c=Math.random().toString(36).substring(2,4).toUpperCase();return`${t}${r}-${n}${i}${s}${c}`}catch{return`${t}${Math.random().toString(36).substring(2,8).toUpperCase()}`}}function E(){try{const e=d('quoteDate'),t=e?.value||T.toISOString().split("T")[0],r=new Date(t),n=d('quoteNumber');n&&(n.textContent=y(r))}catch{}}function I(){
+function N(e,t='info'){if(!e)return null;const r=document.querySelector('.notification-overlay');r&&(r.classList.remove('show'),setTimeout(()=>r.remove(),300));const n=document.createElement('div');n.className=`notification-overlay notification-${t}`;let i='',s='通知';t==='warning'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',s='注意'):t==='error'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',s='錯誤'):t==='success'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',s='成功'):i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',n.innerHTML=`<div class="notification-modal"><div class="notification-header"><div class="notification-title"><span class="notification-icon">${i}</span><span>${s}</span></div></div><div class="notification-content">${e}</div><div class="notification-footer"><button class="notification-btn">我知道了</button></div></div>`,document.body.appendChild(n),n.offsetHeight,n.classList.add('show');const c=n.querySelector('.notification-btn');c&&(c.addEventListener('click',()=>{n.classList.remove('show'),setTimeout(()=>n.remove(),300)}),setTimeout(()=>c.focus(),100));const l=e=>{(e.key==='Escape'||e.key==='Enter')&&(n.classList.remove('show'),setTimeout(()=>{n.remove(),document.removeEventListener('keydown',l)},300))};return document.addEventListener('keydown',l),n}function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().slice(-2),i=String(e.getMonth()+1).padStart(2,"0"),s=String(e.getDate()).padStart(2,"0"),c=Math.random().toString(36).substring(2,4).toUpperCase();return`${t}${r}-${n}${i}${s}${c}`}catch{return`${t}${Math.random().toString(36).substring(2,8).toUpperCase()}`}}function E(){try{const e=d('quoteDate'),t=e?.value||T.toISOString().split("T")[0],r=new Date(t),n=d('quoteNumber');n&&(n.textContent=y(r))}catch{}}function I(){
   try{
     const e=d('quoteDate'),
           t=d('quoteDateText');
@@ -1663,16 +1659,23 @@ function Q(){
                       (priceInput && priceInput.value.trim()) ||
                       (quantityInput && quantityInput.value.trim());
       
+      const isEmpty = !installationInput.value || installationInput.value.trim() === '';
+      const isNA = installationInput.value.trim() === 'N/A';
+      
       // 如果前方有數據但安裝欄位為空，顯示 N/A
-      if (hasData && (!installationInput.value || installationInput.value.trim() === '')) {
+      if (hasData && isEmpty) {
         installationInput.value = 'N/A';
         installationInput.style.color = 'var(--text-light)';
         installationInput.style.fontStyle = 'italic';
-      } else if (installationInput.value === 'N/A') {
-        // 如果用戶要輸入，清除 N/A
+      } else if (!hasData && isNA) {
+        // 如果前方沒有數據但安裝欄位是 N/A，清除 N/A
         installationInput.value = '';
         installationInput.style.color = '';
         installationInput.style.fontStyle = '';
+      } else if (hasData && isNA) {
+        // 如果前方有數據且安裝欄位是 N/A，確保保持 N/A 的樣式
+        installationInput.style.color = 'var(--text-light)';
+        installationInput.style.fontStyle = 'italic';
       }
     }
     
@@ -1752,9 +1755,9 @@ function Q(){
     // 合併 blur 事件處理（包含 handleInput 和 handleInstallationField）
     quoteTable.addEventListener('blur', event => {
       const target = event.target;
-      // 先執行 handleInput 處理
+      // 先執行 handleInput 處理（處理格式化和總計更新，以及檢查安裝欄位）
       handleInput(event);
-      // 然後處理安裝欄位的 blur
+      // 然後處理安裝欄位的 blur（檢查是否需要顯示 N/A）
       handleInstallationField(event);
     }, true);
     
