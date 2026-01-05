@@ -58,7 +58,10 @@
         --space-blue: #1a1a2e;
         --neon-cyan: #00f3ff;
         --cyber-purple: #712f79;
-        --transition-time: 0.3s;
+        --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --bg-dark: rgba(0,0,0,0.3);
+        --bg-modal: rgba(0,0,0,0.8);
+        --bg-display: rgba(0,0,0,0.5);
     }
     
     body {
@@ -82,15 +85,18 @@
         box-shadow: 0 0 30px rgba(0,243,255,0.2);
         box-sizing: border-box;
     }
+    
     .grid-container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 1.5rem;
         padding: 1rem 0;
     }
+    
     .category-section {
         margin-bottom: 2rem;
     }
+    
     .category-title {
         color: var(--neon-cyan);
         font-size: 1.5rem;
@@ -98,20 +104,23 @@
         border-bottom: 1px solid var(--cyber-purple);
         padding-bottom: 0.5rem;
     }
+    
     .cyber-input {
-        background: rgba(0,0,0,0.3);
+        background: var(--bg-dark);
         border: 1px solid var(--cyber-purple);
         border-radius: 8px;
         padding: 1rem;
-        transition: all var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all var(--transition);
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
+    
     .cyber-input:hover {
         transform: translateY(-3px);
         box-shadow: 0 5px 15px rgba(113,47,121,0.4);
     }
+    
     input[type="number"] {
         width: 120px;
         padding: 0.8rem;
@@ -121,12 +130,11 @@
         color: var(--neon-cyan);
         font-size: 1.1rem;
         text-align: center;
-        transition: border-color var(--transition-time);
-        -moz-appearance: textfield; /* Firefox */
-        appearance: textfield; /* Standard */
+        transition: border-color var(--transition);
+        -moz-appearance: textfield;
+        appearance: textfield;
     }
     
-    /* 隱藏 Chrome, Safari, Edge, Opera 的上下箭頭 */
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button {
         -webkit-appearance: none;
@@ -138,60 +146,68 @@
         border-color: var(--cyber-purple);
         outline: none;
     }
+    
     .no-copy {
         cursor: default;
     }
+    
     #hud-display p, #cost-display p {
         margin: 5px 0;
         font-size: 1.2rem;
         color: var(--neon-cyan);
     }
-    /* 總成本區域樣式 */
+    
     .cost-summary {
-        background: rgba(0,0,0,0.5);
+        background: var(--bg-display);
         border: 3px solid var(--neon-cyan);
         border-radius: 12px;
         padding: 1.5rem 2rem;
         margin-top: 1rem;
         backdrop-filter: blur(10px);
-        transition: border-color var(--transition-time);
-        display: none; /* 默認隱藏，有成本時顯示 */
+        transition: border-color var(--transition);
+        display: none;
     }
+    
     .cost-total-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
+    
     .cost-total {
         font-weight: bold;
         color: var(--neon-cyan);
         font-size: 1.4rem;
     }
+    
     .cost-note-input {
         width: 180px;
         padding: 0.6rem;
-        background: rgba(0,0,0,0.3);
+        background: var(--bg-dark);
         border: 1px solid var(--neon-cyan);
         border-radius: 6px;
         color: var(--neon-cyan);
         font-size: 1rem;
         text-align: center;
-        transition: all var(--transition-time);
+        transition: all var(--transition);
     }
+    
     .cost-note-input:focus {
         border-color: var(--cyber-purple);
         outline: none;
         box-shadow: 0 0 10px rgba(0,243,255,0.3);
     }
+    
     .cost-note-input::placeholder {
         color: rgba(0,243,255,0.5);
     }
-    /* 日期選擇器樣式 */
+    
     #date-picker {
         text-align: center;
         margin-bottom: 1rem;
         position: relative;
     }
+    
     #date-display {
         background: transparent;
         border: 1px solid var(--neon-cyan);
@@ -201,24 +217,27 @@
         cursor: pointer;
         display: inline-block;
         margin-left: 10px;
-        transition: box-shadow var(--transition-time);
+        transition: box-shadow var(--transition);
     }
+    
     #date-display:hover {
         box-shadow: 0 0 10px rgba(0,243,255,0.5);
     }
+    
     #date-modal {
         display: none;
         position: absolute;
         top: 100%;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(0,0,0,0.8);
+        background: var(--bg-modal);
         border: 1px solid var(--neon-cyan);
         border-radius: 8px;
         padding: 1rem;
         z-index: 10;
         box-shadow: 0 0 20px rgba(0,243,255,0.3);
     }
+    
     #date-modal select {
         background: var(--space-blue);
         border: 1px solid var(--cyber-purple);
@@ -228,6 +247,7 @@
         border-radius: 4px;
         font-size: 1rem;
     }
+    
     #reset-date-button {
         margin-left: 10px;
         padding: 5px 10px;
@@ -236,26 +256,29 @@
         border-radius: 6px;
         color: var(--neon-cyan);
         cursor: pointer;
-        transition: all var(--transition-time);
+        transition: all var(--transition);
     }
+    
     #reset-date-button:hover {
         background: var(--neon-cyan);
         color: var(--space-blue);
     }
-    /* 共用顯示框架樣式 */
+    
     #hud-display, #cost-display {
-        background: rgba(0,0,0,0.5);
+        background: var(--bg-display);
         border: 3px solid var(--neon-cyan);
         border-radius: 12px;
         padding: 2rem;
         margin-top: 1rem;
         text-align: left;
         backdrop-filter: blur(10px);
-        transition: border-color var(--transition-time);
+        transition: border-color var(--transition);
     }
+    
     #hud-display {
         cursor: pointer;
     }
+    
     #hud-display:hover {
         border-color: var(--cyber-purple);
     }
@@ -263,9 +286,9 @@
 
 <script>
     const utils = {
-        padZero(num) { return String(num).padStart(2, '0'); },
-        getDaysInMonth(year, month) { return new Date(year, month, 0).getDate(); },
-        formatNumber(num) { return num.toLocaleString(); }
+        padZero: num => String(num).padStart(2, '0'),
+        getDaysInMonth: (year, month) => new Date(year, month, 0).getDate(),
+        formatNumber: num => num.toLocaleString()
     };
 
     const dateManager = {
@@ -275,7 +298,8 @@
             modal: document.getElementById('date-modal'),
             yearSelect: document.getElementById('year-select'),
             monthSelect: document.getElementById('month-select'),
-            daySelect: document.getElementById('day-select')
+            daySelect: document.getElementById('day-select'),
+            resetBtn: document.getElementById('reset-date-button')
         },
 
         init() {
@@ -286,37 +310,28 @@
         render() {
             this.elements.display.textContent = 
                 `${this.state.year}/${utils.padZero(this.state.month)}/${utils.padZero(this.state.day)}`;
-            this.populateYears();
-            this.populateMonths();
+            this.populateSelect(this.elements.yearSelect, 2025, 2054, this.state.year, false);
+            this.populateSelect(this.elements.monthSelect, 1, 12, this.state.month, true);
             this.populateDays();
             calculateResult();
         },
 
-        populateYears() {
-            this.elements.yearSelect.innerHTML = '';
-            for (let year = 2025; year <= 2054; year++) {
-                this.elements.yearSelect.add(new Option(year, year, year === this.state.year));
-            }
-        },
-
-        populateMonths() {
-            this.elements.monthSelect.innerHTML = '';
-            for (let month = 1; month <= 12; month++) {
-                this.elements.monthSelect.add(new Option(utils.padZero(month), month, month === this.state.month));
+        populateSelect(select, start, end, selected, pad) {
+            select.innerHTML = '';
+            for (let i = start; i <= end; i++) {
+                const value = pad ? utils.padZero(i) : i;
+                select.add(new Option(value, i, i === selected));
             }
         },
 
         populateDays() {
-            this.elements.daySelect.innerHTML = '';
             const days = utils.getDaysInMonth(this.state.year, this.state.month);
-            for (let day = 1; day <= days; day++) {
-                this.elements.daySelect.add(new Option(utils.padZero(day), day, day === this.state.day));
-            }
+            this.populateSelect(this.elements.daySelect, 1, days, this.state.day, true);
         },
 
         resetToToday() {
             const today = new Date();
-            this.state.year = today.getFullYear() < 2025 ? 2025 : today.getFullYear();
+            this.state.year = Math.max(2025, today.getFullYear());
             this.state.month = today.getMonth() + 1;
             this.state.day = today.getDate();
             this.render();
@@ -327,16 +342,14 @@
                 this.elements.modal.style.display = 'block';
                 calculateResult();
             });
-            document.getElementById('reset-date-button').addEventListener('click', () => this.resetToToday());
-            this.elements.yearSelect.addEventListener('change', (e) => {
-                this.state.year = parseInt(e.target.value);
-                this.render();
+            this.elements.resetBtn.addEventListener('click', () => this.resetToToday());
+            [this.elements.yearSelect, this.elements.monthSelect].forEach(select => {
+                select.addEventListener('change', e => {
+                    this.state[select === this.elements.yearSelect ? 'year' : 'month'] = parseInt(e.target.value);
+                    this.render();
+                });
             });
-            this.elements.monthSelect.addEventListener('change', (e) => {
-                this.state.month = parseInt(e.target.value);
-                this.render();
-            });
-            this.elements.daySelect.addEventListener('change', (e) => {
+            this.elements.daySelect.addEventListener('change', e => {
                 this.state.day = parseInt(e.target.value);
                 this.elements.modal.style.display = 'none';
                 this.render();
@@ -345,36 +358,28 @@
     };
 
     const inputManager = {
-        inputs: Array.from(document.querySelectorAll('input[type="number"]')),
-        previousValues: {},    // 跟踪先前的值
-        currentInput: null,    // 跟踪當前焦點的輸入框
-        windowBlurred: false,  // 跟踪窗口是否失去焦點
-        isFirstLoad: true,     // 跟踪是否為初次載入
-        deleteCount: {},       // 跟踪Delete按鍵點擊次數
-        deleteTimers: {},      // 跟踪Delete計時器
+        inputs: Array.from(document.querySelectorAll('input[type="number"]')).filter(i => i.id !== 'cost-note-input'),
+        previousValues: {},
+        currentInput: null,
+        isFirstLoad: true,
+        deleteCount: {},
+        deleteTimers: {},
         
         expressionParser: {
             evaluate(expr) {
-                // 空輸入處理
-                if (expr === undefined || expr === null) return '';
+                if (!expr) return '';
                 const trimmed = String(expr).trim();
-                if (trimmed === '') return '';
-                
-                // 如果輸入就是單個0，應該保留它
-                if (trimmed === '0') return '0';
+                if (!trimmed || trimmed === '0') return trimmed === '0' ? '0' : '';
                 
                 try {
-                    // 解析表達式中的數字和運算符
-                    const tokens = (trimmed.match(/(\d+|\+|\-|\*|\/|\(|\))/g) || []).map(t => 
+                    const tokens = (trimmed.match(/(\d+|\+|\-|\*|\/)/g) || []).map(t => 
                         /\d+/.test(t) ? parseInt(t) : t
                     );
+                    if (!tokens.length) return '';
                     
-                    if (tokens.length === 0) return '';
-                    
-                    // 計算表達式的值
                     const stack = [];
                     let num = 0, op = '+';
-                    for (let token of tokens) {
+                    for (const token of tokens) {
                         if (typeof token === 'number') {
                             num = token;
                             if (op === '+') stack.push(num);
@@ -385,161 +390,94 @@
                             op = token;
                         }
                     }
-                    
                     const result = Math.max(0, Math.round(stack.reduce((a, b) => a + b, 0)));
-                    // 明確的零和計算結果為零的處理不同
-                    if (result === 0 && trimmed !== '0') {
-                        return '';
-                    }
-                    return String(result);
+                    return result === 0 && trimmed !== '0' ? '' : String(result);
                 } catch (e) {
-                    console.error("Expression parsing error:", e);
                     return '';
                 }
             }
         },
 
-        // 處理輸入提交
         commitInput(input) {
             if (!input) return;
-            
-            // 保存原始輸入值
-            const originalValue = String(input.value);
-            
-            // 計算表達式並獲取結果
-            const newValue = this.expressionParser.evaluate(originalValue);
-            
-            // 如果不是初次載入且有先前值，則進行累加
+            const newValue = this.expressionParser.evaluate(input.value);
             if (!this.isFirstLoad && this.previousValues[input.name]) {
-                const previousValue = parseFloat(this.previousValues[input.name]) || 0;
-                const currentValue = parseFloat(newValue) || 0;
-                input.value = String(previousValue + currentValue);
+                input.value = String((parseFloat(this.previousValues[input.name]) || 0) + (parseFloat(newValue) || 0));
             } else {
-                // 如果是初次載入或沒有先前值，直接使用新值
                 input.value = newValue;
             }
-            
-            // 保存當前值作為下次的先前值
             this.previousValues[input.name] = input.value;
-            
-            // 計算並更新顯示結果
             calculateResult();
         },
 
-        // 重置當前輸入框數據
         resetCurrentInput(input) {
             input.value = '';
             this.previousValues[input.name] = 0;
             calculateResult();
         },
 
+        handleDelete(input) {
+            if (this.deleteTimers[input.name]) clearTimeout(this.deleteTimers[input.name]);
+            this.deleteCount[input.name] = (this.deleteCount[input.name] || 0) + 1;
+            this.deleteTimers[input.name] = setTimeout(() => {
+                this.deleteCount[input.name] = 0;
+            }, 500);
+            
+            if (this.deleteCount[input.name] === 2) {
+                this.resetCurrentInput(input);
+            } else {
+                input.value = '';
+                calculateResult();
+            }
+        },
+
         init() {
-            // 初始化所有輸入框的狀態
             this.inputs.forEach(input => {
                 this.previousValues[input.name] = 0;
                 this.deleteCount[input.name] = 0;
-                this.deleteTimers[input.name] = null;
-            });
-
-            // 為每個輸入框設置事件處理
-            this.inputs.forEach((input, index) => {
-                // 跳過匯率輸入框
-                if (input.id === 'cost-note-input') return;
                 
-                // 當輸入框獲得焦點時
                 input.addEventListener('focus', () => {
                     this.currentInput = input;
-                    
-                    // 如果不是初次載入，清空當前輸入框
-                    if (!this.isFirstLoad) {
-                        input.value = '';
-                    }
+                    if (!this.isFirstLoad) input.value = '';
                 });
                 
-                // 當輸入框失去焦點時
                 input.addEventListener('blur', () => {
                     this.commitInput(input);
                     this.currentInput = null;
                     this.isFirstLoad = false;
                 });
                 
-                // 點擊處理
-                input.addEventListener('click', (e) => {
-                    if (input.value) {
-                        const originalValue = input.value;
-                        const newValue = this.expressionParser.evaluate(originalValue);
-                        
-                        if (originalValue !== newValue) {
-                            input.value = newValue;
-                            calculateResult();
-                        }
+                input.addEventListener('click', () => {
+                    const newValue = this.expressionParser.evaluate(input.value);
+                    if (input.value !== newValue) {
+                        input.value = newValue;
+                        calculateResult();
                     }
-                    
-                    // 延遲執行，確保在瀏覽器處理完默認點擊行為後執行
                     setTimeout(() => {
-                        // 將光標定位到最後
-                        input.selectionStart = input.selectionEnd = input.value.length;
+                        input.setSelectionRange(input.value.length, input.value.length);
                     }, 0);
                 });
                 
-                // 按鍵處理
-                input.addEventListener('keydown', (e) => {
-                    // Delete鍵處理
+                input.addEventListener('keydown', e => {
                     if (e.key === 'Delete' || e.key === 'Backspace') {
-                        // 清除之前的計時器
-                        if (this.deleteTimers[input.name]) {
-                            clearTimeout(this.deleteTimers[input.name]);
-                        }
-                        
-                        // 增加Delete計數
-                        this.deleteCount[input.name] = (this.deleteCount[input.name] || 0) + 1;
-                        
-                        // 設置新的計時器
-                        this.deleteTimers[input.name] = setTimeout(() => {
-                            this.deleteCount[input.name] = 0;
-                        }, 500);
-                        
-                        if (this.deleteCount[input.name] === 2) {
-                            // 快速點擊兩次，清空當前輸入框
-                            this.resetCurrentInput(input);
-                        } else {
-                            // 單次點擊，只清空當前輸入框的值
-                            input.value = '';
-                            calculateResult();
-                        }
+                        e.preventDefault();
+                        this.handleDelete(input);
                         return;
                     }
-                    
-                    // Enter鍵處理
                     if (e.key === 'Enter') {
-                        // 提交當前輸入
                         this.commitInput(input);
-                        
-                        // 移動到下一個輸入框
-                        const nextInput = this.inputs[(index + 1) % this.inputs.length];
+                        const nextIndex = (this.inputs.indexOf(input) + 1) % this.inputs.length;
+                        const nextInput = this.inputs[nextIndex];
                         nextInput.focus();
-                        
-                        // 延遲設置光標位置
                         setTimeout(() => {
-                            nextInput.selectionStart = nextInput.selectionEnd = nextInput.value.length;
+                            nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
                         }, 0);
                     }
                 });
             });
             
-            // 窗口失去焦點時
             window.addEventListener('blur', () => {
-                this.windowBlurred = true;
-                
-                // 提交當前輸入框的值
-                if (this.currentInput && !this.currentInput.id.includes('cost-note')) {
-                    this.commitInput(this.currentInput);
-                }
-            });
-            
-            // 窗口重新獲得焦點時
-            window.addEventListener('focus', () => {
-                this.windowBlurred = false;
+                if (this.currentInput) this.commitInput(this.currentInput);
             });
         }
     };
@@ -550,155 +488,79 @@
             foodpanda_bag: 80, foodpanda_6grid: 15, foodpanda_8grid: 13,
             foodpanda_2022_6grid: 15, foodpanda_2022_8grid: 13,
             foodpanda_velcro_insulated: 10, foodpanda_magnetic_insulated: 10,
-            foodpanda_flip_insulated: 6  // 從 5 改為 6
+            foodpanda_flip_insulated: 6
         },
         unitPrices: {
-            // 更新的價格
-            ubereats_bag: 10,
-            foodpanda_bag: 13,
-            ubereats_6grid: 65,
-            ubereats_8grid: 70,
-            foodpanda_6grid: 65,
-            foodpanda_8grid: 70,
-            foodpanda_2022_6grid: 65,
-            foodpanda_2022_8grid: 70,
-            foodpanda_velcro_insulated: 135,
-            foodpanda_magnetic_insulated: 135,
+            ubereats_bag: 10, foodpanda_bag: 13,
+            ubereats_6grid: 65, ubereats_8grid: 70,
+            foodpanda_6grid: 65, foodpanda_8grid: 70,
+            foodpanda_2022_6grid: 65, foodpanda_2022_8grid: 70,
+            foodpanda_velcro_insulated: 135, foodpanda_magnetic_insulated: 135,
             foodpanda_flip_insulated: 170
         },
-        hudDisplay: document.getElementById('hud-display'),
-        costDisplay: document.getElementById('cost-display'),
-        costSummary: document.getElementById('cost-summary'),
-        currentTotalCost: 0,  // 保存當前總成本用於匯率計算
+        elements: {
+            hudDisplay: document.getElementById('hud-display'),
+            costDisplay: document.getElementById('cost-display'),
+            costSummary: document.getElementById('cost-summary'),
+            exchangeRateInput: document.getElementById('cost-note-input'),
+            totalCostElement: document.getElementById('total-cost-amount')
+        },
+        currentTotalCost: 0,
 
         update() {
             const formattedDate = `${dateManager.state.year}/${utils.padZero(dateManager.state.month)}/${utils.padZero(dateManager.state.day)}訂單`;
-            
-            // 收集所有有效的項目（數量>0）
             const allItems = [];
             let totalCost = 0;
             
-            // 處理所有輸入框數據
             inputManager.inputs.forEach(input => {
-                // 略過匯率輸入框
-                if (input.id === 'cost-note-input') return;
-                
-                // 跳過空值
-                if (input.value === '') return;
-                
-                // 解析數值
                 const value = parseFloat(input.value) || 0;
                 if (value <= 0) return;
                 
-                // 計算箱數
-                const boxes = this.calculateBoxes(value, this.limits[input.name]);
-                // 獲取標籤名稱
                 const label = input.parentElement.textContent.trim().replace(/\s*<input[^>]*>$/i, '');
+                const boxes = Math.ceil(value / (this.limits[input.name] || 1));
+                const cost = value * (this.unitPrices[input.name] || 0);
                 
-                // 計算成本
-                const unitPrice = this.unitPrices[input.name] || 0;
-                const cost = value * unitPrice;
-                
-                // 添加到列表
-                allItems.push({
-                    label,
-                    count: value,
-                    boxes,
-                    cost,
-                    unitPrice
-                });
-                
-                // 累加總成本
+                allItems.push({ label, count: value, boxes, cost });
                 totalCost += cost;
             });
             
-            // 更新當前總成本
             this.currentTotalCost = totalCost;
+            this.elements.hudDisplay.innerHTML = `<p>${formattedDate}</p>` + 
+                allItems.map(item => `<p>${item.label} ×${item.boxes}</p>`).join('');
             
-            // 更新採購計算顯示 - 只顯示日期和箱數，不顯示總成本
-            let boxesHTML = `<p>${formattedDate}</p>`;
-            
-            // 直接添加所有項目（不分類）
-            allItems.forEach(item => {
-                boxesHTML += `<p>${item.label} ×${item.boxes}</p>`;
-            });
-            
-            this.hudDisplay.innerHTML = boxesHTML;
-            
-            // 更新採購成本顯示
-            this.updateCostDisplay(allItems, totalCost, formattedDate);
-            
-            // 更新匯率計算
+            this.updateCostDisplay(allItems, formattedDate);
             this.updateExchangeRate();
         },
 
-        calculateBoxes(quantity, limit) {
-            return quantity > 0 ? Math.ceil(quantity / limit) : 0;
-        },
-        
-        // 更新採購成本顯示 - 顯示每個項目的成本，包含數量
-        updateCostDisplay(items, totalCost, date) {
-            let costHTML = `<p>${date}</p>`;
-            
-            // 過濾出有成本的項目
+        updateCostDisplay(items, date) {
             const costItems = items.filter(item => item.cost > 0);
-            
             if (costItems.length > 0) {
-                costItems.forEach(item => {
-                    costHTML += `<p>${item.label} * ${item.count} = ${utils.formatNumber(item.cost)} 元</p>`;
-                });
-                
-                this.costDisplay.innerHTML = costHTML;
-                
-                // 更新總成本金額 (應用匯率計算)
-                this.updateExchangeRate();
-                
-                // 顯示總成本區域
-                this.costSummary.style.display = 'block';
+                this.elements.costDisplay.innerHTML = `<p>${date}</p>` + 
+                    costItems.map(item => `<p>${item.label} * ${item.count} = ${utils.formatNumber(item.cost)} 元</p>`).join('');
+                this.elements.costSummary.style.display = 'block';
             } else {
-                costHTML += "<p>尚無成本資料</p>";
-                this.costDisplay.innerHTML = costHTML;
-                
-                // 隱藏總成本區域
-                this.costSummary.style.display = 'none';
+                this.elements.costDisplay.innerHTML = `<p>${date}</p><p>尚無成本資料</p>`;
+                this.elements.costSummary.style.display = 'none';
             }
         },
         
-        // 更新匯率計算
         updateExchangeRate() {
-            const exchangeRateInput = document.getElementById('cost-note-input');
-            const totalCostElement = document.getElementById('total-cost-amount');
-            
-            if (exchangeRateInput && totalCostElement) {
-                const exchangeRate = parseFloat(exchangeRateInput.value);
-                
-                if (exchangeRate && !isNaN(exchangeRate) && this.currentTotalCost > 0) {
-                    // 計算匯率後的成本
-                    const exchangedCost = this.currentTotalCost * exchangeRate;
-                    
-                    // 更新總成本顯示
-                    totalCostElement.textContent = utils.formatNumber(exchangedCost);
-                } else {
-                    // 顯示原始總成本
-                    totalCostElement.textContent = utils.formatNumber(this.currentTotalCost);
-                }
-            }
-        },
-
-        // 採購計算區域複製功能
-        copyBoxes() {
-            const text = Array.from(this.hudDisplay.querySelectorAll('p'))
-                .map(p => p.textContent)
-                .join('\n');
-            navigator.clipboard.writeText(text)
-                .then(() => alert('複製成功'))
-                .catch(() => alert('複製失敗'));
+            const rate = parseFloat(this.elements.exchangeRateInput.value);
+            const cost = rate && !isNaN(rate) && this.currentTotalCost > 0 
+                ? this.currentTotalCost * rate 
+                : this.currentTotalCost;
+            this.elements.totalCostElement.textContent = utils.formatNumber(cost);
         },
 
         init() {
-            // 只有採購計算區域可以複製
-            this.hudDisplay.addEventListener('click', () => this.copyBoxes());
-            
+            this.elements.hudDisplay.addEventListener('click', () => {
+                const text = Array.from(this.elements.hudDisplay.querySelectorAll('p'))
+                    .map(p => p.textContent).join('\n');
+                navigator.clipboard.writeText(text)
+                    .then(() => alert('複製成功'))
+                    .catch(() => alert('複製失敗'));
+            });
+            this.elements.exchangeRateInput.addEventListener('input', () => this.updateExchangeRate());
             this.update();
         }
     };

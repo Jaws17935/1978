@@ -286,48 +286,26 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 /* 輸入欄位樣式 */
 .text-center{text-align:center}
 .input-field{width:100%;padding:2px 4px;border:none;border-radius:3px;font-size:12px;transition:all .2s ease;background-color:transparent}
-.price-input{text-align:center;font-weight:500;color:var(--primary)}
-.quantity-input,.shipping-input,.installation-input,.unit-input{text-align:center}
 .input-field:focus{outline:none;background-color:rgba(59,130,246,.08);box-shadow:0 0 0 1px rgba(59,130,246,.2)}
 .input-field:hover{background-color:rgba(241,245,249,.5)}
+.price-input{text-align:center;font-weight:500;color:var(--primary)}
+.quantity-input,.shipping-input,.installation-input,.unit-input{text-align:center}
 .category-input{font-weight:500;color:var(--secondary)}
 .name-input{font-weight:500}
-.quantity-input::-webkit-inner-spin-button,
-.quantity-input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
-}
-.quantity-input {
-    -moz-appearance: textfield;
-    -webkit-appearance: none;
-    appearance: none;
-}
+.quantity-input::-webkit-inner-spin-button,.quantity-input::-webkit-outer-spin-button{-webkit-appearance:none;appearance:none;margin:0}
+.quantity-input{-moz-appearance:textfield;-webkit-appearance:none;appearance:none}
 .original-price{text-decoration:line-through;color:var(--text-light);font-size:11px;display:block;text-align:center;padding-top:2px;opacity:.7}
-
-#quoteTable .price-input,
-#quoteTable .quantity-input,
-#quoteTable .unit-input,
-#quoteTable .installation-input,
-#quoteTable .shipping-input {
-  text-align: center;
-  font-weight: 500;
-  padding: 2px 1px;
-  width: 100%;
-  min-width: 50px;
-  box-sizing: border-box;
-}
-
-#quoteTable .price-input {
-  color: var(--primary);
-}
+#quoteTable .price-input,#quoteTable .quantity-input,#quoteTable .unit-input,#quoteTable .installation-input,#quoteTable .shipping-input{text-align:center;font-weight:500;padding:2px 1px;width:100%;min-width:50px;box-sizing:border-box}
+#quoteTable .price-input{color:var(--primary)}
 
 /* 銀行與總計區域 */
-.bank-totals-section{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 20px;align-items:start}
-.legal-terms-section{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 20px;align-items:stretch}
+.bank-totals-section,.legal-terms-section{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 20px}
+.bank-totals-section{align-items:start}
+.legal-terms-section{align-items:stretch}
 .flex-column-container{display:flex;flex-direction:column;padding:0;margin:0}
-.content-box-light{background-color:var(--bg-light);border:1px solid var(--border);border-radius:4px;padding:8px;font-size:13px;color:var(--text-light);line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:visible;height:auto}
-.content-box-white{background-color:#fff;border:1px solid var(--border);border-radius:4px;font-size:14px;color:var(--text-light);line-height:1.3;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:visible}
+.content-box-light,.content-box-white{border:1px solid var(--border);border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:visible}
+.content-box-light{background-color:var(--bg-light);padding:8px;font-size:13px;color:var(--text-light);line-height:1.4;height:auto}
+.content-box-white{background-color:#fff;font-size:14px;color:var(--text-light);line-height:1.3}
 
 /* 條款區域 */
 .terms-container{margin-bottom:6px;flex-shrink:0}
@@ -338,58 +316,11 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 
 /* 右側容器與備註區域 */
 .right-side-container{display:flex;flex-direction:column;height:100%}
-.notes-container {
-    position: relative;
-    width: 100%;
-    padding: 0;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    margin-top: 6px;
-    height: 100%;
-}
-
-.notes-input-wrapper {
-    position: relative;
-    width: 100%;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    margin-top: 3px;
-    height: 100%;
-}
-
-#notes-textarea {
-    width: 100%;
-    margin: 0;
-    padding: 12px;
-    height: 100%;
-    min-height: 100%;
-    font-size: 12px;
-    line-height: 1.4;
-    font-family: Arial, sans-serif;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background-color: var(--bg-light);
-    color: var(--text-light);
-    resize: none;
-    box-sizing: border-box;
-    overflow-y: auto;
-    -webkit-appearance: none;
-    appearance: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-#notes-textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-#notes-textarea::placeholder {
-    color: var(--text-light);
-    opacity: 0.7;
-}
+.notes-container{position:relative;width:100%;padding:0;flex-grow:1;display:flex;flex-direction:column;margin-top:6px;height:100%}
+.notes-input-wrapper{position:relative;width:100%;flex-grow:1;display:flex;flex-direction:column;margin-top:3px;height:100%}
+#notes-textarea{width:100%;margin:0;padding:12px;height:100%;min-height:100%;font-size:12px;line-height:1.4;font-family:Arial,sans-serif;border:1px solid var(--border);border-radius:4px;background-color:var(--bg-light);color:var(--text-light);resize:none;box-sizing:border-box;overflow-y:auto;-webkit-appearance:none;appearance:none;transition:border-color .2s,box-shadow .2s}
+#notes-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+#notes-textarea::placeholder{color:var(--text-light);opacity:.7}
 
 /* 法律聲明區域 */
 .legal-notice-container{height:100%;display:flex;flex-direction:column}
@@ -422,28 +353,9 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
     line-height:1.2
 }
 
-.totals-input {
-  width: 100%;
-  text-align: right;
-  border: none;
-  background: transparent;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  padding: 0 5px;
-  min-width: 80px;
-  transition: all 0.2s ease;
-}
-
-.totals-input:focus {
-  outline: none;
-  background-color: rgba(59,130,246,.08);
-  box-shadow: 0 0 0 1px rgba(59,130,246,.2);
-}
-
-.totals-input:hover {
-  background-color: rgba(241,245,249,.5);
-}
+.totals-input{width:100%;text-align:right;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--text);padding:0 5px;min-width:80px;transition:all .2s ease}
+.totals-input:focus{outline:none;background-color:rgba(59,130,246,.08);box-shadow:0 0 0 1px rgba(59,130,246,.2)}
+.totals-input:hover{background-color:rgba(241,245,249,.5)}
 
 /* 銀行資訊與總計容器 */
 .bank-info-container,.totals-container{height:180px;display:flex;flex-direction:column}
@@ -484,69 +396,15 @@ table tbody tr:last-child td:last-child{border-bottom-right-radius:5px}
 .client-info .editable-field:empty{min-height:18px;background-color:rgba(241,245,249,.3)}
 .client-info p:last-child{margin-bottom:1px}
 
-.client-info .info-group p,
-.client-info .info-group h4 {
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    line-height: 1.1;
-}
-
-.client-info .info-group p {
-    color: var(--text-light);
-    word-wrap: break-word;
-    margin-bottom: 2px;
-    line-height: 1.3;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-.client-info .info-group h4:nth-of-type(1) {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 18px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.1;
-    margin-bottom: 2px;
-}
-
-.client-info .info-group h4:nth-of-type(2) {
-    font-weight: normal;
-    color: var(--text);
-    font-size: 14px;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    line-height: 1.2;
-    margin-top: 2px;
-    margin-bottom: 2px;
-}
-
-.client-info .info-label {
-    font-weight: 600;
-    display: inline-block;
-    margin-right: 0;
-    min-width: 40px;
-    padding-right: 0;
-}
-
-.client-info .editable-field {
-    border-bottom: 1px dashed rgba(203,213,225,.5);
-    padding: 1px 3px;
-    border-radius: 2px;
-    transition: all .2s ease;
-    min-width: 100px;
-    min-height: 16px;
-    margin-left: -6px;
-    display: inline-block;
-}
+.client-info .info-group p,.client-info .info-group h4{display:block;width:100%;margin:0;padding:0;line-height:1.1}
+.client-info .info-group p{color:var(--text-light);word-wrap:break-word;margin-bottom:2px;line-height:1.3;display:flex;align-items:center;gap:2px}
+.client-info .info-group h4:nth-of-type(1){font-weight:600;color:var(--primary);font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;margin-bottom:2px}
+.client-info .info-group h4:nth-of-type(2){font-weight:normal;color:var(--text);font-size:14px;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.2;margin-top:2px;margin-bottom:2px}
+.client-info .info-label{font-weight:600;display:inline-block;margin-right:0;min-width:40px;padding-right:0}
+.client-info .editable-field{border-bottom:1px dashed rgba(203,213,225,.5);padding:1px 3px;border-radius:2px;transition:all .2s ease;min-width:100px;min-height:16px;margin-left:-6px;display:inline-block}
 
 /* 聯絡資訊與報價詳情 */
-.contact-info,.quote-details{position:relative;padding:4px 8px;border-radius:4px;border:1px solid transparent;margin:-1px}
+.contact-info,.quote-details{position:relative;padding:4px 8px;border-radius:4px;border:1px solid transparent;margin:-1px;transition:all .2s ease}
 .contact-info:hover,.quote-details:hover{background-color:rgba(241,245,249,.5);border-color:var(--border);box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .contact-info .section-title,.quote-details .section-title{margin-bottom:5px;padding-bottom:2px;height:18px;font-size:13px}
 .contact-info .info-group p,.quote-details .info-group p{margin-bottom:2px;line-height:1.3}
@@ -1135,204 +993,88 @@ document.addEventListener('DOMContentLoaded',()=>{
 const C={TAX_RATE:.05,DEPOSIT_RATE:.3,DEFAULT_VALID_DAYS:7,DEFAULT_DELIVERY_DAYS:28,MAX_VALUE:999999999,MIN_VALUE:-999999999},M=["JA","FE","MR","AP","MY","JN","JL","AU","SE","OC","NO","DE"],T=new Date,d=e=>document.getElementById(e),D={quoteDateText:'quoteDate',quoteValidText:'quoteValidUntil',deliveryDateText:'deliveryDate'},b=(e,t)=>function(){let r;clearTimeout(r),r=setTimeout(()=>e.apply(this,arguments),t)},F={parseNumber:(e,t=!1)=>{if(!e)return 0;try{const r=String(e).replace(/[^\d.-]/g,'').trim(),n=t?parseInt(r):parseFloat(r);return isNaN(n)?0:Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,n))}catch{return 0}},formatCurrency:e=>{try{const t=Math.round(Math.min(C.MAX_VALUE,Math.max(C.MIN_VALUE,e)));return isNaN(e)?'0':new Intl.NumberFormat('zh-TW',{style:'decimal',minimumFractionDigits:0}).format(t)}catch{return Math.round(e).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}},formatText:(e,t)=>{if(!e)return'';if(t==="phone"){const cleanPhone=e.replace(/[^\d+\-() #,]/g,'').trim();if(cleanPhone.length===0)return'';return cleanPhone.substring(0,25)}if(t==="email")return e.replace(/\s/g,"").trim().substring(0,50);return e.trim().substring(0,500)},formatDate:e=>{if(!e)return'';try{return new Date(e).toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'})}catch{return e}}};
 
 // 共用函數：設置文檔標題
-function setDocumentTitleForPrint() {
-  const quoteNumber = d('quoteNumber');
-  if (!window._originalDocumentTitle) {
-    window._originalDocumentTitle = document.title;
-  }
-  
-  let newTitle;
-  if (quoteNumber && quoteNumber.textContent && quoteNumber.textContent.trim()) {
-    newTitle = quoteNumber.textContent.trim();
-  } else {
-    // 如果報價單號為空，使用預設檔名
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
-    newTitle = `報價單_${dateStr}`;
-  }
-  
-  document.title = newTitle;
-  
-  // 強制更新標題元素
-  const existingTitle = document.querySelector('title');
-  if (existingTitle) {
-    existingTitle.textContent = newTitle;
-  } else {
-    const titleElement = document.createElement('title');
-    titleElement.textContent = newTitle;
-    document.head.appendChild(titleElement);
-  }
+const setDocumentTitleForPrint=()=>{
+  if(!window._originalDocumentTitle)window._originalDocumentTitle=document.title
+  const quoteNumber=d('quoteNumber')
+  const newTitle=quoteNumber?.textContent?.trim()||`報價單_${new Date().toISOString().split('T')[0].replace(/-/g,'')}`
+  document.title=newTitle
+  const existingTitle=document.querySelector('title')
+  if(existingTitle)existingTitle.textContent=newTitle
+  else{const titleElement=document.createElement('title');titleElement.textContent=newTitle;document.head.appendChild(titleElement)}
 }
 
-function setupPrintHandlers() {
-  window.prepareDocumentForDisplay = function() {
-    // 如果標題已經被設置（例如從按鈕點擊），則不再覆蓋
-    if (window._titleAlreadySet) {
-      return;
-    }
-    
-    setDocumentTitleForPrint();
-    
-    const textarea = d('notes-textarea');
-    if (textarea) {
-      // 打印時使用CSS自然高度，與左側區域保持一致
-      textarea.style.height = '100%';
-      textarea.style.minHeight = '100%';
-      textarea.style.maxHeight = 'none';
-    }
-    
-    document.querySelectorAll('[contenteditable="true"], .editable-field').forEach(el => {
-      el.dataset.originalBorder = el.style.border;
-      el.style.border = 'none';
-      if (!el.textContent.trim()) {
-        el.dataset.wasEmpty = "true";
-        el.style.color = 'transparent';
-      }
-    });
-    document.querySelectorAll('input.input-field').forEach(el => {
-      if (!el.value) {
-        el.dataset.wasEmpty = "true";
-        el.style.color = 'transparent';
-      }
-    });
-    const tableBody = d('itemsTableBody');
-    if (tableBody) {
-      const rows = tableBody.querySelectorAll('tr');
-      const visibleRows = Array.from(rows).filter(row => 
-        row.style.display !== 'none' && !row.dataset.hiddenForPrint
-      );
-      if (visibleRows.length < 5) {
-        rows.forEach(row => {
-          if (row.dataset.hiddenForPrint) {
-            row.style.display = 'table-row';
-            delete row.dataset.hiddenForPrint;
-            delete row.dataset.wasEmpty;
-          }
-        });
-        if (rows.length < 5) {
-          const rowsToAdd = 5 - rows.length;
-          for (let i = 0; i < rowsToAdd; i++) {
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = rows[0].innerHTML;
-            newRow.dataset.addedForPrint = "true";
-            newRow.querySelectorAll('input').forEach(input => {
-              input.value = '';
-              input.style.border = 'none';
-            });
-            tableBody.appendChild(newRow);
+const setupPrintHandlers=()=>{
+  const hideControls=()=>document.querySelectorAll('.items-controls, .row-btn, #addItemBtn, #deleteItemBtn').forEach(el=>{el.style.display='none';el.style.visibility='hidden';el.style.opacity='0'})
+  const showControls=()=>document.querySelectorAll('.items-controls, .row-btn, #addItemBtn, #deleteItemBtn').forEach(el=>{el.style.display='';el.style.visibility='';el.style.opacity=''})
+  window.prepareDocumentForDisplay=()=>{
+    if(!window._titleAlreadySet)setDocumentTitleForPrint()
+    const textarea=d('notes-textarea')
+    if(textarea){textarea.style.height='100%';textarea.style.minHeight='100%';textarea.style.maxHeight='none'}
+    document.querySelectorAll('[contenteditable="true"], .editable-field').forEach(el=>{el.dataset.originalBorder=el.style.border;el.style.border='none';if(!el.textContent.trim()){el.dataset.wasEmpty="true";el.style.color='transparent'}})
+    document.querySelectorAll('input.input-field').forEach(el=>{if(!el.value){el.dataset.wasEmpty="true";el.style.color='transparent'}})
+    const tableBody=d('itemsTableBody')
+    if(tableBody){
+      const rows=tableBody.querySelectorAll('tr')
+      const visibleRows=Array.from(rows).filter(row=>row.style.display!=='none'&&!row.dataset.hiddenForPrint)
+      if(visibleRows.length<5){
+        rows.forEach(row=>{if(row.dataset.hiddenForPrint){row.style.display='table-row';delete row.dataset.hiddenForPrint;delete row.dataset.wasEmpty}})
+        if(rows.length<5){
+          for(let i=0;i<5-rows.length;i++){
+            const newRow=document.createElement('tr')
+            newRow.innerHTML=rows[0].innerHTML
+            newRow.dataset.addedForPrint="true"
+            newRow.querySelectorAll('input').forEach(input=>{input.value='';input.style.border='none'})
+            tableBody.appendChild(newRow)
           }
         }
       }
-      tableBody.querySelectorAll('input').forEach(input => {
-        if (!input.value.trim()) {
-          input.style.border = 'none';
-          input.style.minHeight = '14px';
-        }
-      });
+      tableBody.querySelectorAll('input').forEach(input=>{if(!input.value.trim()){input.style.border='none';input.style.minHeight='14px'}})
     }
-    document.querySelectorAll('.header, .header *, table th, .warranty-term-table .term-label').forEach(el => {
-      el.style.webkitPrintColorAdjust = 'exact';
-      el.style.printColorAdjust = 'exact';
-    });
-    const notification = document.querySelector('.notification-overlay.show');
-    if (notification) {
-      notification.classList.remove('show');
-    }
-    
-    // 強制隱藏按鈕控制區域
-    document.querySelectorAll('.items-controls, .row-btn, #addItemBtn, #deleteItemBtn').forEach(el => {
-      el.style.display = 'none';
-      el.style.visibility = 'hidden';
-      el.style.opacity = '0';
-    });
-  };
-  
-  window.restoreDocumentAfterDisplay = function() {
-    if (window._originalDocumentTitle) {
-      document.title = window._originalDocumentTitle;
-      // 不要設置為 null，保留原始標題以便後續使用
-      // window._originalDocumentTitle = null;
-    }
-    
-    const textarea = d('notes-textarea');
-    if (textarea) {
-      // 恢復預設高度為100%，讓它自動填滿容器
-      textarea.style.height = '100%';
-    }
-    
-    document.querySelectorAll('[contenteditable="true"], .editable-field').forEach(el => {
-      if (el.dataset.originalBorder) {
-        el.style.border = el.dataset.originalBorder;
-        delete el.dataset.originalBorder;
-      }
-      if (el.dataset.wasEmpty === "true") {
-        el.textContent = '';
-        el.style.color = '';
-        delete el.dataset.wasEmpty;
-      }
-    });
-    document.querySelectorAll('input.input-field').forEach(el => {
-      if (el.dataset.wasEmpty === "true") {
-        el.value = '';
-        el.style.color = '';
-        delete el.dataset.wasEmpty;
-      }
-    });
-    document.querySelectorAll('tr[data-hidden-for-print="true"]').forEach(row => {
-      row.style.display = '';
-      delete row.dataset.hiddenForPrint;
-    });
-    document.querySelectorAll('tr[data-added-for-print="true"]').forEach(row => {
-      row.remove();
-    });
-    
-    // 恢復按鈕控制區域的顯示
-    document.querySelectorAll('.items-controls, .row-btn, #addItemBtn, #deleteItemBtn').forEach(el => {
-      el.style.display = '';
-      el.style.visibility = '';
-      el.style.opacity = '';
-    });
-  };
-
-  // Add print event handlers
-  window.addEventListener('beforeprint', window.prepareDocumentForDisplay);
-  window.addEventListener('afterprint', window.restoreDocumentAfterDisplay);
+    document.querySelectorAll('.header, .header *, table th, .warranty-term-table .term-label').forEach(el=>{el.style.webkitPrintColorAdjust='exact';el.style.printColorAdjust='exact'})
+    const notification=document.querySelector('.notification-overlay.show')
+    if(notification)notification.classList.remove('show')
+    hideControls()
+  }
+  window.restoreDocumentAfterDisplay=()=>{
+    if(window._originalDocumentTitle)document.title=window._originalDocumentTitle
+    const textarea=d('notes-textarea')
+    if(textarea)textarea.style.height='100%'
+    document.querySelectorAll('[contenteditable="true"], .editable-field').forEach(el=>{if(el.dataset.originalBorder){el.style.border=el.dataset.originalBorder;delete el.dataset.originalBorder}if(el.dataset.wasEmpty==="true"){el.textContent='';el.style.color='';delete el.dataset.wasEmpty}})
+    document.querySelectorAll('input.input-field').forEach(el=>{if(el.dataset.wasEmpty==="true"){el.value='';el.style.color='';delete el.dataset.wasEmpty}})
+    document.querySelectorAll('tr[data-hidden-for-print="true"]').forEach(row=>{row.style.display='';delete row.dataset.hiddenForPrint})
+    document.querySelectorAll('tr[data-added-for-print="true"]').forEach(row=>row.remove())
+    showControls()
+  }
+  window.addEventListener('beforeprint',window.prepareDocumentForDisplay)
+  window.addEventListener('afterprint',window.restoreDocumentAfterDisplay)
 }
 
 function N(e,t='info'){if(!e)return null;const r=document.querySelector('.notification-overlay');r&&(r.classList.remove('show'),setTimeout(()=>r.remove(),300));const n=document.createElement('div');n.className=`notification-overlay notification-${t}`;let i='',s='通知';t==='warning'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',s='注意'):t==='error'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',s='錯誤'):t==='success'?(i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',s='成功'):i='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',n.innerHTML=`<div class="notification-modal"><div class="notification-header"><div class="notification-title"><span class="notification-icon">${i}</span><span>${s}</span></div></div><div class="notification-content">${e}</div><div class="notification-footer"><button class="notification-btn">我知道了</button></div></div>`,document.body.appendChild(n),n.offsetHeight,n.classList.add('show');const c=n.querySelector('.notification-btn');c&&(c.addEventListener('click',()=>{n.classList.remove('show'),setTimeout(()=>n.remove(),300)}),setTimeout(()=>c.focus(),100));const l=e=>{(e.key==='Escape'||e.key==='Enter')&&(n.classList.remove('show'),setTimeout(()=>{n.remove(),document.removeEventListener('keydown',l)},300))};return document.addEventListener('keydown',l),n}
 
-function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().slice(-2),i=String(e.getMonth()+1).padStart(2,"0"),s=String(e.getDate()).padStart(2,"0"),c=Math.random().toString(36).substring(2,4).toUpperCase();return`${t}${r}-${n}${i}${s}${c}`}catch{return`${t}${Math.random().toString(36).substring(2,8).toUpperCase()}`}}function E(){try{const e=d('quoteDate'),t=e?.value||T.toISOString().split("T")[0],r=new Date(t),n=d('quoteNumber');n&&(n.textContent=y(r))}catch{}}function I(){
+function y(e=T,t=''){try{const r=M[e.getMonth()],n=e.getFullYear().toString().slice(-2),i=String(e.getMonth()+1).padStart(2,"0"),s=String(e.getDate()).padStart(2,"0"),c=Math.random().toString(36).substring(2,4).toUpperCase();return`${t}${r}-${n}${i}${s}${c}`}catch{return`${t}${Math.random().toString(36).substring(2,8).toUpperCase()}`}}function E(){try{const e=d('quoteDate'),t=e?.value||T.toISOString().split("T")[0],r=new Date(t),n=d('quoteNumber');n&&(n.textContent=y(r))}catch{}}const I=()=>{
   try{
-    const e=d('quoteDate'),
-          t=d('quoteDateText');
-    if(e&&t){
-      e.value=T.toISOString().split("T")[0];
-      t.textContent=F.formatDate(e.value);
-      
-      const r=new Date(e.value),
-            n=d('quoteValidUntil'),
-            i=d('quoteValidText');
-      if(n&&i){
-        const s=new Date(r);
-        s.setDate(r.getDate()+C.DEFAULT_VALID_DAYS);
-        n.value=s.toISOString().split("T")[0];
-        i.textContent=F.formatDate(n.value);
-      }
-      
-      const o=d('deliveryDate'),
-            l=d('deliveryDateText');
-      if(o&&l){
-        const s=new Date(r);
-        s.setDate(r.getDate()+C.DEFAULT_DELIVERY_DAYS);
-        o.value=s.toISOString().split("T")[0];
-        l.textContent=F.formatDate(o.value);
+    const e=d('quoteDate'),t=d('quoteDateText')
+    if(!e||!t)return
+    e.value=T.toISOString().split("T")[0]
+    t.textContent=F.formatDate(e.value)
+    const r=new Date(e.value)
+    const updateDate=(inputId,textId,days)=>{
+      const input=d(inputId),text=d(textId)
+      if(input&&text){
+        const date=new Date(r)
+        date.setDate(r.getDate()+days)
+        input.value=date.toISOString().split("T")[0]
+        text.textContent=F.formatDate(input.value)
       }
     }
+    updateDate('quoteValidUntil','quoteValidText',C.DEFAULT_VALID_DAYS)
+    updateDate('deliveryDate','deliveryDateText',C.DEFAULT_DELIVERY_DAYS)
   }catch{}
-  E();
+  E()
 }
 
-function g(){const e=d('itemsTableBody');if(e)try{e.innerHTML='';for(let t=0;t<7;t++){const r=document.createElement("tr");r.innerHTML=`<td><input type="text" class="category-input input-field" placeholder=""></td><td><input type="text" class="name-input input-field" placeholder=""></td><td style="text-align:center"><input type="text" class="price-input input-field" value=""><span class="original-price"></span></td><td class="text-center"><input type="number" class="quantity-input input-field" value="" min="0" step="0.01"></td><td class="text-center"><input type="text" class="unit-input input-field" value=""></td><td class="text-center"><input type="text" class="installation-input input-field" value=""></td><td class="text-center"><input type="text" class="shipping-input input-field" value=""></td>`,e.appendChild(r)}f()}catch{}}function v(){const e=d('itemsTableBody');if(e)try{const t=document.createElement("tr");t.innerHTML=`<td><input type="text" class="category-input input-field" placeholder=""></td><td><input type="text" class="name-input input-field" placeholder=""></td><td style="text-align:center"><input type="text" class="price-input input-field" value=""><span class="original-price"></span></td><td class="text-center"><input type="number" class="quantity-input input-field" value="" min="0" step="0.01"></td><td class="text-center"><input type="text" class="unit-input input-field" value=""></td><td class="text-center"><input type="text" class="installation-input input-field" value=""></td><td class="text-center"><input type="text" class="shipping-input input-field" value=""></td>`,e.appendChild(t),f()}catch{}}function f(){
+const createTableRow=()=>{const r=document.createElement("tr");r.innerHTML=`<td><input type="text" class="category-input input-field" placeholder=""></td><td><input type="text" class="name-input input-field" placeholder=""></td><td style="text-align:center"><input type="text" class="price-input input-field" value=""><span class="original-price"></span></td><td class="text-center"><input type="number" class="quantity-input input-field" value="" min="0" step="0.01"></td><td class="text-center"><input type="text" class="unit-input input-field" value=""></td><td class="text-center"><input type="text" class="installation-input input-field" value=""></td><td class="text-center"><input type="text" class="shipping-input input-field" value=""></td>`;return r}
+function g(){const e=d('itemsTableBody');if(e)try{e.innerHTML='';for(let t=0;t<7;t++)e.appendChild(createTableRow());f()}catch{}}function v(){const e=d('itemsTableBody');if(e)try{e.appendChild(createTableRow());f()}catch{}}function f(){
   const e=d('itemsTableBody'),
         r=d('totalShipping'),
         n=d('totalInstallation'),
@@ -1351,7 +1093,7 @@ function g(){const e=d('itemsTableBody');if(e)try{e.innerHTML='';for(let t=0;t<7
       if(!L||!w)return;
       const V=F.parseNumber(L.value||"0"),
             W=Math.max(0,F.parseNumber(w.value||"0",!1)),
-            O=F.parseNumber(k?.value||"0"),
+            O=k?.value&&k.value.trim()!=="N/A"?F.parseNumber(k.value||"0"):0,
             P=B?.value&&B.value.trim()!=="N/A"?F.parseNumber(B.value||"0"):0;
       o+=Math.round(V*W);
       p+=O;
@@ -1411,7 +1153,7 @@ function setupTotalsInputs() {
   });
 }
 
-function _(e){if(!e)return;const t=e.value;if(t==='')return;try{(e.classList.contains('price-input')||e.classList.contains('shipping-input')||e.classList.contains('installation-input'))&&(t=>{const r=F.parseNumber(t);return r>C.MAX_VALUE?(N("數值超出最大限制","warning"),e.value=F.formatCurrency(C.MAX_VALUE)):r<C.MIN_VALUE?(N("數值超出最小限制","warning"),e.value=F.formatCurrency(C.MIN_VALUE)):e.value=F.formatCurrency(r),!0})(t)}catch{e.value=F.formatCurrency(0)}}
+function _(e){if(!e||!e.value)return;const priceInputs=['price-input','shipping-input','installation-input'];if(!priceInputs.some(c=>e.classList.contains(c)))return;try{const r=F.parseNumber(e.value);if(r>C.MAX_VALUE){N("數值超出最大限制","warning");e.value=F.formatCurrency(C.MAX_VALUE)}else if(r<C.MIN_VALUE){N("數值超出最小限制","warning");e.value=F.formatCurrency(C.MIN_VALUE)}else{e.value=F.formatCurrency(r)}}catch{e.value=F.formatCurrency(0)}}
 
 function q(e){
   e.preventDefault();
@@ -1502,167 +1244,55 @@ function q(e){
   e.addEventListener('blur', validateAndUpdate);
 }function G(){
   const textarea = d('notes-textarea');
-  if(textarea){
-    // 確保 ENTER 鍵可以正常換行
-    textarea.addEventListener('keydown', function(e) {
-      // ENTER 鍵和 Shift+ENTER 都允許正常換行
-      // 不阻止默認行為，讓 textarea 正常處理換行
-      if (e.key === 'Enter') {
-        // 允許默認的換行行為
-        return;
-      }
-    });
-    
-    // 設定基本事件監聽器
-    textarea.addEventListener('blur', function() {
-      if (this.value) {
-        // 保留換行符，只移除每行開頭和結尾的空白，以及整個文本開頭結尾的空白
-        let lines = this.value.split('\n');
-        lines = lines.map(line => line.trim());
-        // 移除開頭和結尾的空行
-        while (lines.length > 0 && lines[0] === '') lines.shift();
-        while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
-        this.value = lines.join('\n');
-      }
-    });
-    
-  }
+  if(!textarea)return;
+  textarea.addEventListener('blur',function(){if(this.value){let lines=this.value.split('\n').map(l=>l.trim());while(lines.length>0&&lines[0]==='')lines.shift();while(lines.length>0&&lines[lines.length-1]==='')lines.pop();this.value=lines.join('\n')}})
 }
 
 // 鏡像複製預覽函數
-function createMirrorPreview() {
-  // 複製整個容器
-  const originalContainer = document.querySelector('.container');
-  if (!originalContainer) {
-    throw new Error('找不到主容器');
-  }
-  
-  // 深度複製DOM結構
-  const clonedContainer = originalContainer.cloneNode(true);
-  
-  // 移除按鈕區域
-  const buttonSection = clonedContainer.querySelector('.button-section');
-  if (buttonSection) {
-    buttonSection.remove();
-  }
-  
-  // 移除控制按鈕
-  const controlButtons = clonedContainer.querySelectorAll('.items-controls, .row-btn');
-  controlButtons.forEach(btn => btn.remove());
-  
-  // 移除隱藏的日期輸入框
-  const hiddenInputs = clonedContainer.querySelectorAll('.hidden-date-input, .upload-logo');
-  hiddenInputs.forEach(input => input.remove());
-  
-  // 將所有input值轉換為純文字顯示
-  const inputs = clonedContainer.querySelectorAll('input');
-  inputs.forEach(input => {
-    const span = document.createElement('span');
-    span.textContent = input.value || '';
-    
-    // 針對總計金額輸入框的特殊處理
-    if (input.classList.contains('totals-input')) {
-      span.style.cssText = `
-        width: 100%;
-        text-align: right;
-        border: none;
-        background: transparent;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--text);
-        padding: 0 5px;
-        min-width: 80px;
-        display: inline-block;
-        min-height: 18px;
-        box-sizing: border-box;
-      `;
-    } else {
-      span.style.cssText = `
-        display: inline-block;
-        min-height: 14px;
-        padding: 2px 4px;
-        width: 100%;
-        box-sizing: border-box;
-        font-size: 12px;
-        text-align: ${input.classList.contains('price-input') || input.classList.contains('quantity-input') || input.classList.contains('unit-input') || input.classList.contains('installation-input') || input.classList.contains('shipping-input') ? 'center' : 'left'};
-        font-weight: ${input.classList.contains('price-input') ? '500' : 'normal'};
-        color: ${input.classList.contains('price-input') ? 'var(--primary)' : 'var(--text)'};
-      `;
+const createMirrorPreview=()=>{
+  const originalContainer=document.querySelector('.container')
+  if(!originalContainer)throw new Error('找不到主容器')
+  const clonedContainer=originalContainer.cloneNode(true)
+  clonedContainer.querySelector('.button-section')?.remove()
+  clonedContainer.querySelectorAll('.items-controls, .row-btn, .hidden-date-input, .upload-logo').forEach(el=>el.remove())
+  const centerInputs=['price-input','quantity-input','unit-input','installation-input','shipping-input']
+  clonedContainer.querySelectorAll('input').forEach(input=>{
+    const span=document.createElement('span')
+    span.textContent=input.value||''
+    if(input.classList.contains('totals-input')){
+      span.style.cssText='width:100%;text-align:right;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--text);padding:0 5px;min-width:80px;display:inline-block;min-height:18px;box-sizing:border-box'
+    }else{
+      const isCenter=centerInputs.some(c=>input.classList.contains(c))
+      span.style.cssText=`display:inline-block;min-height:14px;padding:2px 4px;width:100%;box-sizing:border-box;font-size:12px;text-align:${isCenter?'center':'left'};font-weight:${input.classList.contains('price-input')?'500':'normal'};color:${input.classList.contains('price-input')?'var(--primary)':'var(--text)'}`
     }
-    input.parentNode.replaceChild(span, input);
-  });
-  
-  // 將所有select轉換為純文字
-  const selects = clonedContainer.querySelectorAll('select');
-  selects.forEach(select => {
-    const span = document.createElement('span');
-    const selectedOption = select.options[select.selectedIndex];
-    span.textContent = selectedOption ? selectedOption.textContent : '';
-    span.style.cssText = `
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-light);
-    `;
-    select.parentNode.replaceChild(span, select);
-  });
-  
-  // 將textarea轉換為div
-  const textareas = clonedContainer.querySelectorAll('textarea');
-  textareas.forEach(textarea => {
-    const div = document.createElement('div');
-    div.textContent = textarea.value || '';
-    div.style.cssText = `
-      width: 100%;
-      padding: 8px;
-      height: 100%;
-      min-height: 100%;
-      font-size: 12px;
-      line-height: 1.3;
-      font-family: Arial, sans-serif;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      background-color: var(--bg-light);
-      color: var(--text-light);
-      box-sizing: border-box;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    `;
-    textarea.parentNode.replaceChild(div, textarea);
-  });
-  
-  // 移除contenteditable屬性
-  const editableElements = clonedContainer.querySelectorAll('[contenteditable]');
-  editableElements.forEach(element => {
-    element.removeAttribute('contenteditable');
-    element.style.cursor = 'default';
-  });
-  
-  // 移除所有事件相關的屬性
-  const allElements = clonedContainer.querySelectorAll('*');
-  allElements.forEach(element => {
-    // 移除所有onclick等事件屬性
-    const attributes = Array.from(element.attributes);
-    attributes.forEach(attr => {
-      if (attr.name.startsWith('on') || attr.name.includes('data-')) {
-        element.removeAttribute(attr.name);
-      }
-    });
-  });
-  
-  return clonedContainer;
+    input.parentNode.replaceChild(span,input)
+  })
+  clonedContainer.querySelectorAll('select').forEach(select=>{
+    const span=document.createElement('span')
+    span.textContent=select.options[select.selectedIndex]?.textContent||''
+    span.style.cssText='font-size:13px;font-weight:600;color:var(--text-light)'
+    select.parentNode.replaceChild(span,select)
+  })
+  clonedContainer.querySelectorAll('textarea').forEach(textarea=>{
+    const div=document.createElement('div')
+    div.textContent=textarea.value||''
+    div.style.cssText='width:100%;padding:8px;height:100%;min-height:100%;font-size:12px;line-height:1.3;font-family:Arial,sans-serif;border:1px solid var(--border);border-radius:4px;background-color:var(--bg-light);color:var(--text-light);box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word'
+    textarea.parentNode.replaceChild(div,textarea)
+  })
+  clonedContainer.querySelectorAll('[contenteditable]').forEach(el=>{el.removeAttribute('contenteditable');el.style.cursor='default'})
+  clonedContainer.querySelectorAll('*').forEach(el=>{
+    Array.from(el.attributes).forEach(attr=>{
+      if(attr.name.startsWith('on')||attr.name.includes('data-'))el.removeAttribute(attr.name)
+    })
+  })
+  return clonedContainer
 }
 
 
 
-function setupButtonHandlers() {
-  const previewBtn = d('previewBtn');
-  const generateImageBtn = d('generateImageBtn');
-  const printPdfBtn = d('printPdfBtn');
-
-  if (!previewBtn || !generateImageBtn || !printPdfBtn) {
-    console.error('Button elements not found');
-    return;
-  }
+const setupButtonHandlers=()=>{
+  const previewBtn=d('previewBtn'),generateImageBtn=d('generateImageBtn'),printPdfBtn=d('printPdfBtn')
+  if(!previewBtn||!generateImageBtn||!printPdfBtn){console.error('Button elements not found');return}
 
     previewBtn.addEventListener('click', () => {
     try {
@@ -1781,25 +1411,9 @@ function setupButtonHandlers() {
       }
       
       // 檢查 canvas 是否為全黑
-      const ctx = canvas.getContext('2d');
-      const imageData = ctx.getImageData(0, 0, Math.min(100, canvas.width), Math.min(100, canvas.height));
-      const pixels = imageData.data;
-      let hasNonBlackPixels = false;
-      
-      for (let i = 0; i < pixels.length; i += 4) {
-        const r = pixels[i];
-        const g = pixels[i + 1];
-        const b = pixels[i + 2];
-        // 檢查是否為非黑色像素（容許一些誤差）
-        if (r > 10 || g > 10 || b > 10) {
-          hasNonBlackPixels = true;
-          break;
-        }
-      }
-      
-      if (!hasNonBlackPixels) {
-        throw new Error('生成的圖片為全黑，可能是渲染問題');
-      }
+      const ctx=canvas.getContext('2d'),imageData=ctx.getImageData(0,0,Math.min(100,canvas.width),Math.min(100,canvas.height)),pixels=imageData.data
+      const hasNonBlackPixels=Array.from({length:pixels.length/4},(_,i)=>pixels[i*4]>10||pixels[i*4+1]>10||pixels[i*4+2]>10).some(x=>x)
+      if(!hasNonBlackPixels)throw new Error('生成的圖片為全黑，可能是渲染問題')
       
       // 轉換為圖片數據
       const imgData = canvas.toDataURL('image/png', 1.0);
@@ -1851,149 +1465,124 @@ function setupButtonHandlers() {
   });
 }
 
-function Q(){
-  const updateTotals = b(f,200);
-  
-  // Add date picker event handlers
-  Object.entries(D).forEach(([textId, inputId]) => {
-    const textElement = d(textId);
-    const inputElement = d(inputId);
-    if (textElement && inputElement) {
-      textElement.addEventListener('click', q);
-      H(inputElement, textElement);
-    }
-  });
+const Q=()=>{
+  const updateTotals=b(f,200)
+  Object.entries(D).forEach(([textId,inputId])=>{const textElement=d(textId),inputElement=d(inputId);if(textElement&&inputElement){textElement.addEventListener('click',q);H(inputElement,textElement)}})
 
-  const quoteTable = d('quoteTable');
-  if (quoteTable) {
-    const priceInputs = '.price-input, .shipping-input, .installation-input',
-          allInputs = `${priceInputs}, .quantity-input, .category-input, .name-input, .unit-input`;
+  const quoteTable=d('quoteTable')
+  if(quoteTable){
+    const priceInputs='.price-input, .shipping-input, .installation-input',
+          allInputs=`${priceInputs}, .quantity-input, .category-input, .name-input, .unit-input`
     
-    // 檢查安裝欄位是否需要顯示 N/A
-    function checkInstallationField(installationInput) {
-      if (!installationInput || !installationInput.classList.contains('installation-input')) return;
-      
-      const row = installationInput.closest('tr');
-      if (!row) return;
-      
-      const categoryInput = row.querySelector('.category-input');
-      const nameInput = row.querySelector('.name-input');
-      const priceInput = row.querySelector('.price-input');
-      const quantityInput = row.querySelector('.quantity-input');
-      
-      // 檢查前方欄位是否有數據
-      const hasData = (categoryInput && categoryInput.value.trim()) ||
-                      (nameInput && nameInput.value.trim()) ||
-                      (priceInput && priceInput.value.trim()) ||
-                      (quantityInput && quantityInput.value.trim());
-      
-      // 如果前方有數據但安裝欄位為空，顯示 N/A
-      if (hasData && (!installationInput.value || installationInput.value.trim() === '')) {
-        installationInput.value = 'N/A';
-        installationInput.style.color = 'var(--text-light)';
-        installationInput.style.fontStyle = 'italic';
-      } else if (installationInput.value === 'N/A') {
-        // 如果用戶要輸入，清除 N/A
-        installationInput.value = '';
-        installationInput.style.color = '';
-        installationInput.style.fontStyle = '';
+    // 通用函數：檢查欄位是否需要顯示 N/A
+    const checkFieldNA=(input,fieldType)=>{
+      if(!input||!input.classList.contains(fieldType))return
+      const row=input.closest('tr')
+      if(!row)return
+      const selectors=fieldType==='installation-input'?
+        ['.category-input','.name-input','.price-input','.quantity-input','.unit-input']:
+        ['.category-input','.name-input','.price-input','.quantity-input','.unit-input','.installation-input']
+      const hasData=selectors.some(sel=>{
+        const el=row.querySelector(sel)
+        if(!el)return false
+        const val=el.value?.trim()||''
+        return fieldType==='shipping-input'&&sel==='.installation-input'?val&&val!=='N/A':!!val
+      })
+      const isEmpty=!input.value||!input.value.trim()
+      if(hasData&&isEmpty){
+        input.value='N/A'
+        input.style.color='var(--text-light)'
+        input.style.fontStyle='italic'
+      }else if(input.value==='N/A'&&!hasData){
+        input.value=''
+        input.style.color=''
+        input.style.fontStyle=''
       }
     }
     
     // Consolidated input handling
-    function handleInput(event) {
-      const target = event.target;
-      if (target.matches(allInputs)) {
-        if (target.value) {
-          target.value = target.value.trim();
+    const handleInput=event=>{
+      const target=event.target
+      if(!target.matches(allInputs))return
+      if(target.value)target.value=target.value.trim()
+      if(target.matches(priceInputs))_(target)
+      const row=target.closest('tr')
+      if(row){
+        const installationInput=row.querySelector('.installation-input')
+        const shippingInput=row.querySelector('.shipping-input')
+        const triggersInstallation='.category-input, .name-input, .price-input, .quantity-input, .unit-input'
+        if(target.matches(triggersInstallation)){
+          if(installationInput)checkFieldNA(installationInput,'installation-input')
+          if(shippingInput)checkFieldNA(shippingInput,'shipping-input')
+        }else if(target.matches('.installation-input')&&shippingInput){
+          checkFieldNA(shippingInput,'shipping-input')
         }
-        if (target.matches(priceInputs)) {
-          _(target);
-        }
-        
-        // 如果是其他欄位變更，檢查安裝欄位
-        if (target.matches('.category-input, .name-input, .price-input, .quantity-input')) {
-          const row = target.closest('tr');
-          if (row) {
-            const installationInput = row.querySelector('.installation-input');
-            if (installationInput) {
-              checkInstallationField(installationInput);
-            }
-          }
-        }
-        
-        updateTotals();
       }
+      updateTotals()
     }
     
-    // 處理安裝欄位的 focus 和 blur
-    function handleInstallationField(event) {
-      const target = event.target;
-      if (!target.classList.contains('installation-input')) return;
-      
-      if (event.type === 'focus') {
-        // 聚焦時，如果是 N/A，清空以便輸入
-        if (target.value === 'N/A') {
-          target.value = '';
-          target.style.color = '';
-          target.style.fontStyle = '';
+    // 通用函數：處理安裝/運費欄位的 focus 和 blur
+    const handleNAField=(event,fieldType)=>{
+      const target=event.target
+      if(!target.classList.contains(fieldType))return
+      if(event.type==='focus'){
+        if(target.value==='N/A'){
+          target.value=''
+          target.style.color=''
+          target.style.fontStyle=''
         }
-      } else if (event.type === 'blur') {
-        // 失焦時，檢查是否需要顯示 N/A
-        if (!target.value || target.value.trim() === '') {
-          checkInstallationField(target);
-        } else {
-          // 如果有輸入，確保格式正確
-          _(target);
-          target.style.color = '';
-          target.style.fontStyle = '';
+      }else if(event.type==='blur'){
+        if(!target.value||!target.value.trim()){
+          checkFieldNA(target,fieldType)
+        }else{
+          _(target)
+          target.style.color=''
+          target.style.fontStyle=''
+        }
+        // 安裝欄位變更後，也要檢查運費欄位
+        if(fieldType==='installation-input'){
+          const row=target.closest('tr')
+          const shippingInput=row?.querySelector('.shipping-input')
+          if(shippingInput)checkFieldNA(shippingInput,'shipping-input')
         }
       }
     }
 
-    // 初始化時檢查所有安裝欄位
-    function initializeInstallationFields() {
-      const tableBody = d('itemsTableBody');
-      if (tableBody) {
-        const rows = tableBody.querySelectorAll('tr');
-        rows.forEach(row => {
-          const installationInput = row.querySelector('.installation-input');
-          if (installationInput) {
-            checkInstallationField(installationInput);
-          }
-        });
+    // 初始化時檢查所有安裝欄位和運費欄位
+    const initializeInstallationFields=()=>{
+      const tableBody=d('itemsTableBody')
+      if(tableBody){
+        tableBody.querySelectorAll('tr').forEach(row=>{
+          const installationInput=row.querySelector('.installation-input')
+          const shippingInput=row.querySelector('.shipping-input')
+          if(installationInput)checkFieldNA(installationInput,'installation-input')
+          if(shippingInput)checkFieldNA(shippingInput,'shipping-input')
+        })
       }
     }
     
     // Add event listeners
-    quoteTable.addEventListener('input', handleInput);
-    quoteTable.addEventListener('paste', event => {
-      if (event.target.matches(allInputs)) {
-        setTimeout(() => handleInput(event), 0);
-      }
-    });
+    quoteTable.addEventListener('input',handleInput)
+    quoteTable.addEventListener('paste',e=>{if(e.target.matches(allInputs))setTimeout(()=>handleInput(e),0)})
     
-    // 合併 blur 事件處理（包含 handleInput 和 handleInstallationField）
-    quoteTable.addEventListener('blur', event => {
-      const target = event.target;
-      // 先執行 handleInput 處理
-      handleInput(event);
-      // 然後處理安裝欄位的 blur
-      handleInstallationField(event);
-    }, true);
+    // 合併 blur 事件處理
+    quoteTable.addEventListener('blur',event=>{
+      handleInput(event)
+      handleNAField(event,'installation-input')
+      handleNAField(event,'shipping-input')
+    },true)
     
-    // 合併 focus 事件處理（包含安裝欄位處理和選擇文字）
-    quoteTable.addEventListener('focus', event => {
-      const target = event.target;
-      if (target.tagName === 'INPUT' && target.matches(allInputs)) {
-        // 選擇文字
-        target.select();
-        // 處理安裝欄位的 focus
-        handleInstallationField(event);
-      } else if (target.classList.contains('installation-input')) {
-        handleInstallationField(event);
+    // 合併 focus 事件處理
+    quoteTable.addEventListener('focus',event=>{
+      const target=event.target
+      if(target.tagName==='INPUT'&&target.matches(allInputs)){
+        target.select()
+        handleNAField(event,'installation-input')
+        handleNAField(event,'shipping-input')
+      }else if(target.classList.contains('installation-input')||target.classList.contains('shipping-input')){
+        handleNAField(event,target.classList.contains('installation-input')?'installation-input':'shipping-input')
       }
-    }, true);
+    },true)
     
     // 初始化檢查
     setTimeout(initializeInstallationFields, 100);
@@ -2026,21 +1615,10 @@ function Q(){
   }
 
   // Global input handling
-  function handleGlobalInput(event) {
-    if (event.target.tagName === 'INPUT' && event.target.classList.contains('input-field')) {
-      if (event.target.value) {
-        event.target.value = event.target.value.trim();
-      }
-    }
-  }
-
-  document.addEventListener('input', handleGlobalInput);
-  document.addEventListener('blur', handleGlobalInput, true);
-  document.addEventListener('paste', event => {
-    if (event.target.tagName === 'INPUT' && event.target.classList.contains('input-field')) {
-      setTimeout(() => handleGlobalInput(event), 0);
-    }
-  });
+  const handleGlobalInput=e=>{if(e.target.tagName==='INPUT'&&e.target.classList.contains('input-field')&&e.target.value)e.target.value=e.target.value.trim()}
+  document.addEventListener('input',handleGlobalInput)
+  document.addEventListener('blur',handleGlobalInput,true)
+  document.addEventListener('paste',e=>{if(e.target.tagName==='INPUT'&&e.target.classList.contains('input-field'))setTimeout(()=>handleGlobalInput(e),0)})
 
   // Button handlers
   const addItemBtn = d('addItemBtn'),
@@ -2059,48 +1637,27 @@ function Q(){
   
 }
 
-function K(){
+const K=()=>{
   try{
-    I();
-    Q();
-    setupPrintHandlers();
-    g();
-    f();
-    G();
-    setupButtonHandlers();
-    setupTotalsInputs(); // Add this line
-
-    // Add logo functionality
-    const logoContainer = d('logo-container');
-    const uploadLogo = d('upload-logo');
-    
-    if (logoContainer && uploadLogo) {
-      logoContainer.addEventListener('click', () => {
-        uploadLogo.click();
-      });
-
-      uploadLogo.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-          if (!file.type.startsWith('image/')) {
-            N('請選擇圖片檔案', 'error');
-            return;
-          }
-          
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.style.maxHeight = '50px';
-            img.style.objectFit = 'contain';
-            
-            // Clear existing content
-            logoContainer.innerHTML = '';
-            logoContainer.appendChild(img);
-          };
-          reader.readAsDataURL(file);
+    I();Q();setupPrintHandlers();g();f();G();setupButtonHandlers();setupTotalsInputs()
+    const logoContainer=d('logo-container'),uploadLogo=d('upload-logo')
+    if(logoContainer&&uploadLogo){
+      logoContainer.addEventListener('click',()=>uploadLogo.click())
+      uploadLogo.addEventListener('change',e=>{
+        const file=e.target.files[0]
+        if(!file)return
+        if(!file.type.startsWith('image/')){N('請選擇圖片檔案','error');return}
+        const reader=new FileReader()
+        reader.onload=e=>{
+          const img=document.createElement('img')
+          img.src=e.target.result
+          img.style.maxHeight='50px'
+          img.style.objectFit='contain'
+          logoContainer.innerHTML=''
+          logoContainer.appendChild(img)
         }
-      });
+        reader.readAsDataURL(file)
+      })
     }
 
     // Add phone number formatting for all phone fields
@@ -2261,200 +1818,100 @@ function K(){
     // Add synchronization between contact info and client confirmation
     const contactInfo = document.querySelector('.contact-info');
     const clientConfirmation = document.querySelector('.client-confirmation');
-    
     if (contactInfo && clientConfirmation) {
       const contactFields = contactInfo.querySelectorAll('.editable-field');
       const clientFields = clientConfirmation.querySelectorAll('.editable-field');
-      
-      // Function to sync content from contact to client
-      function syncContent(sourceField, targetField) {
-        if (sourceField && targetField) {
-          const content = sourceField.textContent.trim();
-          if (content) {
-            // 如果是電話號碼，先格式化再同步
-            if (sourceField.dataset.type === 'phone') {
-              targetField.textContent = F.formatText(content, 'phone');
-            } else {
-              targetField.textContent = content;
-            }
-          }
-        }
-      }
-      
-      // Add input event listeners only to contact fields
-      contactFields.forEach((field, index) => {
-        field.addEventListener('input', () => {
-          syncContent(field, clientFields[index]);
-        });
-        
-        field.addEventListener('blur', () => {
-          syncContent(field, clientFields[index]);
-        });
-      });
+      const syncContent=(sourceField,targetField)=>{if(!sourceField||!targetField)return;const content=sourceField.textContent.trim();if(content)targetField.textContent=sourceField.dataset.type==='phone'?F.formatText(content,'phone'):content}
+      contactFields.forEach((field,index)=>{field.addEventListener('input',()=>syncContent(field,clientFields[index]));field.addEventListener('blur',()=>syncContent(field,clientFields[index]))})
     }
     
     // Initialize phone formatting
     setupPhoneFormatting();
     
     // 為所有 contenteditable 欄位添加純文字貼上功能
-    // 確保貼上時只保留純文字，不保留格式，依照表格現有格式為主
-    function setupPlainTextPasteHandling() {
-      // 獲取所有 contenteditable 欄位
-      const allEditableFields = document.querySelectorAll('[contenteditable="true"].editable-field, [contenteditable="true"]');
-      
-      allEditableFields.forEach(field => {
-        // 檢查是否已經有貼上事件監聽器（避免重複添加）
-        if (field.dataset.pasteHandlerAdded) return;
-        field.dataset.pasteHandlerAdded = 'true';
-        
-        // 為電話號碼欄位使用特殊處理（已在 setupPhoneFormatting 中處理）
-        if (field.dataset.type === 'phone') {
-          return; // 電話號碼欄位已有專門的貼上處理
-        }
-        
-        field.addEventListener('paste', function(e) {
-          e.preventDefault();
-          
-          // 獲取剪貼簿中的純文字內容
-          const paste = (e.clipboardData || window.clipboardData).getData('text');
-          
-          // 如果是 email 欄位，移除所有空格
-          let cleanText = paste;
-          if (this.dataset.type === 'email') {
-            cleanText = paste.replace(/\s/g, '').trim();
-          } else {
-            cleanText = paste.trim();
+    const setupPlainTextPasteHandling=()=>{
+      document.querySelectorAll('[contenteditable="true"].editable-field, [contenteditable="true"]').forEach(field=>{
+        if(field.dataset.pasteHandlerAdded||field.dataset.type==='phone')return
+        field.dataset.pasteHandlerAdded='true'
+        field.addEventListener('paste',function(e){
+          e.preventDefault()
+          const paste=(e.clipboardData||window.clipboardData).getData('text')
+          const cleanText=this.dataset.type==='email'?paste.replace(/\s/g,'').trim():paste.trim()
+          const selection=window.getSelection()
+          if(selection.rangeCount>0){
+            const range=selection.getRangeAt(0)
+            range.deleteContents()
+            const textNode=document.createTextNode(cleanText)
+            range.insertNode(textNode)
+            range.setStartAfter(textNode)
+            range.collapse(true)
+            selection.removeAllRanges()
+            selection.addRange(range)
+          }else{
+            this.textContent=cleanText
+            const range=document.createRange()
+            range.selectNodeContents(this)
+            range.collapse(false)
+            const sel=window.getSelection()
+            sel.removeAllRanges()
+            sel.addRange(range)
           }
-          
-          // 獲取當前選取範圍
-          const selection = window.getSelection();
-          if (selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            
-            // 刪除選取的內容
-            range.deleteContents();
-            
-            // 插入純文字（不帶格式）
-            const textNode = document.createTextNode(cleanText);
-            range.insertNode(textNode);
-            
-            // 將光標移動到插入文字的末尾
-            range.setStartAfter(textNode);
-            range.collapse(true);
-            selection.removeAllRanges();
-            selection.addRange(range);
-          } else {
-            // 如果沒有選取範圍，直接替換整個內容
-            this.textContent = cleanText;
-            
-            // 將光標移動到文字末尾
-            const range = document.createRange();
-            range.selectNodeContents(this);
-            range.collapse(false);
-            const sel = window.getSelection();
-            sel.removeAllRanges();
-            sel.addRange(range);
-          }
-          
-          // 觸發 input 事件以確保其他監聽器能正確處理
-          this.dispatchEvent(new Event('input', { bubbles: true }));
-        });
-      });
+          this.dispatchEvent(new Event('input',{bubbles:true}))
+        })
+      })
     }
-    
-    // Initialize plain text paste handling for all editable fields
-    setupPlainTextPasteHandling();
+    setupPlainTextPasteHandling()
     
     // 為所有輸入框添加鍵盤快捷鍵功能
-    // Delete 鍵：當光標在末尾時，清空整個欄位
-    // Backspace 鍵：逐一刪除（保持默認行為）
-    function setupKeyboardShortcuts() {
-      // 處理所有 input 輸入框
-      const allInputs = document.querySelectorAll('input.input-field, input.totals-input');
-      
-      allInputs.forEach(input => {
-        // 檢查是否已經添加過事件監聽器
-        if (input.dataset.keyboardHandlerAdded) return;
-        input.dataset.keyboardHandlerAdded = 'true';
-        
-        input.addEventListener('keydown', function(e) {
-          // Delete 鍵：當光標在文字末尾且沒有選取文字時，清空整個欄位
-          if (e.key === 'Delete' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
-            const hasSelection = this.selectionStart !== this.selectionEnd;
-            const isAtEnd = this.selectionStart === this.value.length;
-            
-            // 如果光標在末尾且沒有選取文字，清空整個欄位
-            if (!hasSelection && isAtEnd && this.value.length > 0) {
-              e.preventDefault();
-              this.value = '';
-              // 觸發 input 事件以更新相關計算
-              this.dispatchEvent(new Event('input', { bubbles: true }));
-              this.dispatchEvent(new Event('change', { bubbles: true }));
+    const setupKeyboardShortcuts=()=>{
+      document.querySelectorAll('input.input-field, input.totals-input').forEach(input=>{
+        if(input.dataset.keyboardHandlerAdded)return
+        input.dataset.keyboardHandlerAdded='true'
+        input.addEventListener('keydown',function(e){
+          if(e.key==='Delete'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.shiftKey){
+            const hasSelection=this.selectionStart!==this.selectionEnd
+            const isAtEnd=this.selectionStart===this.value.length
+            if(!hasSelection&&isAtEnd&&this.value.length>0){
+              e.preventDefault()
+              this.value=''
+              this.dispatchEvent(new Event('input',{bubbles:true}))
+              this.dispatchEvent(new Event('change',{bubbles:true}))
             }
-            // 如果有選取文字或光標不在末尾，使用默認行為（刪除選取或下一個字符）
           }
-          // Backspace 鍵保持默認行為（逐一刪除）
-        });
-      });
-      
-      // 處理所有 contenteditable 欄位
-      const allEditableFields = document.querySelectorAll('[contenteditable="true"].editable-field, [contenteditable="true"]');
-      
-      allEditableFields.forEach(field => {
-        // 檢查是否已經添加過事件監聽器（避免與電話號碼欄位的處理衝突）
-        if (field.dataset.keyboardHandlerAdded) return;
-        
-        // 跳過電話號碼欄位，它們已經有專門的 keydown 處理
-        if (field.dataset.type === 'phone') return;
-        
-        field.dataset.keyboardHandlerAdded = 'true';
-        
-        field.addEventListener('keydown', function(e) {
-          // Delete 鍵：當光標在文字末尾且沒有選取文字時，清空整個欄位
-          if (e.key === 'Delete' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-              const range = selection.getRangeAt(0);
-              const hasSelection = !range.collapsed;
-              
-              // 如果沒有選取文字，檢查光標位置
-              if (!hasSelection) {
-                const textContent = this.textContent || '';
-                
-                // 檢查光標是否在文字末尾
-                let isAtEnd = false;
-                if (range.startContainer === this || range.startContainer.parentNode === this) {
-                  // 如果光標在元素本身或直接子節點
-                  if (this.firstChild && this.firstChild.nodeType === Node.TEXT_NODE) {
-                    const textNode = this.firstChild;
-                    isAtEnd = range.startOffset === textNode.textContent.length;
-                  } else {
-                    // 如果沒有文字節點，檢查是否在末尾
-                    isAtEnd = range.startOffset === textContent.length;
+        })
+      })
+      document.querySelectorAll('[contenteditable="true"].editable-field, [contenteditable="true"]').forEach(field=>{
+        if(field.dataset.keyboardHandlerAdded||field.dataset.type==='phone')return
+        field.dataset.keyboardHandlerAdded='true'
+        field.addEventListener('keydown',function(e){
+          if(e.key==='Delete'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.shiftKey){
+            const selection=window.getSelection()
+            if(selection.rangeCount>0){
+              const range=selection.getRangeAt(0)
+              if(range.collapsed){
+                const textContent=this.textContent||''
+                let isAtEnd=false
+                if(range.startContainer===this||range.startContainer.parentNode===this){
+                  if(this.firstChild&&this.firstChild.nodeType===Node.TEXT_NODE){
+                    isAtEnd=range.startOffset===this.firstChild.textContent.length
+                  }else{
+                    isAtEnd=range.startOffset===textContent.length
                   }
-                } else if (range.startContainer.nodeType === Node.TEXT_NODE) {
-                  const textNode = range.startContainer;
-                  isAtEnd = range.startOffset === textNode.textContent.length;
+                }else if(range.startContainer.nodeType===Node.TEXT_NODE){
+                  isAtEnd=range.startOffset===range.startContainer.textContent.length
                 }
-                
-                // 如果光標在末尾且有內容，清空整個欄位
-                if (isAtEnd && textContent.length > 0) {
-                  e.preventDefault();
-                  this.textContent = '';
-                  // 觸發 input 事件
-                  this.dispatchEvent(new Event('input', { bubbles: true }));
+                if(isAtEnd&&textContent.length>0){
+                  e.preventDefault()
+                  this.textContent=''
+                  this.dispatchEvent(new Event('input',{bubbles:true}))
                 }
               }
-              // 如果有選取文字，使用默認行為（刪除選取的文字）
             }
           }
-          // Backspace 鍵保持默認行為（逐一刪除）
-        });
-      });
+        })
+      })
     }
-    
-    // Initialize keyboard shortcuts
-    setupKeyboardShortcuts();
+    setupKeyboardShortcuts()
   }catch{}
 }
 K();
