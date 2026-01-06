@@ -1,13 +1,28 @@
 <div class="cyber-panel">
-    <h1 style="text-align:center;margin-bottom:0.8rem;">📦 外送資產訂購單</h1>
+    <h1 class="page-title">📦 外送資產訂購單</h1>
     <div id="date-picker">
-        <label style="color:var(--neon-cyan);margin-right:5px;">選擇日期：</label>
+        <label class="date-label">選擇日期：</label>
         <span id="date-display"></span>
-        <button id="reset-date-button">今天</button>
+        <button id="reset-date-button"><span>今天</span></button>
         <div id="date-modal">
-            <select id="year-select"></select>
-            <select id="month-select"></select>
-            <select id="day-select"></select>
+            <div class="calendar-header">
+                <button class="calendar-nav-btn" id="prev-month">‹</button>
+                <div class="calendar-month-year">
+                    <select id="year-select"></select>
+                    <select id="month-select"></select>
+                </div>
+                <button class="calendar-nav-btn" id="next-month">›</button>
+            </div>
+            <div class="calendar-weekdays">
+                <div>日</div>
+                <div>一</div>
+                <div>二</div>
+                <div>三</div>
+                <div>四</div>
+                <div>五</div>
+                <div>六</div>
+            </div>
+            <div class="calendar-days" id="calendar-days"></div>
         </div>
     </div>
     <div id="categories-container"></div>
@@ -32,7 +47,12 @@
         --space-blue: #1a1a2e;
         --neon-cyan: #00f3ff;
         --cyber-purple: #712f79;
-        --transition-time: 0.3s;
+        --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --bg-dark: rgba(0,0,0,0.3);
+        --bg-darker: rgba(0,0,0,0.5);
+        --bg-gradient: linear-gradient(135deg, rgba(0,243,255,0.1) 0%, rgba(113,47,121,0.1) 100%);
+        --shadow-cyan: rgba(0,243,255,0.3);
+        --shadow-purple: rgba(113,47,121,0.4);
     }
     body {
         background: var(--space-blue);
@@ -45,10 +65,7 @@
     body::before {
         content: '';
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         background: 
             linear-gradient(45deg, rgba(0,243,255,0.1) 1px, transparent 1px),
             linear-gradient(-45deg, rgba(0,243,255,0.1) 1px, transparent 1px);
@@ -59,16 +76,12 @@
     body::after {
         content: '';
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         background: radial-gradient(circle at center, transparent 0%, var(--space-blue) 100%);
         z-index: -1;
     }
     @keyframes gridMove {
-        0% { background-position: 0 0; }
-        100% { background-position: 40px 40px; }
+        to { background-position: 40px 40px; }
     }
     .cyber-panel {
         background: var(--space-blue);
@@ -81,6 +94,15 @@
         box-shadow: 0 0 15px rgba(0,243,255,0.2);
         box-sizing: border-box;
         margin: 0 auto;
+    }
+    .page-title {
+        text-align: center;
+        margin-bottom: 0.8rem;
+    }
+    .date-label {
+        color: var(--neon-cyan);
+        margin-right: 5px;
+        font-weight: 500;
     }
     .category-section {
         margin-bottom: 0.8rem;
@@ -99,18 +121,18 @@
         padding: 0.5rem 0;
     }
     .cyber-input {
-        background: rgba(0,0,0,0.3);
+        background: var(--bg-dark);
         border: 1px solid var(--cyber-purple);
         border-radius: 6px;
         padding: 0.5rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        transition: all var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all var(--transition);
     }
     .cyber-input:hover {
         transform: translateY(-2px);
-        box-shadow: 0 3px 10px rgba(113,47,121,0.4);
+        box-shadow: 0 3px 10px var(--shadow-purple);
     }
     .cyber-input .label {
         text-align: left;
@@ -124,21 +146,21 @@
         color: var(--neon-cyan);
         font-size: 1rem;
         text-align: center;
-        transition: border-color var(--transition-time);
+        transition: border-color var(--transition);
     }
-    input[type="text"]:focus {
+    input[type="text"]:focus, .cost-note-input:focus {
         border-color: var(--cyber-purple);
         outline: none;
     }
-    #hud-display, #cost-display {
-        background: rgba(0,0,0,0.5);
+    #hud-display, #cost-display, .cost-summary {
+        background: var(--bg-darker);
         border: 1px solid var(--neon-cyan);
         border-radius: 6px;
         padding: 0.8rem;
         margin-top: 0.8rem;
-        text-align: left;
         backdrop-filter: blur(8px);
-        transition: border-color var(--transition-time);
+        transition: border-color var(--transition);
+        text-align: left;
     }
     #hud-display {
         cursor: pointer;
@@ -152,13 +174,6 @@
         color: var(--neon-cyan);
     }
     .cost-summary {
-        background: rgba(0,0,0,0.5);
-        border: 1px solid var(--neon-cyan);
-        border-radius: 6px;
-        padding: 0.8rem;
-        margin-top: 0.8rem;
-        backdrop-filter: blur(8px);
-        transition: border-color var(--transition-time);
         display: none;
     }
     .cost-total-row {
@@ -174,72 +189,295 @@
     .cost-note-input {
         width: 80px;
         padding: 0.4rem;
-        background: rgba(0,0,0,0.3);
+        background: var(--bg-dark);
         border: 1px solid var(--neon-cyan);
         border-radius: 4px;
         color: var(--neon-cyan);
         font-size: 0.9rem;
         text-align: center;
-        transition: all var(--transition-time);
-    }
-    .cost-note-input:focus {
-        border-color: var(--cyber-purple);
-        outline: none;
+        transition: all var(--transition);
     }
     #date-picker {
         text-align: center;
         margin-bottom: 0.4rem;
         position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
     }
     #date-display {
-        background: transparent;
-        border: 1px solid var(--neon-cyan);
+        background: var(--bg-gradient);
+        border: 2px solid var(--neon-cyan);
         color: var(--neon-cyan);
-        padding: 0.3rem 0.8rem;
-        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
         cursor: pointer;
-        display: inline-block;
-        margin-left: 5px;
-        transition: box-shadow var(--transition-time);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 140px;
+        font-weight: 500;
+        font-size: 1rem;
+        transition: all var(--transition);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px var(--shadow-cyan);
+    }
+    #date-display::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        left: -100%;
+        background: linear-gradient(90deg, transparent, rgba(0,243,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    #date-display:hover::before {
+        left: 100%;
     }
     #date-display:hover {
-        box-shadow: 0 0 8px rgba(0,243,255,0.5);
+        box-shadow: 0 4px 16px var(--shadow-cyan);
+        transform: translateY(-2px);
+        border-color: var(--cyber-purple);
+        background: linear-gradient(135deg, rgba(0,243,255,0.15) 0%, rgba(113,47,121,0.15) 100%);
+    }
+    #date-display:active {
+        transform: translateY(0);
     }
     #date-modal {
         display: none;
         position: absolute;
-        top: 100%;
+        top: calc(100% + 10px);
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(0,0,0,0.8);
-        border: 1px solid var(--neon-cyan);
-        border-radius: 6px;
-        padding: 0.5rem;
+        background: linear-gradient(135deg, rgba(26,26,46,0.95) 0%, rgba(0,0,0,0.95) 100%);
+        border: 2px solid var(--neon-cyan);
+        border-radius: 12px;
+        padding: 1rem;
         z-index: 10;
-        box-shadow: 0 0 15px rgba(0,243,255,0.3);
+        box-shadow: 0 8px 32px rgba(0,243,255,0.3), 0 0 0 1px rgba(0,243,255,0.1);
+        backdrop-filter: blur(10px);
+        min-width: 300px;
+        animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+    #date-modal::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, var(--neon-cyan), var(--cyber-purple), var(--neon-cyan));
+        border-radius: 12px;
+        z-index: -1;
+        opacity: 0.3;
+        animation: borderGlow 3s ease-in-out infinite;
+    }
+    @keyframes borderGlow {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.6; }
+    }
+    .calendar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        gap: 0.5rem;
+    }
+    .calendar-nav-btn {
+        background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(26,26,46,0.6) 100%);
+        border: 2px solid var(--cyber-purple);
+        color: var(--neon-cyan);
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.5rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .calendar-nav-btn:hover {
+        border-color: var(--neon-cyan);
+        box-shadow: 0 4px 12px var(--shadow-cyan);
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, rgba(0,243,255,0.1) 0%, rgba(26,26,46,0.8) 100%);
+    }
+    .calendar-nav-btn:active, #reset-date-button:active {
+        transform: translateY(0);
+    }
+    .calendar-month-year {
+        display: flex;
+        gap: 0.5rem;
+        flex: 1;
+        justify-content: center;
     }
     #date-modal select {
-        background: var(--space-blue);
-        border: 1px solid var(--cyber-purple);
+        background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(26,26,46,0.6) 100%);
+        border: 2px solid var(--cyber-purple);
         color: var(--neon-cyan);
-        padding: 0.3rem;
-        margin: 0.3rem;
-        border-radius: 4px;
-        font-size: 0.9rem;
+        padding: 0.5rem 2.5rem 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--transition);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300f3ff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.8rem center;
+        background-size: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        flex: 1;
     }
-    #reset-date-button {
-        margin-left: 5px;
-        padding: 3px 8px;
-        background: var(--cyber-purple);
-        border: 1px solid var(--neon-cyan);
-        border-radius: 4px;
+    #date-modal select:hover {
+        border-color: var(--neon-cyan);
+        box-shadow: 0 4px 12px var(--shadow-cyan);
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, rgba(0,243,255,0.1) 0%, rgba(26,26,46,0.8) 100%);
+    }
+    #date-modal select:focus {
+        outline: none;
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 0 3px rgba(0,243,255,0.2), 0 4px 12px var(--shadow-cyan);
+    }
+    #date-modal select option {
+        background: var(--space-blue);
+        color: var(--neon-cyan);
+        padding: 0.5rem;
+    }
+    .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.3rem;
+        margin-bottom: 0.5rem;
+    }
+    .calendar-weekdays div {
+        text-align: center;
+        font-weight: 600;
+        color: var(--neon-cyan);
+        font-size: 0.9rem;
+        padding: 0.4rem 0;
+    }
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.3rem;
+    }
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(26,26,46,0.5) 100%);
+        border: 2px solid transparent;
+        border-radius: 8px;
         color: var(--neon-cyan);
         cursor: pointer;
-        transition: all var(--transition-time);
+        font-weight: 500;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    .calendar-day::before {
+        content: '';
+        position: absolute;
+        inset: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(0,243,255,0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.3s, height 0.3s;
+    }
+    .calendar-day:hover::before {
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+    .calendar-day:hover {
+        border-color: var(--neon-cyan);
+        box-shadow: 0 2px 8px rgba(0,243,255,0.3);
+        transform: scale(1.05);
+        z-index: 1;
+    }
+    .calendar-day.other-month {
+        color: rgba(0,243,255,0.3);
+        background: rgba(0,0,0,0.1);
+    }
+    .calendar-day.today {
+        border-color: var(--cyber-purple);
+        background: linear-gradient(135deg, rgba(113,47,121,0.2) 0%, rgba(0,243,255,0.1) 100%);
+        font-weight: 700;
+        box-shadow: 0 0 8px rgba(113,47,121,0.4);
+    }
+    .calendar-day.selected {
+        border-color: var(--neon-cyan);
+        background: linear-gradient(135deg, rgba(0,243,255,0.3) 0%, rgba(113,47,121,0.2) 100%);
+        font-weight: 700;
+        box-shadow: 0 0 12px rgba(0,243,255,0.5);
+        transform: scale(1.1);
+        z-index: 2;
+    }
+    .calendar-day.selected::before {
+        width: 100%;
+        height: 100%;
+        background: rgba(0,243,255,0.1);
+    }
+    #reset-date-button {
+        margin-left: 0;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, var(--cyber-purple) 0%, rgba(113,47,121,0.8) 100%);
+        border: 2px solid var(--neon-cyan);
+        border-radius: 8px;
+        color: var(--neon-cyan);
+        cursor: pointer;
+        transition: all var(--transition);
+        font-weight: 500;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 8px var(--shadow-purple);
+        position: relative;
+        overflow: hidden;
+    }
+    #reset-date-button::before {
+        content: '';
+        position: absolute;
+        inset: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(0,243,255,0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    #reset-date-button:hover::before {
+        width: 300px;
+        height: 300px;
     }
     #reset-date-button:hover {
-        background: var(--neon-cyan);
+        background: linear-gradient(135deg, var(--neon-cyan) 0%, rgba(0,243,255,0.9) 100%);
         color: var(--space-blue);
+        box-shadow: 0 4px 16px var(--shadow-cyan);
+        transform: translateY(-2px);
+        border-color: var(--cyber-purple);
+    }
+    #reset-date-button span {
+        position: relative;
+        z-index: 1;
     }
     @media (max-width: 480px) {
         .cyber-panel {
@@ -259,6 +497,41 @@
         #hud-display, #cost-display {
             padding: 0.6rem;
         }
+        #date-picker {
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        #date-display {
+            width: 100%;
+            min-width: auto;
+        }
+        #reset-date-button {
+            width: 100%;
+        }
+        #date-modal {
+            min-width: 90%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.8rem;
+        }
+        .calendar-header {
+            margin-bottom: 0.8rem;
+        }
+        .calendar-nav-btn {
+            width: 32px;
+            height: 32px;
+            font-size: 1.2rem;
+        }
+        #date-modal select {
+            padding: 0.4rem 2rem 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+        .calendar-day {
+            font-size: 0.85rem;
+        }
+        .calendar-weekdays div {
+            font-size: 0.8rem;
+        }
     }
 </style>
 
@@ -269,7 +542,8 @@
         getDaysInMonth: (year, month) => new Date(year, month, 0).getDate(),
         formatNumber: num => num.toLocaleString(),
         setCursorEnd: input => setTimeout(() => {
-            input.selectionStart = input.selectionEnd = input.value.length;
+            const len = input.value.length;
+            input.setSelectionRange(len, len);
         }, 0)
     };
 
@@ -319,7 +593,9 @@
             modal: document.getElementById('date-modal'),
             yearSelect: document.getElementById('year-select'),
             monthSelect: document.getElementById('month-select'),
-            daySelect: document.getElementById('day-select')
+            calendarDays: document.getElementById('calendar-days'),
+            prevMonthBtn: document.getElementById('prev-month'),
+            nextMonthBtn: document.getElementById('next-month')
         },
         init() {
             this.render();
@@ -330,19 +606,74 @@
                 `${this.state.year}/${utils.padZero(this.state.month)}/${utils.padZero(this.state.day)}`;
             this.populateSelect(this.elements.yearSelect, 2025, 2054, this.state.year, false);
             this.populateSelect(this.elements.monthSelect, 1, 12, this.state.month, true);
-            this.populateDays();
+            this.renderCalendar();
             calculateResult();
         },
         populateSelect(select, start, end, selected, pad) {
             select.innerHTML = '';
             for (let i = start; i <= end; i++) {
-                const value = pad ? utils.padZero(i) : i;
-                select.add(new Option(value, i, i === selected));
+                select.add(new Option(pad ? utils.padZero(i) : i, i, i === selected));
             }
         },
-        populateDays() {
-            const days = utils.getDaysInMonth(this.state.year, this.state.month);
-            this.populateSelect(this.elements.daySelect, 1, days, this.state.day, true);
+        renderCalendar() {
+            const today = new Date();
+            const { year, month, day } = this.state;
+            const firstDay = new Date(year, month - 1, 1);
+            const daysInMonth = utils.getDaysInMonth(year, month);
+            const startDay = firstDay.getDay();
+            
+            this.elements.calendarDays.innerHTML = '';
+            
+            const getAdjacentMonth = (offset) => {
+                let m = month + offset;
+                let y = year;
+                if (m < 1) { m = 12; y--; }
+                else if (m > 12) { m = 1; y++; }
+                return { year: y, month: m };
+            };
+            
+            const prev = getAdjacentMonth(-1);
+            const prevMonthLastDay = utils.getDaysInMonth(prev.year, prev.month);
+            
+            // 上個月的日期
+            for (let i = startDay - 1; i >= 0; i--) {
+                this.elements.calendarDays.appendChild(
+                    this.createDayElement(prevMonthLastDay - i, true, prev.year, prev.month)
+                );
+            }
+            
+            // 當月的日期
+            const todayYear = today.getFullYear();
+            const todayMonth = today.getMonth() + 1;
+            for (let d = 1; d <= daysInMonth; d++) {
+                const isToday = todayYear === year && todayMonth === month && today.getDate() === d;
+                this.elements.calendarDays.appendChild(
+                    this.createDayElement(d, false, year, month, isToday, day === d)
+                );
+            }
+            
+            // 下個月的日期（填滿剩餘格子）
+            const next = getAdjacentMonth(1);
+            const remainingCells = 42 - this.elements.calendarDays.children.length;
+            for (let d = 1; d <= remainingCells; d++) {
+                this.elements.calendarDays.appendChild(
+                    this.createDayElement(d, true, next.year, next.month)
+                );
+            }
+        },
+        createDayElement(day, isOtherMonth, year, month, isToday = false, isSelected = false) {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'calendar-day' + 
+                (isOtherMonth ? ' other-month' : '') +
+                (isToday ? ' today' : '') +
+                (isSelected ? ' selected' : '');
+            dayEl.textContent = day;
+            dayEl.addEventListener('click', () => {
+                Object.assign(this.state, { year, month, day });
+                this.elements.modal.style.display = 'none';
+                this.render();
+            });
+            return dayEl;
         },
         resetToToday() {
             const today = new Date();
@@ -351,54 +682,72 @@
             this.state.day = today.getDate();
             this.render();
         },
+        adjustDayIfNeeded() {
+            const maxDays = utils.getDaysInMonth(this.state.year, this.state.month);
+            if (this.state.day > maxDays) this.state.day = maxDays;
+        },
+        changeMonth(delta) {
+            let { year, month } = this.state;
+            month += delta;
+            if (month > 12) { month = 1; year++; }
+            else if (month < 1) { month = 12; year--; }
+            Object.assign(this.state, { year, month });
+            this.adjustDayIfNeeded();
+            this.render();
+        },
         bindEvents() {
             this.elements.display.addEventListener('click', () => {
-                this.elements.modal.style.display = 'block';
-                calculateResult();
+                this.elements.modal.style.display = this.elements.modal.style.display === 'block' ? 'none' : 'block';
             });
             document.getElementById('reset-date-button').addEventListener('click', () => this.resetToToday());
-            this.elements.yearSelect.addEventListener('change', e => {
-                this.state.year = parseInt(e.target.value);
-                this.render();
+            this.elements.prevMonthBtn.addEventListener('click', () => this.changeMonth(-1));
+            this.elements.nextMonthBtn.addEventListener('click', () => this.changeMonth(1));
+            [this.elements.yearSelect, this.elements.monthSelect].forEach(select => {
+                select.addEventListener('change', e => {
+                    const value = +e.target.value;
+                    if (select === this.elements.yearSelect) {
+                        this.state.year = value;
+                    } else {
+                        this.state.month = value;
+                    }
+                    this.adjustDayIfNeeded();
+                    this.render();
+                });
             });
-            this.elements.monthSelect.addEventListener('change', e => {
-                this.state.month = parseInt(e.target.value);
-                this.render();
-            });
-            this.elements.daySelect.addEventListener('change', e => {
-                this.state.day = parseInt(e.target.value);
-                this.elements.modal.style.display = 'none';
-                this.render();
-            });
+            document.addEventListener('click', (e) => {
+                const resetBtn = document.getElementById('reset-date-button');
+                if (!this.elements.modal.contains(e.target) && 
+                    !this.elements.display.contains(e.target) &&
+                    !resetBtn.contains(e.target)) {
+                    this.elements.modal.style.display = 'none';
+                }
+            }, true);
         }
     };
 
     // 表達式解析器
     const expressionParser = {
         evaluate(expr) {
-            if (!expr || (expr = String(expr).trim()) === '') return '';
-            if (expr === '0') return '0';
+            if (!expr || (expr = String(expr).trim()) === '' || expr === '0') return expr === '0' ? '0' : '';
             try {
-                const tokens = (expr.match(/(\d+|\+|\-|\*|\/)/g) || []).map(t => 
-                    /\d+/.test(t) ? parseInt(t) : t
-                );
-                if (tokens.length === 0) return '';
+                const tokens = (expr.match(/(\d+|\+|\-|\*|\/)/g) || []).map(t => /\d+/.test(t) ? +t : t);
+                if (!tokens.length) return '';
+                const ops = { '+': (a, b) => a + b, '-': (a, b) => a - b, '*': (a, b) => a * b, '/': (a, b) => Math.floor(a / b) };
                 const stack = [];
                 let num = 0, op = '+';
-                for (let token of tokens) {
+                for (const token of tokens) {
                     if (typeof token === 'number') {
                         num = token;
                         if (op === '+') stack.push(num);
                         else if (op === '-') stack.push(-num);
-                        else if (op === '*') stack.push(stack.pop() * num);
-                        else if (op === '/') stack.push(Math.floor(stack.pop() / num));
+                        else stack.push(ops[op](stack.pop(), num));
                     } else {
                         op = token;
                     }
                 }
                 const result = Math.max(0, Math.round(stack.reduce((a, b) => a + b, 0)));
                 return result === 0 && expr !== '0' ? '' : String(result);
-            } catch (e) {
+            } catch {
                 return '';
             }
         }
@@ -415,12 +764,12 @@
         commitInput(input) {
             if (!input) return;
             const originalValue = String(input.value);
-            const newValue = expressionParser.evaluate(originalValue);
+            let newValue = expressionParser.evaluate(originalValue);
             if (originalValue !== newValue) input.value = newValue;
             
             const previousValue = this.previousValues[input.name] || 0;
             if (previousValue > 0 && (newValue === '0' || newValue !== '')) {
-                const parsedNewValue = parseFloat(newValue) || 0;
+                const parsedNewValue = +newValue || 0;
                 const sum = parsedNewValue + previousValue;
                 input.value = sum === 0 && originalValue !== '0' ? '' : String(sum);
                 this.previousValues[input.name] = 0;
@@ -442,7 +791,7 @@
                 }
                 const currentValue = input.value;
                 if (this.hasLostFocus[input.name] && currentValue !== '') {
-                    this.previousValues[input.name] = parseFloat(currentValue) || 0;
+                    this.previousValues[input.name] = +currentValue || 0;
                     input.value = '';
                     this.hasLostFocus[input.name] = false;
                 }
@@ -472,9 +821,7 @@
                     this.previousValues[input.name] = 0;
                     this.hasLostFocus[input.name] = false;
                     calculateResult();
-                    return;
-                }
-                if (e.key === 'Enter') {
+                } else if (e.key === 'Enter') {
                     this.commitInput(input);
                     const nextInput = this.inputs[(index + 1) % this.inputs.length];
                     nextInput.focus();
@@ -488,8 +835,7 @@
             if (!exchangeRateInput) return;
             
             const updateRate = () => resultManager.updateExchangeRate();
-            exchangeRateInput.addEventListener('input', updateRate);
-            exchangeRateInput.addEventListener('blur', updateRate);
+            ['input', 'blur'].forEach(evt => exchangeRateInput.addEventListener(evt, updateRate));
             exchangeRateInput.addEventListener('keydown', e => {
                 if (e.key === 'Delete') {
                     exchangeRateInput.value = '';
@@ -531,48 +877,44 @@
         currentTotalCost: 0,
         
         update() {
-            const formattedDate = `${dateManager.state.year}/${utils.padZero(dateManager.state.month)}/${utils.padZero(dateManager.state.day)}訂單`;
-            const allItems = [];
-            let totalCost = 0;
+            const { year, month, day } = dateManager.state;
+            const formattedDate = `${year}/${utils.padZero(month)}/${utils.padZero(day)}訂單`;
+            const allItems = inputManager.inputs
+                .filter(input => input.id !== 'cost-note-input' && input.value)
+                .map(input => {
+                    const value = +input.value || 0;
+                    if (value <= 0) return null;
+                    const name = input.name;
+                    const limit = productConfig.limits[name];
+                    const boxes = Math.ceil(value / limit);
+                    const excess = boxes * limit - value;
+                    return {
+                        label: input.parentElement.querySelector('.label').textContent.trim(),
+                        count: value,
+                        boxes,
+                        limit,
+                        excess,
+                        cost: value * (productConfig.unitPrices[name] || 0)
+                    };
+                })
+                .filter(item => item !== null);
             
-            inputManager.inputs.forEach(input => {
-                if (input.id === 'cost-note-input' || input.value === '') return;
-                const value = parseFloat(input.value) || 0;
-                if (value <= 0) return;
-                
-                const boxes = Math.ceil(value / productConfig.limits[input.name]);
-                const label = input.parentElement.querySelector('.label').textContent.trim();
-                const unitPrice = productConfig.unitPrices[input.name] || 0;
-                const cost = value * unitPrice;
-                
-                allItems.push({ label, count: value, boxes, cost, unitPrice });
-                totalCost += cost;
-            });
-            
-            this.currentTotalCost = totalCost;
+            this.currentTotalCost = allItems.reduce((sum, item) => sum + item.cost, 0);
             this.hudDisplay.innerHTML = `<p>${formattedDate}</p>` + 
-                allItems.map(item => `<p>${item.label} ×${item.boxes}</p>`).join('');
-            
-            this.updateCostDisplay(allItems, totalCost, formattedDate);
-            this.updateExchangeRate();
+                allItems.map(item => 
+                    `<p>${item.label} ×${item.boxes}${item.excess > 0 ? ` 【餘${item.excess}件】` : ''}</p>`
+                ).join('');
+            this.updateCostDisplay(allItems, this.currentTotalCost, formattedDate);
         },
         
         updateCostDisplay(items, totalCost, date) {
             const costItems = items.filter(item => item.cost > 0);
-            let costHTML = `<p>${date}</p>`;
-            
-            if (costItems.length > 0) {
-                costHTML += costItems.map(item => 
-                    `<p>${item.label} * ${item.count} = ${utils.formatNumber(item.cost)} 元</p>`
-                ).join('');
-                this.costDisplay.innerHTML = costHTML;
-                this.updateExchangeRate();
-                this.costSummary.style.display = 'block';
-            } else {
-                costHTML += '<p>尚無成本資料</p>';
-                this.costDisplay.innerHTML = costHTML;
-                this.costSummary.style.display = 'none';
-            }
+            const costHTML = `<p>${date}</p>` + (costItems.length > 0
+                ? costItems.map(item => `<p>${item.label} * ${item.count} = ${utils.formatNumber(item.cost)} 元</p>`).join('')
+                : '<p>尚無成本資料</p>');
+            this.costDisplay.innerHTML = costHTML;
+            this.costSummary.style.display = costItems.length > 0 ? 'block' : 'none';
+            if (costItems.length > 0) this.updateExchangeRate();
         },
         
         updateExchangeRate() {
@@ -580,20 +922,23 @@
             const totalCostElement = document.getElementById('total-cost-amount');
             if (!exchangeRateInput || !totalCostElement) return;
             
-            const exchangeRate = parseFloat(exchangeRateInput.value);
+            const exchangeRate = +exchangeRateInput.value;
             const displayCost = (exchangeRate && !isNaN(exchangeRate) && this.currentTotalCost > 0) 
                 ? this.currentTotalCost * exchangeRate 
                 : this.currentTotalCost;
             totalCostElement.textContent = utils.formatNumber(displayCost);
         },
         
-        copyBoxes() {
+        async copyBoxes() {
             const text = Array.from(this.hudDisplay.querySelectorAll('p'))
                 .map(p => p.textContent)
                 .join('\n');
-            navigator.clipboard.writeText(text)
-                .then(() => alert('複製成功'))
-                .catch(() => alert('複製失敗'));
+            try {
+                await navigator.clipboard.writeText(text);
+                alert('複製成功');
+            } catch {
+                alert('複製失敗');
+            }
         },
         
         init() {
@@ -604,8 +949,7 @@
 
     // 初始化HTML結構
     function initHTML() {
-        const container = document.getElementById('categories-container');
-        container.innerHTML = inputConfig.map(config => `
+        document.getElementById('categories-container').innerHTML = inputConfig.map(config => `
             <div class="category-section">
                 <div class="category-title">${config.category}</div>
                 <div class="grid-container" data-category="${config.category.toLowerCase()}">
@@ -620,9 +964,7 @@
         `).join('');
     }
 
-    function calculateResult() {
-        resultManager.update();
-    }
+    const calculateResult = () => resultManager.update();
 
     // 初始化
     initHTML();

@@ -4,40 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>78Lion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
     <style>
         :root {
-            --primary-color: #00a8ff;
-            --secondary-color: #9c88ff;
-            --card-bg: rgba(15, 15, 15, 0.8);
-            --text-color: #ffffff;
+            --primary: #00a8ff;
+            --secondary: #9c88ff;
+            --bg-card: rgba(15, 15, 15, 0.8);
+            --bg-gradient: linear-gradient(90deg, rgba(10, 10, 10, 0.95) 0%, rgba(15, 15, 15, 0.85) 50%, rgba(10, 10, 10, 0.95) 100%);
+            --text: #ffffff;
+            --shadow: 0 0 20px rgba(0, 168, 255, 0.3);
+            --shadow-hover: 0 0 30px rgba(156, 136, 255, 0.5);
+            --shadow-text: 0 0 10px var(--primary);
+            --transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            --backdrop: blur(5px);
+            --bg-image: url('https://images.unsplash.com/photo-1605893417405-c4eac36ac32b?q=75&w=1280&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
         }
 
-        * {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         @keyframes neonGlow {
-            0%, 100% { text-shadow: 0 0 5px var(--primary-color); }
-            50% { text-shadow: 0 0 10px var(--secondary-color); }
+            0%, 100% { text-shadow: 0 0 5px var(--primary); }
+            50% { text-shadow: 0 0 10px var(--secondary); }
         }
 
         body {
             font-family: 'Orbitron', sans-serif;
-            background: linear-gradient(90deg, rgba(10, 10, 10, 0.9) 0%, rgba(15, 15, 15, 0.7) 50%, rgba(10, 10, 10, 0.9) 100%),
-                        url('https://images.unsplash.com/photo-1605893417405-c4eac36ac32b?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
-            background-size: 200% 100%, cover;
-            background-position: 0% 0%, center;
-            background-attachment: fixed;
-            color: var(--text-color);
+            background: var(--bg-gradient);
+            background-size: 200% 100%;
+            color: var(--text);
             line-height: 1.6;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            overflow: auto;
             padding: 2rem 0;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: var(--bg-image) center/cover fixed;
+            opacity: 0.3;
+            z-index: -1;
         }
 
         .container {
@@ -57,24 +73,24 @@
             grid-template-columns: repeat(2, 300px);
             gap: 2rem;
             justify-content: center;
-            margin: 0 auto;
             width: 100%;
         }
 
         .service-card, .info-box {
-            background-color: var(--card-bg);
+            background: var(--bg-card);
             border-radius: 8px;
             padding: 2rem;
-            box-shadow: 0 0 20px rgba(0, 168, 255, 0.3);
-            border: 2px solid var(--primary-color);
-            backdrop-filter: blur(5px);
+            box-shadow: var(--shadow);
+            border: 2px solid var(--primary);
+            backdrop-filter: var(--backdrop);
+            -webkit-backdrop-filter: var(--backdrop);
             width: 300px;
             height: 200px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             position: relative;
         }
 
@@ -83,13 +99,13 @@
         }
 
         .service-card.locked {
-            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(15, 15, 15, 0.6) 100%);
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(15, 15, 15, 0.6) 100%);
         }
 
         .service-card.locked:hover {
             transform: translateY(-5px);
-            box-shadow: 0 0 30px rgba(156, 136, 255, 0.5);
-            border-color: var(--secondary-color);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--secondary);
         }
 
         .service-card.locked::before {
@@ -117,7 +133,7 @@
             position: relative;
             z-index: 1;
             filter: blur(2px) brightness(0.7);
-            transition: all 0.5s ease;
+            transition: filter 0.5s ease, transform 0.5s ease;
         }
 
         .service-card.locked:hover .service-icon,
@@ -128,18 +144,18 @@
 
         .service-icon {
             font-size: 2.5rem;
-            color: var(--primary-color);
+            color: var(--primary);
             margin-bottom: 1rem;
-            text-shadow: 0 0 10px var(--primary-color);
+            text-shadow: var(--shadow-text);
             animation: neonGlow 2s infinite;
         }
 
         .service-title {
-            color: var(--text-color);
+            color: var(--text);
             font-size: 1.5rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px var(--primary-color);
+            text-shadow: var(--shadow-text);
             text-align: center;
             width: 100%;
         }
@@ -164,9 +180,9 @@
 
         .info-value {
             font-size: 1.2rem;
-            color: var(--text-color);
+            color: var(--text);
             font-weight: 500;
-            text-shadow: 0 0 10px var(--primary-color);
+            text-shadow: var(--shadow-text);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -178,7 +194,8 @@
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
+            backdrop-filter: var(--backdrop);
+            -webkit-backdrop-filter: var(--backdrop);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -189,10 +206,10 @@
         }
 
         .password-box {
-            background: var(--card-bg);
+            background: var(--bg-card);
             padding: 1rem 1.2rem;
             border-radius: 8px;
-            border: 2px solid var(--primary-color);
+            border: 2px solid var(--primary);
             box-shadow: 0 0 30px rgba(0, 168, 255, 0.5);
             max-width: 250px;
             width: 80%;
@@ -200,10 +217,10 @@
 
         .password-input {
             background: rgba(0, 0, 0, 0.3);
-            border: 2px solid var(--primary-color);
+            border: 2px solid var(--primary);
             border-radius: 4px;
             padding: 0.6rem 0.8rem;
-            color: var(--text-color);
+            color: var(--text);
             font-size: 1.1rem;
             width: 100%;
             text-align: center;
@@ -216,162 +233,111 @@
 
         .password-input:focus {
             outline: none;
-            box-shadow: 0 0 10px var(--primary-color);
+            box-shadow: var(--shadow-text);
         }
 
         @media (max-width: 1024px) {
-            .card-grid {
-                grid-template-columns: repeat(2, minmax(250px, 300px));
-                gap: 1.5rem;
-            }
+            .card-grid { grid-template-columns: repeat(2, minmax(250px, 300px)); gap: 1.5rem; }
         }
 
         @media (max-width: 680px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .card-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.8rem;
-                padding: 0 0.5rem;
-            }
-            
-            .service-card, .info-box {
-                width: 100%;
-                height: 140px;
-                min-height: 140px;
-                padding: 0.8rem;
-            }
-            
-            .service-title {
-                font-size: 1.1rem;
-                margin-top: 0.5rem;
-            }
-            
-            .service-icon {
-                font-size: 1.8rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .info-value {
-                font-size: 0.9rem;
-            }
-
-            .info-item {
-                padding: 0.3rem;
-                min-height: 30px;
-            }
-
-            .temperature-row {
-                gap: 0.5rem;
-            }
-
-            .service-card.locked::before {
-                font-size: 2rem;
-            }
-
-            .password-box {
-                max-width: 350px;
-                padding: 1.5rem;
-            }
+            .container { padding: 1rem; }
+            .card-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; padding: 0 0.5rem; }
+            .service-card, .info-box { width: 100%; height: 140px; padding: 0.8rem; }
+            .service-title { font-size: 1.1rem; margin-top: 0.5rem; }
+            .service-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+            .info-value { font-size: 0.9rem; }
+            .info-item { padding: 0.3rem; min-height: 30px; }
+            .temperature-row { gap: 0.5rem; }
+            .service-card.locked::before { font-size: 2rem; }
+            .password-box { max-width: 350px; padding: 1.5rem; }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet"></noscript>
     <script>
         const App = {
             PASSWORD: '0878',
+            dateEl: null,
+            timeEl: null,
 
             checkPassword(url) {
+                const handleEscape = e => e.key === 'Escape' && this.closeModal(modal, handleEscape);
                 const modal = document.createElement('div');
-                modal.className = 'password-modal';
-                const passwordBox = document.createElement('div');
-                passwordBox.className = 'password-box';
-                const passwordInput = document.createElement('input');
-                passwordInput.type = 'password';
-                passwordInput.className = 'password-input';
-                passwordInput.maxLength = this.PASSWORD.length;
-                passwordInput.dataset.url = url;
-                
-                passwordInput.addEventListener('input', () => {
-                    if (passwordInput.value.length === this.PASSWORD.length) {
-                        this.submitPassword(passwordInput);
+                modal.className = 'password-modal active';
+                modal.onclick = e => e.target === modal && this.closeModal(modal, handleEscape);
+
+                const input = document.createElement('input');
+                input.type = 'password';
+                input.className = 'password-input';
+                input.maxLength = this.PASSWORD.length;
+                input.oninput = () => {
+                    if (input.value.length === this.PASSWORD.length) {
+                        if (input.value === this.PASSWORD) {
+                            document.removeEventListener('keydown', handleEscape);
+                            window.location.href = url;
+                        } else {
+                            this.closeModal(modal, handleEscape);
+                        }
                     }
-                });
-                
-                const handleEscape = (e) => {
-                    if (e.key === 'Escape') this.closeModal(modal, handleEscape);
                 };
-                
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) this.closeModal(modal, handleEscape);
-                });
-                
-                modal.escapeHandler = handleEscape;
-                passwordBox.appendChild(passwordInput);
-                modal.appendChild(passwordBox);
+
+                const box = document.createElement('div');
+                box.className = 'password-box';
+                box.appendChild(input);
+                modal.appendChild(box);
                 document.body.appendChild(modal);
                 document.addEventListener('keydown', handleEscape);
-                modal.classList.add('active');
-                passwordInput.focus();
-            },
-
-            submitPassword(input) {
-                const modal = input.closest('.password-modal');
-                const url = input.dataset.url;
-                if (input.value === this.PASSWORD) {
-                    if (modal?.escapeHandler) {
-                        document.removeEventListener('keydown', modal.escapeHandler);
-                    }
-                    window.location.href = url;
-                } else {
-                    this.closeModal(modal, modal?.escapeHandler);
-                }
+                input.focus();
             },
 
             closeModal(modal, escapeHandler) {
                 if (!modal) return;
-                if (escapeHandler) {
-                    document.removeEventListener('keydown', escapeHandler);
-                }
+                if (escapeHandler) document.removeEventListener('keydown', escapeHandler);
                 modal.classList.remove('active');
                 setTimeout(() => modal.remove(), 300);
             },
 
             updateDateTime() {
+                if (!this.dateEl) this.dateEl = document.getElementById('date');
+                if (!this.timeEl) this.timeEl = document.getElementById('time');
+                if (!this.dateEl || !this.timeEl) return;
+
                 const now = new Date();
-                const dateEl = document.getElementById('date');
-                const timeEl = document.getElementById('time');
-                if (dateEl && timeEl) {
-                    dateEl.textContent = now.toLocaleDateString('zh-TW', { 
-                        year: 'numeric', month: 'long', day: 'numeric' 
-                    });
-                    timeEl.textContent = now.toLocaleTimeString('zh-TW', { 
-                        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
-                    });
-                }
+                this.dateEl.textContent = now.toLocaleDateString('zh-TW', { 
+                    year: 'numeric', month: 'long', day: 'numeric' 
+                });
+                this.timeEl.textContent = now.toLocaleTimeString('zh-TW', { 
+                    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
+                });
             },
 
             init() {
                 this.updateDateTime();
                 setInterval(() => this.updateDateTime(), 1000);
+
+                document.querySelectorAll('.service-card.locked').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const url = card.dataset.url;
+                        if (url) this.checkPassword(url);
+                    });
+                });
             }
         };
 
-        const checkPassword = (url) => App.checkPassword(url);
-        document.addEventListener('DOMContentLoaded', () => App.init());
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => App.init());
+        } else {
+            App.init();
+        }
     </script>
 </head>
 <body>
     <div class="container">
         <div class="card-grid">
             <div class="info-box">
-                <div class="info-item">
-                    <div class="info-value" id="date"></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-value" id="time"></div>
-                </div>
+                <div class="info-item"><div class="info-value" id="date"></div></div>
+                <div class="info-item"><div class="info-value" id="time"></div></div>
                 <div class="info-item">
                     <div class="temperature-row">
                         <div class="info-value">☀️ 25°C</div>
@@ -379,31 +345,31 @@
                     </div>
                 </div>
             </div>
-            <div class="service-card locked" onclick="checkPassword('https://jaws17935.github.io/1978Calculator/')">
+            <div class="service-card locked" data-url="https://jaws17935.github.io/1978Calculator/Products.html">
                 <div class="service-icon">💰</div>
                 <h3 class="service-title">損益計算機</h3>
             </div>
-            <div class="service-card locked" onclick="checkPassword('Delivery_PC.html')">
+            <div class="service-card locked" data-url="Delivery_PC.html">
                 <div class="service-icon">🖥️</div>
                 <h3 class="service-title">外送資產【電腦版】</h3>
             </div>
-            <div class="service-card locked" onclick="checkPassword('Delivery_Mobile.html')">
+            <div class="service-card locked" data-url="Delivery_Mobile.html">
                 <div class="service-icon">📝</div>
                 <h3 class="service-title">外送資產【手機版】</h3>
             </div>
-            <div class="service-card locked" onclick="checkPassword('9Starx_Quotation.html')">
+            <div class="service-card locked" data-url="9Starx_Quotation.html">
                 <div class="service-icon">📑</div>
                 <h3 class="service-title">9Starx報價單</h3>
             </div>
-            <div class="service-card locked" onclick="checkPassword('Blank_Quotation.html')">
+            <div class="service-card locked" data-url="Blank_Quotation.html">
                 <div class="service-icon">📋</div>
                 <h3 class="service-title">商品銷售報價單</h3>
             </div>
-            <div class="service-card locked" onclick="checkPassword('Transport.html')">
+            <div class="service-card locked" data-url="Transport.html">
                 <div class="service-icon">🚛</div>
                 <h3 class="service-title">運輸計算機</h3>
             </div>
-            <div class="service-card locked" onclick="checkPassword('CNY.html')">
+            <div class="service-card locked" data-url="CNY.html">
                 <div class="service-icon">📈</div>
                 <h3 class="service-title">大草原計算機</h3>
             </div>

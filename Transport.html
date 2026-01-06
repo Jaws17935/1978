@@ -15,6 +15,9 @@
             --accent: #ff6b00;
             --accent-hover: #ff8533;
             --transition: all 0.3s ease;
+            --hover-shadow: 0 2px 8px rgba(255, 107, 0, 0.2);
+            --input-group-bg: var(--bg-card);
+            --btn-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         body {
             font-family: 'Microsoft JhengHei', Arial, sans-serif;
@@ -38,13 +41,9 @@
         h1 {
             text-align: left;
             color: var(--text-primary);
-            margin-bottom: 0;
+            margin: 0;
             font-size: 1.3em;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
+            line-height: 1.3em;
             flex: 1;
         }
         .location-container {
@@ -53,7 +52,7 @@
             gap: 15px;
             margin-bottom: 25px;
         }
-        .location-box {
+        .location-box, .input-row {
             width: 100%;
             padding: 15px;
             border: 1px solid var(--border-color);
@@ -62,14 +61,15 @@
             transition: var(--transition);
             box-sizing: border-box;
             position: relative;
+        }
+        .location-box {
             margin-bottom: 15px;
         }
-        .location-box h2 {
-            margin-top: 0;
+        .location-box h2, .input-row h2 {
+            margin: 0 0 10px 0;
             color: var(--text-primary);
-            padding-bottom: 6px;
+            padding-bottom: 8px;
             font-size: 1em;
-            margin-bottom: 10px;
             text-align: left;
             display: flex;
             align-items: center;
@@ -85,36 +85,16 @@
             display: flex;
             align-items: flex-end;
             width: 100%;
-            position: relative;
             margin-bottom: 20px;
             border-bottom: 2px solid var(--accent);
             padding-bottom: 10px;
             box-sizing: border-box;
         }
-        .title-container h1 {
-            text-align: left;
-            color: var(--text-primary);
-            margin: 0;
-            font-size: 1.3em;
-            width: auto;
-            display: inline-block;
-            align-items: flex-end;
-            position: relative;
-            flex: 1;
-            padding: 0;
-            line-height: 1.3em;
-        }
-        .title-text {
-            position: relative;
-            z-index: 1;
-            background-color: var(--bg-card);
-            padding-right: 5px;
-        }
         .green-line {
             display: none;
         }
-        .location-box:hover {
-            box-shadow: 0 2px 8px rgba(255, 107, 0, 0.2);
+        .location-box:hover, .input-row:hover {
+            box-shadow: var(--hover-shadow);
             transform: translateY(-1px);
         }
         .stop-point-box {
@@ -128,25 +108,33 @@
             display: flex;
             gap: 4px;
         }
-        .up-btn, .down-btn {
+        .up-btn, .down-btn, .delete-button, .add-stop-btn {
             width: 24px;
             height: 24px;
             border: none;
             border-radius: 50%;
-            background-color: var(--accent);
-            color: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
             transition: var(--transition);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: var(--btn-shadow);
+            flex-shrink: 0;
+            padding: 0;
+            line-height: 1;
         }
-        .up-btn:hover, .down-btn:hover {
+        .up-btn, .down-btn, .add-stop-btn {
+            background-color: var(--accent);
+            color: white;
+            font-size: 14px;
+        }
+        .up-btn:hover, .down-btn:hover, .add-stop-btn:hover {
             background-color: var(--accent-hover);
             transform: translateY(-1px);
             box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        .add-stop-btn:hover {
+            transform: scale(1.1);
         }
         .delete-button {
             position: absolute;
@@ -154,19 +142,20 @@
             right: 10px;
             font-size: 16px;
             color: var(--accent);
-            cursor: pointer;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background-color: rgba(255, 107, 0, 0.1);
-            border-radius: 50%;
-            transition: var(--transition);
         }
         .delete-button:hover {
             background-color: rgba(255, 107, 0, 0.2);
             transform: scale(1.1);
+        }
+        .add-stop-btn {
+            margin-left: auto;
+            font-size: 18px;
+        }
+        .add-stop-btn:disabled {
+            background-color: #666666;
+            cursor: not-allowed;
+            transform: none;
         }
         .form-group {
             margin-bottom: 10px;
@@ -210,43 +199,25 @@
             background-color: var(--bg-card);
             color: var(--text-primary);
         }
-        /* 覆蓋日期選擇器的特定樣式 */
-        input[type="date"] {
-            width: auto;
-            margin: 0;
-            padding: 0;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            outline: none;
-        }
-        .date-picker {
-            padding: 0 2px;
-            border: none;
-            background-color: transparent;
-            color: var(--text-primary);
-            font-size: 12px;
-            cursor: pointer;
+        input[type="date"].date-picker {
             width: 100px;
             height: 24px;
+            padding: 0 2px;
+            margin: 0 0 -2px 0;
+            background-color: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 12px;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
             text-align: right;
-            margin: 0;
-            position: relative;
-            z-index: 1;
+            line-height: 24px;
+            cursor: pointer;
+            outline: none;
+            align-self: flex-end;
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            align-self: flex-end;
-            line-height: 24px;
-            box-sizing: border-box;
-            display: inline-block;
-            vertical-align: bottom;
-            outline: none;
-            margin-bottom: -2px;
+            z-index: 1;
         }
         .date-picker::-webkit-calendar-picker-indicator {
             display: none;
@@ -263,30 +234,11 @@
             opacity: 0.8;
         }
         .input-row {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
             margin-bottom: 25px;
-            background-color: var(--bg-box);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            box-sizing: border-box;
-            position: relative;
-            transition: var(--transition);
-        }
-        .input-row:hover {
-            box-shadow: 0 2px 8px rgba(255, 107, 0, 0.2);
-            transform: translateY(-1px);
         }
         .input-row h2 {
-            margin-top: 0;
-            color: var(--text-primary);
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 8px;
             font-size: 1.1em;
             margin-bottom: 15px;
-            text-align: left;
         }
         .input-row .form-group {
             margin-bottom: 8px;
@@ -294,35 +246,24 @@
             justify-content: center;
             align-items: center;
         }
-        .time-input-group {
+        .time-input-group, .distance-input-group, .fuel-input-group, .fuel-price-input-group {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 4px;
             flex-wrap: nowrap;
-            background-color: var(--bg-card);
+            background-color: var(--input-group-bg);
             padding: 5px;
             border-radius: 4px;
             border: 1px solid var(--border-color);
             width: 90%;
             margin: 0 auto;
             position: relative;
+            transition: var(--transition);
         }
-        .time-input-group input {
-            width: 45%;
-            padding: 3px;
-            text-align: center;
-            font-size: 13px;
-            border: none;
-            border-radius: 0;
-            background-color: transparent;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .time-input-group input::placeholder {
-            text-align: center;
+        .distance-input-group:hover, .fuel-input-group:hover, .fuel-price-input-group:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transform: translateY(-1px);
         }
         .time-input-group::after {
             content: '';
@@ -333,6 +274,24 @@
             width: 1px;
             background-color: var(--text-primary);
             transform: translateX(-50%);
+        }
+        .time-input-group input {
+            width: 45%;
+        }
+        .distance-input-group input, .fuel-input-group input, .fuel-price-input-group input, .time-input-group input {
+            padding: 3px;
+            text-align: center;
+            font-size: 13px;
+            border: none;
+            border-radius: 0;
+            background-color: transparent;
+            margin: 0;
+        }
+        .distance-input-group input, .fuel-input-group input, .fuel-price-input-group input {
+            width: 100%;
+        }
+        .time-input-group input::placeholder {
+            text-align: center;
         }
         .time-input-group span {
             font-size: 1em;
@@ -350,7 +309,7 @@
             padding: 0 10px;
             box-sizing: border-box;
         }
-        .nav-button, .fuel-price-btn, .copy-btn {
+        .nav-button, .fuel-price-btn, .copy-btn, .modal-button {
             padding: 10px 20px;
             border: none;
             border-radius: 4px;
@@ -369,6 +328,7 @@
             box-sizing: border-box;
             width: 100%;
             max-width: 200px;
+            margin: 0 auto;
         }
         .nav-button {
             background-color: #2196f3;
@@ -376,7 +336,7 @@
         .nav-button:hover {
             background-color: #1976d2;
             transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: var(--btn-shadow);
         }
         .fuel-price-btn {
             background-color: #ff9800;
@@ -384,7 +344,7 @@
         .fuel-price-btn:hover {
             background-color: #f57c00;
             transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: var(--btn-shadow);
         }
         .copy-btn {
             background-color: #9c27b0;
@@ -392,7 +352,11 @@
         .copy-btn:hover {
             background-color: #7b1fa2;
             transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: var(--btn-shadow);
+        }
+        .distance-input-group input:focus, .fuel-input-group input:focus, .fuel-price-input-group input:focus, .time-input-group input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
         }
         @media (min-width: 768px) {
             .input-row .form-group {
@@ -407,37 +371,6 @@
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
-        }
-        .distance-input-group, .fuel-input-group, .fuel-price-input-group {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            flex-wrap: nowrap;
-            background-color: var(--bg-card);
-            padding: 5px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            width: 90%;
-            margin: 0 auto;
-            transition: var(--transition);
-        }
-        .distance-input-group:hover, .fuel-input-group:hover, .fuel-price-input-group:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transform: translateY(-1px);
-        }
-        .distance-input-group input, .fuel-input-group input, .fuel-price-input-group input {
-            width: 100%;
-            padding: 3px;
-            text-align: center;
-            font-size: 13px;
-            border: none;
-            border-radius: 0;
-            background-color: transparent;
-            margin: 0;
-        }
-        .distance-input-group input:focus, .fuel-input-group input:focus, .fuel-price-input-group input:focus {
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
         }
         .total-fare {
             margin-top: 10px;
@@ -475,51 +408,17 @@
             justify-content: center;
             gap: 8px;
         }
-        .add-stop-btn {
-            width: 24px;
-            height: 24px;
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            flex-shrink: 0;
-            padding: 0;
-            line-height: 1;
-            margin-left: auto;
+        .total-fare .amount:empty {
+            color: var(--text-secondary);
         }
-        .add-stop-btn:hover {
-            background-color: var(--accent-hover);
-            transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-        .add-stop-btn:disabled {
-            background-color: #666666;
-            cursor: not-allowed;
-            transform: none;
-        }
-        input.invalid {
+        input.invalid, .invalid {
             border-color: #f44336;
             box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.1);
         }
-        .invalid {
-            border-color: #f44336;
-            box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.1);
-        }
-        /* 添加模態框樣式 */
         .modal-overlay {
-            display: none; /* 初始隱藏 */
+            display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background-color: rgba(0, 0, 0, 0.7);
             z-index: 1000;
             justify-content: center;
@@ -532,68 +431,67 @@
             max-width: 400px;
             width: 90%;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            position: relative;
-            animation: modalFadeIn 0.3s ease;
-            text-align: center;
             border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
             min-height: 300px;
+            animation: modalFadeIn 0.3s ease;
         }
         .modal-title {
             color: var(--text-primary);
             font-size: 1.2em;
             font-weight: bold;
             margin-bottom: 15px;
-            text-align: center;
             border-bottom: 2px solid var(--accent);
             padding-bottom: 10px;
+            width: 100%;
         }
         .modal-message {
             color: var(--text-primary);
             font-size: 1em;
             line-height: 1.5;
             margin-bottom: 20px;
-            text-align: center;
             width: 100%;
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
+            text-align: center;
         }
-        .modal-button {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1em;
-            width: 100%;
-            max-width: 200px;
-            margin: 0 auto;
-            transition: var(--transition);
+        .modal-message + .modal-message {
+            margin-top: 20px;
+        }
+        .modal-button:disabled {
+            background-color: #666666 !important;
+            cursor: not-allowed !important;
+        }
+        .contact-buttons {
             display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
             align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
         }
-        .modal-button:hover {
-            background-color: var(--accent-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        .modal-button.contact-phone {
+            background-color: var(--accent);
+        }
+        .modal-button.contact-line {
+            background-color: #00c300;
+        }
+        .modal-button.contact-cancel {
+            background-color: #666666;
+        }
+        .modal-button a {
+            text-decoration: none;
+        }
+        .modal-button span {
+            margin-right: 8px;
         }
         @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -608,8 +506,8 @@
                 並將顯示的時間里程填入【運費初步估算】<br>
                 如果只是想初步估價可單填地址試算
             </div>
-            <button id="confirmButton" class="modal-button" style="background-color: #666666; cursor: not-allowed;" disabled>⚠️ 使用前必讀 ⚠️</button>
-            <div class="modal-message" style="margin-top: 20px;">
+            <button id="confirmButton" class="modal-button" disabled>⚠️ 使用前必讀 ⚠️</button>
+            <div class="modal-message">
                 ❗ 重要提醒 ❗<br>
                 本運費計算工具僅供初步試算使用<br>
                 實際派車及運費將以線上客服答覆為準<br>
@@ -654,7 +552,7 @@
                 </div>
             </div>
         </div>
-        <div class="button-group" style="margin: 20px 0;">
+        <div class="button-group">
             <button onclick="estimateTrip()" class="nav-button">查看行程</button>
         </div>
         <div class="input-row">
@@ -671,7 +569,7 @@
                 </div>
             </div>
             <div id="totalFare" class="total-fare">
-                <p>總運費 <span class="amount" style="color: #666;"></span></p>
+                <p>總運費 <span class="amount"></span></p>
             </div>
         </div>
         <div class="button-group">
@@ -686,57 +584,39 @@
         let stopPointCount = 0;
         const MAX_STOP_POINTS = 5;
 
-        // 工具函數：獲取元素
         const $ = id => document.getElementById(id);
         const $$ = selector => document.querySelectorAll(selector);
 
-        // 添加倒數計時功能
         function startCountdown() {
             const button = $('confirmButton');
             if (!button) return;
             
             let countdown = 3;
             const timer = setInterval(() => {
-                countdown--;
-                if (countdown <= 0) {
+                if (--countdown <= 0) {
                     clearInterval(timer);
                     button.textContent = '我知道了';
                     button.disabled = false;
                     button.style.backgroundColor = 'var(--accent)';
                     button.style.cursor = 'pointer';
-                    button.onclick = closeWarningModal;
+                    button.onclick = () => $('warningModal').style.display = 'none';
                 }
             }, 1000);
         }
 
-        // 關閉警告模態框
-        function closeWarningModal() {
-            const modal = $('warningModal');
-            if (modal) modal.style.display = 'none';
+        function initDatePicker() {
+            const datePicker = $('datePicker');
+            if (!datePicker) return;
+            datePicker.value = new Date().toISOString().split('T')[0];
+            const showPicker = e => {
+                e.preventDefault();
+                datePicker.showPicker();
+            };
+            datePicker.addEventListener('click', showPicker);
+            datePicker.addEventListener('touchstart', showPicker);
         }
 
-        // 初始化頁面
-        document.addEventListener('DOMContentLoaded', function() {
-            // 顯示模態框
-            const modal = $('warningModal');
-            if (modal) {
-                modal.style.display = 'flex';
-                startCountdown();
-            }
-            
-            // 初始化日期選擇器
-            const datePicker = $('datePicker');
-            if (datePicker) {
-                datePicker.value = new Date().toISOString().split('T')[0];
-                const showPicker = e => {
-                    e.preventDefault();
-                    datePicker.showPicker();
-                };
-                datePicker.addEventListener('click', showPicker);
-                datePicker.addEventListener('touchstart', showPicker);
-            }
-
-            // 運費計算輸入框事件
+        function initFareInputs() {
             ['hours', 'minutes', 'distance'].forEach(id => {
                 const input = $(id);
                 if (input) {
@@ -744,17 +624,14 @@
                     input.addEventListener('blur', updateResult);
                 }
             });
-            
-            // 初始化總運費顯示
             const totalFareDiv = $('totalFare');
-            if (totalFareDiv) {
-                totalFareDiv.querySelector('.amount').textContent = '';
-            }
-            
-            // 電話輸入框驗證
+            if (totalFareDiv) totalFareDiv.querySelector('.amount').textContent = '';
+        }
+
+        function initPhoneValidation() {
             $$('input[placeholder="聯絡電話"]').forEach(input => {
-                ['input', 'blur', 'change'].forEach(event => {
-                    input.addEventListener(event, () => validatePhoneNumber(input));
+                ['input', 'blur', 'change'].forEach(evt => {
+                    input.addEventListener(evt, () => validatePhoneNumber(input));
                 });
                 input.addEventListener('keypress', e => {
                     if (!/[\d-]/.test(e.key)) e.preventDefault();
@@ -765,8 +642,9 @@
                     validatePhoneNumber(input);
                 });
             });
+        }
 
-            // Enter 鍵導航
+        function initEnterKeyNavigation() {
             const allInputs = $$('input[type="text"], input[type="number"]');
             allInputs.forEach((input, index) => {
                 input.addEventListener('focus', function() {
@@ -782,6 +660,18 @@
                     }
                 });
             });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = $('warningModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                startCountdown();
+            }
+            initDatePicker();
+            initFareInputs();
+            initPhoneValidation();
+            initEnterKeyNavigation();
         });
 
         function addStopPoint() {
@@ -813,6 +703,21 @@
             `;
             container.appendChild(box);
             updateAddButtonState();
+            
+            const phoneInput = box.querySelector('input[placeholder="聯絡電話"]');
+            if (phoneInput) {
+                ['input', 'blur', 'change'].forEach(evt => {
+                    phoneInput.addEventListener(evt, () => validatePhoneNumber(phoneInput));
+                });
+                phoneInput.addEventListener('keypress', e => {
+                    if (!/[\d-]/.test(e.key)) e.preventDefault();
+                });
+                phoneInput.addEventListener('paste', e => {
+                    e.preventDefault();
+                    phoneInput.value = (e.clipboardData || window.clipboardData).getData('text');
+                    validatePhoneNumber(phoneInput);
+                });
+            }
         }
 
         function updateAddButtonState() {
@@ -845,30 +750,26 @@
                 box.id = `stopPoint${newIndex}`;
                 const h2 = box.querySelector('h2');
                 if (h2) h2.textContent = `中途停靠點${newIndex}`;
+                box.querySelectorAll('input').forEach(input => {
+                    const type = input.id.replace(/stop\d+/, '');
+                    input.id = `stop${newIndex}${type}`;
+                });
             });
+            refreshStopPointEventListeners();
         }
 
         function removeStopPoint(index) {
             const box = $(`stopPoint${index}`);
             if (!box) return;
-            
             box.remove();
             stopPointCount--;
-            
-            // 更新所有停靠點的編號和ID
+            updateStopPointNumbers();
+            updateAddButtonState();
+        }
+
+        function refreshStopPointEventListeners() {
             $$('.stop-point-box').forEach((box, i) => {
                 const newIndex = i + 1;
-                box.id = `stopPoint${newIndex}`;
-                const h2 = box.querySelector('h2');
-                if (h2) h2.textContent = `中途停靠點${newIndex}`;
-                
-                // 更新輸入框ID
-                box.querySelectorAll('input').forEach(input => {
-                    const type = input.id.replace(/stop\d+/, '');
-                    input.id = `stop${newIndex}${type}`;
-                });
-                
-                // 更新按鈕事件
                 const upBtn = box.querySelector('.up-btn');
                 const downBtn = box.querySelector('.down-btn');
                 const deleteBtn = box.querySelector('.delete-button');
@@ -876,7 +777,6 @@
                 if (downBtn) downBtn.onclick = () => moveStopPoint(newIndex, 'down');
                 if (deleteBtn) deleteBtn.onclick = () => removeStopPoint(newIndex);
             });
-            updateAddButtonState();
         }
 
         function updateResult() {
@@ -885,24 +785,28 @@
             const minutes = parseFloat($('minutes')?.value) || 0;
             const totalFareDiv = $('totalFare');
             
-            // 如果所有輸入都為空，顯示預設值
+            if (!totalFareDiv) return;
+            
             if (!distance && !hours && !minutes) {
-                if (totalFareDiv) {
-                    totalFareDiv.querySelector('p').innerHTML = '總運費 <span class="amount" style="color: var(--text-secondary);"></span>';
-                }
+                totalFareDiv.querySelector('p').innerHTML = '總運費 <span class="amount"></span>';
                 return;
             }
 
-            // 計算費用
             const totalMinutes = hours * 60 + minutes;
             const distanceCost = distance <= 1.25 ? 100 : 100 + (distance - 1.25) * 16;
             const timeCost = totalMinutes * 8;
             const totalCost = distanceCost + timeCost;
 
-            // 更新顯示
-            if (totalFareDiv) {
-                totalFareDiv.querySelector('p').innerHTML = `<span class="amount">≈ ${totalCost.toFixed(0).toLocaleString()} 元</span>`;
+            totalFareDiv.querySelector('p').innerHTML = `<span class="amount">≈ ${totalCost.toFixed(0).toLocaleString()} 元</span>`;
+        }
+
+        function getStopPoints() {
+            const stopPoints = [];
+            for (let i = 1; i <= stopPointCount; i++) {
+                const addr = $(`stop${i}Address`)?.value;
+                if (addr) stopPoints.push(addr);
             }
+            return stopPoints;
         }
 
         function estimateTrip() {
@@ -914,14 +818,7 @@
                 return;
             }
             
-            // 收集中途停靠點
-            const stopPoints = [];
-            for (let i = 1; i <= stopPointCount; i++) {
-                const addr = $(`stop${i}Address`)?.value;
-                if (addr) stopPoints.push(addr);
-            }
-
-            // 構建 Google Maps URL
+            const stopPoints = getStopPoints();
             let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(startAddress)}&destination=${encodeURIComponent(destAddress)}&travelmode=driving`;
             if (stopPoints.length > 0) {
                 url += `&waypoints=${stopPoints.map(p => encodeURIComponent(p)).join('|')}`;
@@ -933,14 +830,12 @@
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.style.display = 'flex';
-            
             modal.innerHTML = `
                 <div class="modal-content">
                     <div class="modal-message" style="white-space: pre-line;">${message}</div>
                     <button class="modal-button" onclick="this.parentElement.parentElement.remove()">確定</button>
                 </div>
             `;
-            
             document.body.appendChild(modal);
         }
 
@@ -955,7 +850,6 @@
 
             let routeText = `您好~我要確認以下行程報價：\n\n==========================\n出發地\n姓名：${$('startContact')?.value || ''}\n電話：${$('startPhone')?.value || ''}\n位置：${startAddress}\n\n`;
 
-            // 添加中途停靠點
             for (let i = 1; i <= stopPointCount; i++) {
                 const addr = $(`stop${i}Address`)?.value;
                 if (addr) {
@@ -965,7 +859,6 @@
 
             routeText += `==========================\n目的地\n姓名：${$('destContact')?.value || ''}\n電話：${$('destPhone')?.value || ''}\n位置：${destAddress}`;
 
-            // 複製到剪貼板
             navigator.clipboard.writeText(routeText).then(() => {
                 showAlert('本次預估行程已複製；請直接張貼詢價即可');
             }).catch(() => {
@@ -973,32 +866,28 @@
             });
         }
 
-        // 添加聯繫客服選項彈窗
         function showContactOptions() {
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.style.display = 'flex';
-            
             modal.innerHTML = `
                 <div class="modal-content">
-                    <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; align-items: center;">
-                        <a href="tel:02-6604-4078,168" class="modal-button" style="text-decoration: none; background-color: #ff6b00;">
-                            <span style="margin-right: 8px;">📞</span>客服專線
+                    <div class="contact-buttons">
+                        <a href="tel:02-6604-4078,168" class="modal-button contact-phone">
+                            <span>📞</span>客服專線
                         </a>
-                        <a href="https://line.me/ti/p/O2eWb5quy2" target="_blank" class="modal-button" style="text-decoration: none; background-color: #00c300;">
-                            <span style="margin-right: 8px;">💬</span>文字客服
+                        <a href="https://line.me/ti/p/O2eWb5quy2" target="_blank" class="modal-button contact-line">
+                            <span>💬</span>文字客服
                         </a>
-                        <button class="modal-button" style="background-color: #666666;" onclick="this.parentElement.parentElement.parentElement.remove()">
-                            <span style="margin-right: 8px;">🤔</span>我再想想
+                        <button class="modal-button contact-cancel" onclick="this.parentElement.parentElement.parentElement.remove()">
+                            <span>🤔</span>我再想想
                         </button>
                     </div>
                 </div>
             `;
-            
             document.body.appendChild(modal);
         }
 
-        // 電話號碼驗證
         function validatePhoneNumber(input) {
             if (!input) return;
             
@@ -1021,14 +910,11 @@
                     errorMsg.className = 'error-message';
                     errorMsg.textContent = '請輸入有效的電話號碼';
                     parent?.appendChild(errorMsg);
-                } else {
-                    input.classList.remove('invalid', 'has-error');
-                    parent?.classList.remove('has-error');
+                    return;
                 }
-            } else {
-                input.classList.remove('invalid', 'has-error');
-                parent?.classList.remove('has-error');
             }
+            input.classList.remove('invalid', 'has-error');
+            parent?.classList.remove('has-error');
         }
     </script>
 </body>
