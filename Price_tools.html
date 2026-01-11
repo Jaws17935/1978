@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>競價工具</title>
+    <style>
+:root {
+    --primary: #667eea;
+    --primary-dark: #764ba2;
+    --success: #4caf50;
+    --success-dark: #45a049;
+    --danger: #ef5350;
+    --danger-dark: #e53935;
+    --info: #42a5f5;
+    --info-dark: #1e88e5;
+    --warning: #ffc107;
+    --bg-main: #f8f9fa;
+    --bg-hover: #f0f4ff;
+    --bg-success: #f1f8e9;
+    --bg-warning: #fff9e6;
+    --border: #e0e0e0;
+    --border-light: #e9ecef;
+    --text-primary: #333;
+    --text-secondary: #666;
+    --text-muted: #999;
+    --text-hint: #bbb;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --spacing-xs: 8px;
+    --spacing-sm: 15px;
+    --spacing-md: 20px;
+    --spacing-lg: 30px;
+    --transition: all 0.3s ease;
+    --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    --gradient-success: linear-gradient(135deg, #e8f5e9 0%, var(--bg-success) 100%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
+    background: var(--gradient-primary);
+    min-height: 100vh;
+    padding: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+header {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 40px var(--spacing-lg);
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
+}
+
+.form-section, .results-section {
+    background: var(--bg-main);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+}
+
+.form-section h2, .results-section h2 {
+    color: var(--text-primary);
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--border);
+}
+
+.price-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+}
+
+label {
+    font-weight: 600;
+    color: #555;
+    font-size: 0.95em;
+}
+
+label input[type="checkbox"] {
+    margin-right: var(--spacing-xs);
+    width: auto;
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="url"],
+select,
+textarea {
+    padding: 12px var(--spacing-sm);
+    font-size: 1em;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: var(--transition);
+    font-family: inherit;
+    width: 100%;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+select {
+    cursor: pointer;
+    background: white;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: 10px;
+}
+
+.btn {
+    padding: 14px var(--spacing-lg);
+    font-size: 1em;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    flex: 1;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: var(--border);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+
+/* 危險按鈕樣式 */
+.btn-danger, .btn-delete {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-danger:hover, .btn-delete:hover {
+    background: var(--danger-dark);
+}
+
+.btn-danger {
+    padding: 10px var(--spacing-md);
+    font-size: 0.9em;
+}
+
+.btn-delete {
+    padding: var(--spacing-xs) 16px;
+    font-size: 0.85em;
+}
+
+/* 編輯按鈕樣式 */
+.btn-edit {
+    background: var(--info);
+    color: white;
+    padding: var(--spacing-xs) 16px;
+    font-size: 0.85em;
+}
+
+.btn-edit:hover {
+    background: var(--info-dark);
+}
+
+/* 圓形按鈕通用樣式 */
+.btn-circle {
+    padding: 6px;
+    font-size: 16px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.btn-remove-product {
+    background: var(--danger);
+    color: white;
+    box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);
+}
+
+.btn-remove-product:hover {
+    background: var(--danger-dark);
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+}
+
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.85em;
+    flex: 1;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+    padding-bottom: var(--spacing-sm);
+}
+
+.results-header h2 {
+    margin: 0;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--border);
+    width: 100%;
+}
+
+.results-actions {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px var(--spacing-md);
+    color: var(--text-muted);
+}
+
+.empty-state p {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.hint {
+    font-size: 0.95em;
+    color: var(--text-hint);
+}
+
+.comparison-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.product-group, .store-group {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    transition: var(--transition);
+}
+
+.product-group:hover {
+    border-color: var(--primary);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15);
+}
+
+.store-group {
+    position: relative;
+}
+
+.store-group:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+
+.product-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    gap: var(--spacing-sm);
+}
+
+.product-group-name {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+}
+
+.btn-add-store-to-product {
+    background: var(--success);
+    color: white;
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
+}
+
+.btn-add-store-to-product:hover {
+    background: var(--success-dark);
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+}
+
+/* 彈出視窗樣式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--border);
+}
+
+.modal-title {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2em;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    background: var(--bg-main);
+    color: var(--text-primary);
+}
+
+.product-stores-list {
+    display: none;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+.product-group:hover .product-stores-list {
+    display: flex;
+}
+
+.store-item {
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+.store-item:hover {
+    border-color: var(--primary);
+    background: var(--bg-hover);
+}
+
+.store-item.best-price {
+    border-color: var(--success);
+    border-width: 2px;
+    background: var(--bg-success);
+}
+
+.store-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px var(--spacing-sm);
+    cursor: pointer;
+    gap: var(--spacing-sm);
+}
+
+.store-item-name {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.store-item-price {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--primary);
+    min-width: 80px;
+    text-align: right;
+}
+
+.store-item-arrow {
+    color: var(--text-muted);
+    font-size: 0.9em;
+    transition: transform 0.3s ease;
+    min-width: 20px;
+}
+
+.store-item-arrow.expanded {
+    transform: rotate(90deg);
+}
+
+.store-item-details {
+    display: none;
+    padding: var(--spacing-sm);
+    background: white;
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.store-item-details.expanded {
+    display: block;
+}
+
+.store-item-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--border-light);
+}
+
+
+.store-platform-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: white;
+    min-width: 60px;
+    height: 24px;
+    text-align: center;
+    margin-right: 5px;
+    box-sizing: border-box;
+    line-height: 1;
+}
+
+.store-platform-icon.platform-1688 {
+    background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+}
+
+.store-platform-icon.platform-taobao {
+    background: linear-gradient(135deg, #ff5000 0%, #ff6b35 100%);
+}
+
+.store-platform-icon.platform-tmall {
+    background: linear-gradient(135deg, #ff0036 0%, #ff3366 100%);
+}
+
+.item-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-size: 0.95em;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.detail-value {
+    font-size: 1.05em;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.best-unit-price-badge {
+    display: inline-block;
+    background: var(--success);
+    color: white;
+    padding: 5px var(--spacing-sm);
+    border-radius: var(--radius-lg);
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.best-total-price-badge {
+    display: inline-block;
+    background: var(--info);
+    color: white;
+    padding: 5px var(--spacing-sm);
+    border-radius: var(--radius-lg);
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+
+.stores-container {
+    display: none;
+}
+
+.stores-container.active {
+    display: block;
+}
+
+/* 驗證訊息樣式 */
+.validation-message {
+    color: #ef5350;
+    font-size: 0.85em;
+    margin-top: 5px;
+    display: none;
+}
+
+.validation-message.show {
+    display: block;
+}
+
+/* 計算結果顯示區域 */
+.price-calculation-box {
+    background: #f0f4ff;
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.price-calculation-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.price-calculation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-calculation-label {
+    color: #666;
+}
+
+.price-calculation-value {
+    font-weight: 700;
+    color: #667eea;
+}
+
+/* 按鈕組樣式 */
+.btn-group {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.btn-flex {
+    flex: 1;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 1024px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2em;
+    }
+
+    .main-content {
+        padding: var(--spacing-md);
+    }
+
+    .form-section, .results-section {
+        padding: var(--spacing-md);
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions, .results-header {
+        flex-direction: column;
+    }
+
+    .results-header {
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .item-actions {
+        width: 100%;
+    }
+
+    .item-actions .btn {
+        flex: 1;
+    }
+}
+    </style>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 競價工具</h1>
+        </header>
+
+        <div class="main-content">
+            <!-- 新增表單 -->
+            <div class="form-section">
+                <h2>新增</h2>
+                <form id="priceForm" class="price-form">
+                    <div class="form-group">
+                        <label for="productName">商品名稱</label>
+                        <input 
+                            type="text" 
+                            id="productName" 
+                            required
+                        >
+                        <span id="productNameValidation" class="product-name-validation validation-message"></span>
+                    </div>
+
+                    <div id="storesContainer" class="stores-container">
+                        <div id="storesList"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-flex">新增</button>
+                        <button type="button" id="resetBtn" class="btn btn-secondary btn-flex">重置</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 比價結果列表 -->
+            <div class="results-section">
+                <div class="results-header">
+                    <h2>結果</h2>
+                </div>
+
+                <div id="emptyState" class="empty-state">
+                    <p>📝 尚未新增任何比價記錄</p>
+                    <p class="hint">請在上方表單中新增店家資訊</p>
+                </div>
+
+                <div id="comparisonList" class="comparison-list hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 編輯記錄彈出視窗 -->
+    <div id="editRecordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="editModalTitle">編輯比價記錄</h3>
+                <button class="modal-close" onclick="closeEditRecordModal()">&times;</button>
+            </div>
+            <form id="editRecordModalForm" class="price-form">
+                <div class="form-group">
+                    <label>商家連結</label>
+                    <input 
+                        type="url" 
+                        id="editStoreUrl"
+                        class="store-url-input"
+                    >
+                    <span id="editUrlValidation" class="url-validation-message validation-message"></span>
+                </div>
+                <div id="editStoreDetails" class="store-details-container">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>總金額</label>
+                            <input 
+                                type="number" 
+                                id="editTotalPrice"
+                                class="store-total-input"
+                                min="0"
+                                step="0.01"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label>數量</label>
+                            <input 
+                                type="number" 
+                                id="editQuantity"
+                                class="store-quantity-input"
+                                min="1"
+                                step="1"
+                                value="1"
+                            >
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>運費金額</label>
+                            <input 
+                                type="number" 
+                                id="editShipping"
+                                class="store-shipping-input"
+                                min="0"
+                                step="0.01"
+                                value=""
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label>優惠金額</label>
+                            <input 
+                                type="number" 
+                                id="editCoupon"
+                                class="store-coupon-input"
+                                min="0"
+                                step="0.01"
+                                value=""
+                            >
+                        </div>
+                    </div>
+                    <div class="form-group price-calculation-box">
+                        <div class="price-calculation-row">
+                            <div class="price-calculation-item">
+                                <span class="price-calculation-label">商品單價：</span>
+                                <span id="editCalculatedPrice" class="price-calculation-value">-</span>
+                            </div>
+                            <div class="price-calculation-item">
+                                <span class="price-calculation-label">商品總價：</span>
+                                <span id="editCalculatedTotal" class="price-calculation-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-flex">更新</button>
+                    <button type="button" class="btn btn-secondary btn-flex" onclick="closeEditRecordModal()">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 新增店家彈出視窗 -->
+    <div id="addStoreModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalProductName">新增店家</h3>
+                <button class="modal-close" onclick="closeAddStoreModal()">&times;</button>
+            </div>
+            <form id="addStoreModalForm" class="price-form">
+                <div class="form-group">
+                    <label>商家連結</label>
+                    <input 
+                        type="url" 
+                        id="modalStoreUrl"
+                        class="store-url-input"
+                    >
+                    <span id="modalUrlValidation" class="url-validation-message validation-message"></span>
+                </div>
+                <div id="modalStoreDetails" class="store-details-container hidden">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>總金額</label>
+                            <input 
+                                type="number" 
+                                id="modalTotalPrice"
+                                class="store-total-input"
+                                min="0"
+                                step="0.01"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label>數量</label>
+                            <input 
+                                type="number" 
+                                id="modalQuantity"
+                                class="store-quantity-input"
+                                min="1"
+                                step="1"
+                                value="1"
+                            >
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>運費金額</label>
+                            <input 
+                                type="number" 
+                                id="modalShipping"
+                                class="store-shipping-input"
+                                min="0"
+                                step="0.01"
+                                value=""
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label>優惠金額</label>
+                            <input 
+                                type="number" 
+                                id="modalCoupon"
+                                class="store-coupon-input"
+                                min="0"
+                                step="0.01"
+                                value=""
+                            >
+                        </div>
+                    </div>
+                    <div class="form-group price-calculation-box">
+                        <div class="price-calculation-row">
+                            <div class="price-calculation-item">
+                                <span class="price-calculation-label">商品單價：</span>
+                                <span id="modalCalculatedPrice" class="price-calculation-value">-</span>
+                            </div>
+                            <div class="price-calculation-item">
+                                <span class="price-calculation-label">商品總價：</span>
+                                <span id="modalCalculatedTotal" class="price-calculation-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-flex">新增</button>
+                    <button type="button" class="btn btn-secondary btn-flex" onclick="closeAddStoreModal()">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+// Firebase 配置
+const firebaseConfig = {
+    apiKey: "AIzaSyDuirM8m0FrTVaXExJh1mjjvcKH0diSTSg",
+    authDomain: "pricetools.firebaseapp.com",
+    projectId: "pricetools",
+    storageBucket: "pricetools.firebasestorage.app",
+    messagingSenderId: "261643182004",
+    appId: "1:261643182004:web:6f7d1eb6a5b2c305071ce1"
+};
+
+// 初始化 Firebase
+let db = null;
+try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    console.log('Firebase 初始化成功');
+} catch (error) {
+    console.error('Firebase 初始化失敗:', error);
+}
+
+// 全局變量
+let priceData = [];
+let storeGroupCounter = 0;
+let useFirebase = false;
+
+// 檢查 Firebase 是否可用
+if (db) {
+    useFirebase = true;
+    console.log('使用 Firebase 存儲');
+} else {
+    console.log('使用 localStorage 存儲（Firebase 初始化失敗）');
+}
+
+// 從 Firestore 加載數據（按商品名稱加載所有文檔）
+const loadDataFromFirestore = async () => {
+    if (!db) return false;
+    
+    try {
+        const snapshot = await db.collection('競價工具').get();
+        priceData = [];
+        let hasOldFormat = false;
+        
+        snapshot.forEach((doc) => {
+            // 檢查是否為舊格式（userData 文檔）
+            if (doc.id === 'userData') {
+                hasOldFormat = true;
+                const data = doc.data();
+                if (data.records && Array.isArray(data.records)) {
+                    priceData.push(...data.records);
+                }
+            } else {
+                // 新格式：按商品名稱分組
+                const data = doc.data();
+                if (data.records && Array.isArray(data.records)) {
+                    priceData.push(...data.records);
+                }
+            }
+        });
+        
+        // 如果發現舊格式，遷移到新格式
+        if (hasOldFormat && priceData.length > 0) {
+            console.log('檢測到舊格式數據，正在遷移到新格式...');
+            await saveDataToFirestore();
+            // 刪除舊的 userData 文檔
+            try {
+                await db.collection('競價工具').doc('userData').delete();
+                console.log('舊格式數據已遷移並刪除');
+            } catch (e) {
+                console.error('刪除舊格式數據失敗:', e);
+            }
+        }
+        
+        renderComparisonList();
+        console.log(`從 Firestore 加載數據成功，共 ${priceData.length} 條記錄`);
+        return true;
+    } catch (error) {
+        console.error('從 Firestore 加載數據失敗:', error);
+    }
+    return false;
+};
+
+// 保存數據到 Firestore（按商品名稱分組保存）
+const saveDataToFirestore = async () => {
+    if (!db) return false;
+    
+    try {
+        // 按商品名稱分組
+        const groupedByProduct = {};
+        priceData.forEach(record => {
+            const productName = record.productName || '未分類商品';
+            if (!groupedByProduct[productName]) {
+                groupedByProduct[productName] = [];
+            }
+            groupedByProduct[productName].push(record);
+        });
+        
+        // 使用批次寫入提高效率
+        const batch = db.batch();
+        const productNames = Object.keys(groupedByProduct);
+        
+        // 獲取現有文檔，找出需要刪除的商品（如果某個商品的所有記錄都被刪除了）
+        const existingSnapshot = await db.collection('競價工具').get();
+        const existingProductNames = new Set();
+        existingSnapshot.forEach(doc => {
+            existingProductNames.add(doc.id);
+        });
+        
+        // 保存或更新每個商品的數據
+        productNames.forEach(productName => {
+            const productRef = db.collection('競價工具').doc(productName);
+            batch.set(productRef, {
+                records: groupedByProduct[productName],
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+        
+        // 刪除已不存在的商品文檔（如果某個商品的所有記錄都被刪除了）
+        productNames.forEach(productName => {
+            existingProductNames.delete(productName);
+        });
+        existingProductNames.forEach(productName => {
+            const productRef = db.collection('競價工具').doc(productName);
+            batch.delete(productRef);
+        });
+        
+        await batch.commit();
+        console.log(`數據已保存到 Firestore，共 ${productNames.length} 個商品`);
+        return true;
+    } catch (error) {
+        console.error('保存數據到 Firestore 失敗:', error);
+        return false;
+    }
+};
+
+// 工具函數
+const loadData = async () => {
+    if (useFirebase) {
+        // 嘗試從 Firestore 加載
+        const loaded = await loadDataFromFirestore();
+        if (loaded) {
+            // 如果成功從 Firestore 加載，嘗試遷移 localStorage 數據（如果存在）
+            const saved = localStorage.getItem('priceComparisonData');
+            if (saved) {
+                try {
+                    const localData = JSON.parse(saved);
+                    // 如果 Firestore 數據為空但 localStorage 有數據，進行遷移
+                    if (priceData.length === 0 && localData.length > 0) {
+                        priceData = localData;
+                        await saveDataToFirestore();
+                        localStorage.removeItem('priceComparisonData');
+                        console.log('數據已從 localStorage 遷移到 Firestore');
+                    }
+                } catch (e) {
+                    console.error('遷移數據時出錯:', e);
+                }
+            }
+            return;
+        }
+    }
+    
+    // 使用 localStorage 作為後備
+    const saved = localStorage.getItem('priceComparisonData');
+    if (saved) {
+        try {
+            priceData = JSON.parse(saved);
+            renderComparisonList();
+        } catch (e) {
+            console.error('從 localStorage 加載數據失敗:', e);
+        }
+    }
+};
+
+const saveData = async () => {
+    if (useFirebase) {
+        // 嘗試保存到 Firestore
+        const saved = await saveDataToFirestore();
+        if (saved) {
+            // 同時保存到 localStorage 作為備份
+            try {
+                localStorage.setItem('priceComparisonData', JSON.stringify(priceData));
+            } catch (e) {
+                console.error('備份到 localStorage 失敗:', e);
+            }
+            return;
+        }
+    }
+    
+    // 使用 localStorage 作為後備
+    try {
+        localStorage.setItem('priceComparisonData', JSON.stringify(priceData));
+    } catch (e) {
+        console.error('保存到 localStorage 失敗:', e);
+    }
+};
+
+const roundToTwoDecimals = (value) => Math.round((value || 0) * 100) / 100;
+
+const formatNumber = (value) => {
+    const rounded = roundToTwoDecimals(value);
+    return rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(2);
+};
+
+const formatPriceDisplay = (value) => {
+    const formatted = formatNumber(value);
+    const parts = formatted.split('.');
+    const integerPart = parseInt(parts[0]).toLocaleString('zh-TW');
+    return parts.length > 1 ? `${integerPart}.${parts[1]}` : integerPart;
+};
+
+const tryParseUrl = (url) => {
+    try {
+        // 支援 http:// 和 https:// 開頭的 URL
+        return { url: new URL(url), valid: true };
+    } catch (e) {
+        if (!url.includes('://')) {
+            try {
+                // 如果沒有協議，預設添加 http://
+                return { url: new URL('http://' + url), valid: true };
+            } catch (e2) {
+                return { valid: false };
+            }
+        }
+        return { valid: false };
+    }
+};
+
+const validateUrl = (url) => {
+    if (!url || !url.trim()) return { valid: false, message: '' };
+    
+    // 檢查是否以 https:// 開頭
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl.toLowerCase().startsWith('https://')) {
+        return { valid: false, message: '請貼上連結' };
+    }
+    
+    const result = tryParseUrl(url);
+    return result.valid 
+        ? { valid: true, message: '' }
+        : { valid: false, message: '請輸入有效的網址連結（例如：https://example.com）' };
+};
+
+const normalizeUrl = (url) => {
+    if (!url || !url.trim()) return '';
+    const result = tryParseUrl(url);
+    return result.valid ? result.url.href.toLowerCase() : url.trim().toLowerCase();
+};
+
+const extractDomainFromUrl = (url) => {
+    const result = tryParseUrl(url);
+    if (!result.valid) return url;
+    let domain = result.url.hostname;
+    return domain.startsWith('www.') ? domain.substring(4) : domain;
+};
+
+const getStorePlatformIcon = (url) => {
+    const urlLower = url.toLowerCase();
+    if (urlLower.includes('1688.com')) {
+        return '<span class="store-platform-icon platform-1688">1688</span>';
+    } else if (urlLower.includes('tmall.com')) {
+        return '<span class="store-platform-icon platform-tmall">天貓</span>';
+    } else if (urlLower.includes('taobao.com')) {
+        return '<span class="store-platform-icon platform-taobao">淘寶</span>';
+    }
+    return null;
+};
+
+const isUrlForProductName = (str) => {
+    const trimmed = str.trim();
+    // 只檢查明顯的 URL 格式：以 http:// 或 https:// 開頭
+    if (trimmed.toLowerCase().startsWith('http://') || trimmed.toLowerCase().startsWith('https://')) {
+        return true;
+    }
+    // 檢查是否為有效的域名格式（包含常見的頂級域名，且不包含空格）
+    if (!trimmed.includes(' ')) {
+        const domainWithTldPattern = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.(com|net|org|edu|gov|tw|cn|jp|kr|uk|de|fr|it|es|ru|au|ca|mx|br|in|id|ph|sg|my|vn|th|hk|mo|io|co|me|info|biz)(\.[a-z]{2})?(\/.*)?$/i;
+        return domainWithTldPattern.test(trimmed);
+    }
+    return false;
+};
+
+const createStoreGroup = (index) => {
+    return `
+        <div class="store-group" data-store-index="${index}">
+            <div class="form-group">
+                <label>商家連結</label>
+                <input 
+                    type="url" 
+                    class="store-url-input"
+                    data-store-index="${index}"
+                >
+                <span class="url-validation-message validation-message" data-store-index="${index}"></span>
+            </div>
+            <div class="store-details-container hidden" data-store-index="${index}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>總金額</label>
+                        <input 
+                            type="number" 
+                            class="store-total-input"
+                            data-store-index="${index}"
+                            min="0"
+                            step="0.01"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label>數量</label>
+                        <input 
+                            type="number" 
+                            class="store-quantity-input"
+                            data-store-index="${index}"
+                            min="1"
+                            step="1"
+                            value="1"
+                        >
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>運費金額</label>
+                        <input 
+                            type="number" 
+                            class="store-shipping-input"
+                            data-store-index="${index}"
+                            min="0"
+                            step="0.01"
+                            value=""
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label>優惠金額</label>
+                        <input 
+                            type="number" 
+                            class="store-coupon-input"
+                            data-store-index="${index}"
+                            min="0"
+                            step="0.01"
+                            value=""
+                        >
+                    </div>
+                </div>
+                    <div class="form-group price-calculation-box">
+                        <div class="price-calculation-row">
+                            <div class="price-calculation-item">
+                                <span class="price-calculation-label">商品單價：</span>
+                                <span class="store-calculated-price price-calculation-value" data-store-index="${index}">-</span>
+                            </div>
+                            <div class="price-calculation-item">
+                                <span class="price-calculation-label">商品總價：</span>
+                                <span class="store-calculated-total price-calculation-value" data-store-index="${index}">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+const calculateProductPrice = (group) => {
+    const totalPrice = parseFloat(group.querySelector('.store-total-input')?.value) || 0;
+    const quantity = parseInt(group.querySelector('.store-quantity-input')?.value) || 1;
+    const shippingInput = group.querySelector('.store-shipping-input');
+    const couponInput = group.querySelector('.store-coupon-input');
+    
+    const shippingCost = roundToTwoDecimals(parseFloat(shippingInput?.value) || 0);
+    const couponAmount = roundToTwoDecimals(parseFloat(couponInput?.value) || 0);
+    // 總金額已含優惠金額，所以商品價格 = 總金額 - 運費
+    const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
+    const productUnitPrice = quantity > 0 ? roundToTwoDecimals(productPrice / quantity) : 0;
+    
+    const calculatedTotalEl = group.querySelector('.store-calculated-total');
+    const calculatedPriceEl = group.querySelector('.store-calculated-price');
+    
+    if (calculatedTotalEl) {
+        calculatedTotalEl.textContent = productPrice > 0 ? formatPriceDisplay(productPrice) : '-';
+    }
+    if (calculatedPriceEl) {
+        calculatedPriceEl.textContent = (productPrice > 0 && quantity > 0) ? formatPriceDisplay(productUnitPrice) : '-';
+    }
+    
+    return { productPrice, shippingCost, couponAmount, quantity };
+};
+
+// 檢查URL是否重複
+const checkDuplicateUrl = (url, productName, currentIndex = null) => {
+    if (!url || !url.trim()) return { isDuplicate: false, message: '' };
+    
+    const normalizedUrl = normalizeUrl(url);
+    
+    // 如果提供了currentIndex，檢查表單中的重複
+    if (currentIndex !== null) {
+        const allGroups = document.querySelectorAll('.store-group');
+        for (const otherGroup of allGroups) {
+            const otherIndex = parseInt(otherGroup.getAttribute('data-store-index'));
+            if (otherIndex !== currentIndex) {
+                const otherUrlInput = otherGroup.querySelector('.store-url-input');
+                if (otherUrlInput?.value.trim() && normalizeUrl(otherUrlInput.value.trim()) === normalizedUrl) {
+                    return { isDuplicate: true, message: '連結重複請貼上新連結' };
+                }
+            }
+        }
+    }
+    
+    // 檢查priceData中的重複
+    if (productName && priceData) {
+        const existingRecord = priceData.find(record => {
+            return record.productName === productName && record.storeUrl && normalizeUrl(record.storeUrl) === normalizedUrl;
+        });
+        if (existingRecord) {
+            return { isDuplicate: true, message: currentIndex !== null ? '此商品名稱下已存在相同的商家連結' : '連結重複請貼上新連結' };
+        }
+    }
+    
+    return { isDuplicate: false, message: '' };
+};
+
+const addStoreGroup = () => {
+    const storesList = document.getElementById('storesList');
+    const index = storeGroupCounter++;
+    storesList.insertAdjacentHTML('beforeend', createStoreGroup(index));
+    
+    const group = storesList.querySelector(`[data-store-index="${index}"]`);
+    
+    // 為新添加的輸入框設置 Delete 鍵行為
+    setupInputDeleteBehavior(group);
+    const totalInput = group.querySelector('.store-total-input');
+    const quantityInput = group.querySelector('.store-quantity-input');
+    const shippingInput = group.querySelector('.store-shipping-input');
+    const couponInput = group.querySelector('.store-coupon-input');
+    const urlInput = group.querySelector('.store-url-input');
+    const urlValidationMessage = group.querySelector('.url-validation-message');
+    const detailsContainer = group.querySelector('.store-details-container');
+    
+    // 防抖計時器，用於優化輸入驗證性能
+    let inputDebounceTimer = null;
+    
+    const validateStoreUrlInput = () => {
+        const url = urlInput.value.trim();
+        if (!url) {
+            urlValidationMessage.style.display = 'none';
+            urlInput.style.borderColor = '';
+            return;
+        }
+        
+        const urlValidation = validateUrl(url);
+        if (!urlValidation.valid) {
+            urlValidationMessage.textContent = urlValidation.message;
+            urlValidationMessage.style.display = 'block';
+            urlInput.style.borderColor = '#ef5350';
+            return;
+        }
+        
+        const productName = document.getElementById('productName')?.value.trim();
+        const duplicateCheck = checkDuplicateUrl(url, productName, index);
+        if (duplicateCheck.isDuplicate) {
+            urlValidationMessage.textContent = duplicateCheck.message;
+            urlValidationMessage.style.display = 'block';
+            urlInput.style.borderColor = '#ef5350';
+            return;
+        }
+        
+        urlValidationMessage.style.display = 'none';
+        urlInput.style.borderColor = '';
+        if (detailsContainer) detailsContainer.style.display = 'block';
+    };
+    
+    const toggleStoreDetailsVisibility = () => {
+        if (!detailsContainer) return;
+        const url = urlInput.value.trim();
+        const urlValidation = validateUrl(url);
+        const productName = document.getElementById('productName')?.value.trim();
+        const duplicateCheck = url ? checkDuplicateUrl(url, productName, index) : { isDuplicate: false };
+        detailsContainer.style.display = (url && urlValidation.valid && !duplicateCheck.isDuplicate) ? 'block' : 'none';
+    };
+    
+    const checkAndAddNextStoreGroup = () => {
+        if (window.isAddingStoreGroup) {
+            return;
+        }
+        const url = urlInput.value.trim();
+        if (!url) return;
+        
+        const urlValidation = validateUrl(url);
+        if (!urlValidation.valid) return;
+        
+        const productName = document.getElementById('productName')?.value.trim();
+        const duplicateCheck = checkDuplicateUrl(url, productName, index);
+        if (duplicateCheck.isDuplicate) return;
+        
+        const allGroups = storesList.querySelectorAll('.store-group');
+        const isLastGroup = Array.from(allGroups).indexOf(group) === allGroups.length - 1;
+        if (isLastGroup) {
+            // 檢查是否要添加第二組或更多組
+            // 如果當前組索引 >= 0（即至少是第一組），檢查當前組的總金額和數量
+            const currentGroupIndex = Array.from(allGroups).indexOf(group);
+            if (currentGroupIndex >= 0) {
+                // 獲取當前組的總金額和數量輸入框
+                const currentTotalInput = group.querySelector('.store-total-input');
+                const currentQuantityInput = group.querySelector('.store-quantity-input');
+                
+                const totalPrice = parseFloat(currentTotalInput?.value) || 0;
+                const quantity = parseInt(currentQuantityInput?.value) || 0;
+                
+                // 如果總金額 <= 0 或數量 <= 0，則不允許添加下一組
+                if (totalPrice <= 0 || quantity <= 0) {
+                    return;
+                }
+            }
+            
+            window.isAddingStoreGroup = true;
+            setTimeout(() => {
+                addStoreGroup();
+                window.isAddingStoreGroup = false;
+            }, 0);
+        }
+    };
+    
+    // 當總金額或數量輸入時，也檢查是否應該添加下一組
+    const checkAndAddNextStoreGroupOnPriceInput = () => {
+        // 延遲檢查，避免在輸入過程中頻繁觸發
+        if (checkAndAddNextStoreGroupOnPriceInput.timer) {
+            clearTimeout(checkAndAddNextStoreGroupOnPriceInput.timer);
+        }
+        checkAndAddNextStoreGroupOnPriceInput.timer = setTimeout(() => {
+            checkAndAddNextStoreGroup();
+        }, 300);
+    };
+    
+    urlInput.addEventListener('blur', () => {
+        // 清除防抖計時器，立即驗證
+        if (inputDebounceTimer) {
+            clearTimeout(inputDebounceTimer);
+            inputDebounceTimer = null;
+        }
+        validateStoreUrlInput();
+        toggleStoreDetailsVisibility();
+        checkAndAddNextStoreGroup();
+    });
+    
+    urlInput.addEventListener('input', () => {
+        // 使用防抖機制，避免頻繁驗證導致記憶體問題
+        if (inputDebounceTimer) {
+            clearTimeout(inputDebounceTimer);
+        }
+        // 對於 URL 輸入，使用較短的延遲（300ms）
+        inputDebounceTimer = setTimeout(() => {
+            validateStoreUrlInput();
+            toggleStoreDetailsVisibility();
+            // 貼上連結後自動跳出下一組
+            checkAndAddNextStoreGroup();
+            inputDebounceTimer = null;
+        }, 300);
+    });
+    
+    // 當商品名稱或其他店家組的URL改變時，重新驗證當前URL（用於檢測重複）
+    // 優化：使用事件委派，只在失去焦點時觸發其他輸入框的驗證，避免連鎖反應和記憶體問題
+    // 移除原來的連鎖驗證邏輯，改用更高效的方式
+    
+    // 綁定輸入框的四捨五入事件
+    [totalInput, shippingInput, couponInput].forEach(input => {
+        input.addEventListener('blur', (e) => {
+            const value = parseFloat(e.target.value);
+            if (!isNaN(value)) {
+                e.target.value = formatNumber(value);
+            }
+            calculateProductPrice(group);
+            // 當總金額輸入完成後，檢查是否應該添加下一組
+            if (input === totalInput) {
+                checkAndAddNextStoreGroupOnPriceInput();
+            }
+        });
+        input.addEventListener('input', () => {
+            calculateProductPrice(group);
+        });
+    });
+    
+    quantityInput.addEventListener('input', () => {
+        calculateProductPrice(group);
+    });
+    
+    quantityInput.addEventListener('blur', () => {
+        // 當數量輸入完成後，檢查是否應該添加下一組
+        checkAndAddNextStoreGroupOnPriceInput();
+    });
+    
+    // 初始計算
+    calculateProductPrice(group);
+}
+
+// 初始化表單事件
+function initForm() {
+    const form = document.getElementById('priceForm');
+    const productNameInput = document.getElementById('productName');
+    const storesContainer = document.getElementById('storesContainer');
+    const resetBtn = document.getElementById('resetBtn');
+    // 商品名稱輸入驗證
+    const productNameValidation = document.getElementById('productNameValidation');
+    
+    productNameInput.addEventListener('input', () => {
+        const productName = productNameInput.value.trim();
+        if (!productName) {
+            productNameValidation.style.display = 'none';
+            productNameInput.style.borderColor = '';
+            storesContainer.classList.remove('active');
+        } else if (isUrlForProductName(productName)) {
+            productNameValidation.textContent = '請輸入正確的商品名稱';
+            productNameValidation.style.display = 'block';
+            productNameInput.style.borderColor = '#ef5350';
+            storesContainer.classList.remove('active');
+        } else {
+            productNameValidation.style.display = 'none';
+            productNameInput.style.borderColor = '';
+            storesContainer.classList.add('active');
+            // 如果還沒有店家組，預設添加一組
+            const currentStoreGroups = document.querySelectorAll('.store-group').length;
+            if (currentStoreGroups === 0) {
+                addStoreGroup();
+            }
+        }
+    });
+    
+    productNameInput.addEventListener('blur', () => {
+        const productName = productNameInput.value.trim();
+        if (productName) {
+            if (isUrlForProductName(productName)) {
+                productNameValidation.textContent = '請輸入正確的商品名稱';
+                productNameValidation.style.display = 'block';
+                productNameInput.style.borderColor = '#ef5350';
+            } else {
+                productNameValidation.style.display = 'none';
+                productNameInput.style.borderColor = '';
+                storesContainer.classList.add('active');
+                // 初始預設顯示一組商家連結輸入框
+                const currentStoreGroups = document.querySelectorAll('.store-group').length;
+                if (currentStoreGroups === 0) {
+                    addStoreGroup();
+                }
+            }
+        } else {
+            productNameValidation.style.display = 'none';
+            productNameInput.style.borderColor = '';
+        }
+    });
+
+    // 表單提交
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        addAllPriceRecords();
+    });
+
+    // 重置表單
+    resetBtn.addEventListener('click', () => {
+        form.reset();
+        document.getElementById('storesList').innerHTML = '';
+        storesContainer.classList.remove('active');
+        storeGroupCounter = 0;
+    });
+
+}
+
+// 新增所有比價記錄
+function addAllPriceRecords() {
+    const productName = document.getElementById('productName').value.trim();
+    
+    if (!productName) {
+        alert('請填寫商品名稱');
+        return;
+    }
+    
+    // 檢查商品名稱是否為連結
+    if (isUrlForProductName(productName)) {
+        alert('請輸入正確的商品名稱');
+        document.getElementById('productName').focus();
+        return;
+    }
+
+    const storeGroups = document.querySelectorAll('.store-group');
+    const newRecords = [];
+    const invalidGroups = []; // 記錄有商家連結但總金額或數量未填的店家組
+    
+    // 處理所有店家組
+    storeGroups.forEach((group, index) => {
+        const storeUrl = group.querySelector('.store-url-input').value.trim();
+        const totalPriceInput = group.querySelector('.store-total-input');
+        const totalPrice = roundToTwoDecimals(parseFloat(totalPriceInput?.value || 0));
+        const quantityInput = group.querySelector('.store-quantity-input');
+        const quantity = parseInt(quantityInput?.value || 0);
+        const { productPrice, shippingCost, couponAmount } = calculateProductPrice(group);
+
+        // 如果商家連結為空，完全忽略（不新增，不提示）
+        if (!storeUrl || storeUrl.length === 0) {
+            return; // 視為未新增，忽略此店家組
+        }
+        
+        // 如果商家連結有填寫，但總金額或數量未填，記錄錯誤並阻止提交
+        const hasValidPrice = !isNaN(totalPrice) && totalPrice > 0;
+        const hasValidQuantity = !isNaN(quantity) && quantity >= 1;
+        
+        if (!hasValidPrice || !hasValidQuantity) {
+            // 記錄未填寫的項目
+            const missingFields = [];
+            if (!hasValidPrice) missingFields.push('總金額');
+            if (!hasValidQuantity) missingFields.push('數量');
+            invalidGroups.push({
+                index: index + 1,
+                missingFields: missingFields.join('、')
+            });
+            return; // 不新增此記錄
+        }
+
+        // 所有項目都完整，加入新增列表
+        const finalPrice = totalPrice;
+        // 單價應該用商品價格計算，不是總金額
+        const unitPrice = roundToTwoDecimals(productPrice / quantity);
+
+        const record = {
+            id: Date.now() + Math.random(), // 確保唯一ID
+            productName,
+            storeUrl,
+            productPrice,
+            quantity,
+            shippingCost,
+            couponAmount,
+            finalPrice,
+            unitPrice
+        };
+
+        newRecords.push(record);
+    });
+
+    // 如果有商家連結但總金額或數量未填，阻止提交並提示
+    if (invalidGroups.length > 0) {
+        const invalidDetails = invalidGroups.map(g => `第 ${g.index} 個店家（缺少：${g.missingFields}）`).join('\n');
+        alert(`無法送出比價！\n\n以下店家已填寫連結，但資料不完整：\n${invalidDetails}\n\n請補齊所有必填項目後再提交。`);
+        return; // 阻止提交
+    }
+
+    // 如果沒有可新增的記錄
+    if (newRecords.length === 0) {
+        alert('無新數據可新增。請至少填寫一個完整的店家資訊（總金額、數量需在已填寫商家連結的情況下填寫）。');
+        return;
+    }
+
+    // 新增模式，添加所有記錄
+    newRecords.forEach(record => {
+        priceData.push(record);
+    });
+
+    saveData();
+    renderComparisonList();
+    
+    // 重置表單
+    document.getElementById('priceForm').reset();
+    document.getElementById('storesList').innerHTML = '';
+    document.getElementById('storesContainer').classList.remove('active');
+    storeGroupCounter = 0;
+}
+
+// 編輯記錄（使用彈出視窗）
+let currentEditRecordId = null;
+
+function editRecord(id) {
+    const record = priceData.find(r => r.id === id);
+    if (!record) return;
+
+    currentEditRecordId = id;
+    
+    // 打開編輯彈出視窗
+    const modal = document.getElementById('editRecordModal');
+    const modalTitle = document.getElementById('editModalTitle');
+    modalTitle.textContent = `編輯【${record.productName}】比價記錄`;
+    modal.classList.add('active');
+    
+    // 填充表單數據（商品名稱不顯示，因為不應該被修改）
+    document.getElementById('editStoreUrl').value = record.storeUrl || '';
+    
+    // 總金額已含優惠金額，直接使用 finalPrice
+    const finalPrice = record.finalPrice || (record.productPrice + (record.shippingCost || 0));
+    document.getElementById('editTotalPrice').value = formatNumber(finalPrice);
+    document.getElementById('editQuantity').value = record.quantity || 1;
+    
+    // 設置運費和優惠金額
+    document.getElementById('editShipping').value = record.shippingCost != null && record.shippingCost > 0 ? formatNumber(record.shippingCost) : '';
+    document.getElementById('editCoupon').value = record.couponAmount != null && record.couponAmount > 0 ? formatNumber(record.couponAmount) : '';
+    
+    // 重置驗證訊息
+    document.getElementById('editUrlValidation').style.display = 'none';
+    document.getElementById('editStoreUrl').style.borderColor = '';
+    
+    // 顯示詳細資料區域（因為是編輯，應該已經有數據）
+    document.getElementById('editStoreDetails').style.display = 'block';
+    
+    // 初始化編輯表單事件
+    initEditModalForm();
+    
+    // 觸發計算
+    calculateEditModalPrice();
+}
+
+function closeEditRecordModal() {
+    const modal = document.getElementById('editRecordModal');
+    modal.classList.remove('active');
+    currentEditRecordId = null;
+}
+
+function initEditModalForm() {
+    // 為編輯彈出視窗的輸入框設置 Delete 鍵行為
+    const editForm = document.getElementById('editRecordModalForm');
+    if (editForm) {
+        setupInputDeleteBehavior(editForm);
+    }
+    
+    const urlInput = document.getElementById('editStoreUrl');
+    const totalInput = document.getElementById('editTotalPrice');
+    const quantityInput = document.getElementById('editQuantity');
+    const shippingInput = document.getElementById('editShipping');
+    const couponInput = document.getElementById('editCoupon');
+    const urlValidationMessage = document.getElementById('editUrlValidation');
+    const detailsContainer = document.getElementById('editStoreDetails');
+    
+    // 移除舊的事件監聽器（通過重新綁定來實現）
+    const newUrlInput = urlInput.cloneNode(true);
+    urlInput.parentNode.replaceChild(newUrlInput, urlInput);
+    const newUrlInput2 = document.getElementById('editStoreUrl');
+    
+    const validateEditUrl = () => {
+        const url = newUrlInput2.value.trim();
+        if (!url) {
+            urlValidationMessage.style.display = 'none';
+            newUrlInput2.style.borderColor = '';
+            return;
+        }
+        
+        const urlValidation = validateUrl(url);
+        if (!urlValidation.valid) {
+            urlValidationMessage.textContent = urlValidation.message;
+            urlValidationMessage.style.display = 'block';
+            newUrlInput2.style.borderColor = '#ef5350';
+            return;
+        }
+        
+        urlValidationMessage.style.display = 'none';
+        newUrlInput2.style.borderColor = '';
+        detailsContainer.style.display = 'block';
+    };
+    
+    newUrlInput2.addEventListener('input', () => {
+        setTimeout(validateEditUrl, 300);
+    });
+    
+    newUrlInput2.addEventListener('blur', validateEditUrl);
+    
+    [totalInput, shippingInput, couponInput].forEach(input => {
+        input.addEventListener('blur', (e) => {
+            const value = parseFloat(e.target.value);
+            if (!isNaN(value)) {
+                e.target.value = formatNumber(value);
+            }
+            calculateEditModalPrice();
+        });
+        input.addEventListener('input', calculateEditModalPrice);
+    });
+    
+    quantityInput.addEventListener('input', calculateEditModalPrice);
+}
+
+function calculateEditModalPrice() {
+    const totalPrice = parseFloat(document.getElementById('editTotalPrice')?.value) || 0;
+    const quantity = parseInt(document.getElementById('editQuantity')?.value) || 1;
+    const shippingCost = roundToTwoDecimals(parseFloat(document.getElementById('editShipping')?.value) || 0);
+    const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
+    const productUnitPrice = quantity > 0 ? roundToTwoDecimals(productPrice / quantity) : 0;
+    
+    const calculatedTotalEl = document.getElementById('editCalculatedTotal');
+    const calculatedPriceEl = document.getElementById('editCalculatedPrice');
+    
+    if (calculatedTotalEl) {
+        calculatedTotalEl.textContent = productPrice > 0 ? formatPriceDisplay(productPrice) : '-';
+    }
+    if (calculatedPriceEl) {
+        calculatedPriceEl.textContent = (productPrice > 0 && quantity > 0) ? formatPriceDisplay(productUnitPrice) : '-';
+    }
+}
+
+// 刪除記錄
+function deleteRecord(id) {
+    priceData = priceData.filter(r => r.id !== id);
+    saveData();
+    renderComparisonList();
+}
+
+// 移除商品組（移除該商品名稱下的所有記錄）
+function removeProductGroup(productName) {
+    if (confirm(`確定要移除「${productName}」的所有比價記錄嗎？此操作無法復原。`)) {
+        priceData = priceData.filter(r => r.productName !== productName);
+        saveData();
+        renderComparisonList();
+    }
+}
+
+const toggleStoreDetails = (id) => {
+    const details = document.getElementById(`details-${id}`);
+    const arrow = document.getElementById(`arrow-${id}`);
+    if (details && arrow) {
+        details.classList.toggle('expanded');
+        arrow.classList.toggle('expanded');
+    }
+};
+
+// 渲染比價列表
+function renderComparisonList() {
+    const comparisonList = document.getElementById('comparisonList');
+    const emptyState = document.getElementById('emptyState');
+
+    if (priceData.length === 0) {
+        comparisonList.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+    }
+
+    emptyState.style.display = 'none';
+    comparisonList.style.display = 'flex';
+
+    // 按商品名稱分組（不修改原始數據）
+    const groupedData = {};
+    priceData.forEach(record => {
+        const productName = record.productName || '未分類商品';
+        if (!groupedData[productName]) {
+            groupedData[productName] = [];
+        }
+        groupedData[productName].push(record);
+    });
+
+    // 生成HTML
+    comparisonList.innerHTML = Object.keys(groupedData).map(productName => {
+        // 創建副本進行排序，不修改原始數據
+        const allRecords = [...groupedData[productName]];
+        
+        // 計算單價最優惠
+        const recordsByUnitPrice = allRecords.map(record => {
+            const unitPrice = record.unitPrice !== undefined ? record.unitPrice : (record.productPrice / (record.quantity || 1));
+            return { ...record, calculatedUnitPrice: unitPrice };
+        }).sort((a, b) => a.calculatedUnitPrice - b.calculatedUnitPrice);
+        const minUnitPrice = recordsByUnitPrice[0]?.calculatedUnitPrice;
+        const bestUnitPriceRecordIds = new Set();
+        recordsByUnitPrice.forEach((record, index) => {
+            if (record.calculatedUnitPrice === minUnitPrice && index === 0) {
+                bestUnitPriceRecordIds.add(record.id);
+            }
+        });
+        
+        // 計算總價最優惠
+        const recordsByTotalPrice = [...allRecords].sort((a, b) => a.finalPrice - b.finalPrice);
+        const minTotalPrice = recordsByTotalPrice[0]?.finalPrice;
+        const bestTotalPriceRecordIds = new Set();
+        recordsByTotalPrice.forEach((record, index) => {
+            if (record.finalPrice === minTotalPrice && index === 0) {
+                bestTotalPriceRecordIds.add(record.id);
+            }
+        });
+        
+        // 按單價排序用於顯示
+        const records = recordsByUnitPrice;
+        
+        return `
+            <div class="product-group">
+                <div class="product-group-header">
+                    <h3 class="product-group-name">${productName}</h3>
+                    <div class="btn-group">
+                        <button class="btn btn-circle btn-add-store-to-product" onclick="openAddStoreModal('${productName.replace(/'/g, "\\'")}')">+</button>
+                        <button class="btn btn-circle btn-remove-product" onclick="removeProductGroup('${productName.replace(/'/g, "\\'")}')">-</button>
+                    </div>
+                </div>
+                <div class="product-stores-list">
+                    ${records.map((record, index) => {
+                        const recordId = record.id;
+                        const couponAmount = record.couponAmount !== undefined ? record.couponAmount : 0;
+                        const isBestUnitPrice = bestUnitPriceRecordIds.has(recordId);
+                        const isBestTotalPrice = bestTotalPriceRecordIds.has(recordId);
+                        const badges = [];
+                        if (isBestUnitPrice) badges.push('<span class="best-unit-price-badge">單價最優惠</span>');
+                        if (isBestTotalPrice) badges.push('<span class="best-total-price-badge">總價最優惠</span>');
+                        // 檢測是否為1688或淘寶，並顯示對應圖示
+                        const platformIcon = getStorePlatformIcon(record.storeUrl);
+                        const storeDisplayName = platformIcon || `店家${String.fromCharCode(65 + index)}`; // 如果是1688或淘寶顯示平台圖示，否則顯示店家A/B/C
+                        return `
+                            <div class="store-item ${isBestUnitPrice || isBestTotalPrice ? 'best-price' : ''}">
+                                <div class="store-item-header" onclick="toggleStoreDetails(${recordId})">
+                                    <div class="store-item-name">
+                                        <a href="${record.storeUrl}" target="_blank" class="store-link" onclick="event.stopPropagation();" title="${extractDomainFromUrl(record.storeUrl)}">${storeDisplayName}</a>
+                                        ${badges.join('')}
+                                    </div>
+                                    <div class="store-item-price">
+                                        ${(() => {
+                                            const formatted = formatNumber(record.finalPrice);
+                                            const parts = formatted.split('.');
+                                            const integerPart = parseInt(parts[0]).toLocaleString('zh-TW');
+                                            return parts.length > 1 ? `${integerPart}.${parts[1]}` : integerPart;
+                                        })()}
+                                    </div>
+                                    <span class="store-item-arrow" id="arrow-${recordId}">▶</span>
+                                </div>
+                                <div class="store-item-details" id="details-${recordId}">
+                                    <div class="detail-item">
+                                        <span class="detail-label">商品價格</span>
+                                        <span class="detail-value">${record.productPrice.toLocaleString('zh-TW', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">數量</span>
+                                        <span class="detail-value">${record.quantity || 1}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">運費</span>
+                                        <span class="detail-value">
+                                            ${record.shippingCost > 0 
+                                                ? record.shippingCost.toLocaleString('zh-TW', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                                : '<span style="color: #4caf50;">免運</span>'
+                                            }
+                                        </span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">優惠金額</span>
+                                        <span class="detail-value">
+                                            ${couponAmount > 0 
+                                                ? `<span style="color: #4caf50;">-${couponAmount.toLocaleString('zh-TW', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`
+                                                : '無'
+                                            }
+                                        </span>
+                                    </div>
+                                    ${record.quantity && record.quantity > 0 ? `
+                                    <div class="detail-item">
+                                        <span class="detail-label">單價</span>
+                                        <span class="detail-value" style="color: #667eea; font-weight: 700;">
+                                            ${(() => {
+                                                // 單價應該用商品價格計算，如果沒有 unitPrice 就用 productPrice 計算
+                                                const unitPrice = record.unitPrice !== undefined ? record.unitPrice : (record.productPrice / (record.quantity || 1));
+                                                const formatted = formatNumber(unitPrice);
+                                                const parts = formatted.split('.');
+                                                const integerPart = parseInt(parts[0]).toLocaleString('zh-TW');
+                                                return parts.length > 1 ? `${integerPart}.${parts[1]}` : integerPart;
+                                            })()}
+                                        </span>
+                                    </div>
+                                    ` : ''}
+                                    <div class="store-item-actions">
+                                        <button class="btn btn-edit btn-small" onclick="event.stopPropagation(); editRecord(${recordId})">編輯</button>
+                                        <button class="btn btn-delete btn-small" onclick="event.stopPropagation(); deleteRecord(${recordId})">刪除</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 新增店家彈出視窗相關函數
+let currentModalProductName = '';
+
+function openAddStoreModal(productName) {
+    currentModalProductName = productName;
+    const modal = document.getElementById('addStoreModal');
+    const modalTitle = document.getElementById('modalProductName');
+    modalTitle.textContent = `新增【${productName}】比價商家`;
+    modal.classList.add('active');
+    
+    // 重置表單
+    document.getElementById('addStoreModalForm').reset();
+    document.getElementById('modalStoreDetails').style.display = 'none';
+    document.getElementById('modalUrlValidation').style.display = 'none';
+    document.getElementById('modalCalculatedPrice').textContent = '-';
+    document.getElementById('modalCalculatedTotal').textContent = '-';
+    
+    // 綁定事件
+    initModalForm();
+}
+
+function closeAddStoreModal() {
+    const modal = document.getElementById('addStoreModal');
+    modal.classList.remove('active');
+    currentModalProductName = '';
+}
+
+function initModalForm() {
+    // 為彈出視窗的輸入框設置 Delete 鍵行為
+    const modalForm = document.getElementById('addStoreModalForm');
+    if (modalForm) {
+        setupInputDeleteBehavior(modalForm);
+    }
+    
+    const urlInput = document.getElementById('modalStoreUrl');
+    const totalInput = document.getElementById('modalTotalPrice');
+    const quantityInput = document.getElementById('modalQuantity');
+    const shippingInput = document.getElementById('modalShipping');
+    const couponInput = document.getElementById('modalCoupon');
+    const urlValidationMessage = document.getElementById('modalUrlValidation');
+    const detailsContainer = document.getElementById('modalStoreDetails');
+    const calculatedPriceEl = document.getElementById('modalCalculatedPrice');
+    const calculatedTotalEl = document.getElementById('modalCalculatedTotal');
+    
+    // 移除舊的事件監聽器（通過重新綁定來實現）
+    const newUrlInput = urlInput.cloneNode(true);
+    urlInput.parentNode.replaceChild(newUrlInput, urlInput);
+    const newUrlInput2 = document.getElementById('modalStoreUrl');
+    
+    const calculateModalPrice = () => {
+        const totalPrice = parseFloat(totalInput?.value) || 0;
+        const quantity = parseInt(quantityInput?.value) || 1;
+        const shippingCost = roundToTwoDecimals(parseFloat(shippingInput?.value) || 0);
+        const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
+        const productUnitPrice = quantity > 0 ? roundToTwoDecimals(productPrice / quantity) : 0;
+        
+        if (calculatedTotalEl) {
+            calculatedTotalEl.textContent = productPrice > 0 ? formatPriceDisplay(productPrice) : '-';
+        }
+        if (calculatedPriceEl) {
+            calculatedPriceEl.textContent = (productPrice > 0 && quantity > 0) ? formatPriceDisplay(productUnitPrice) : '-';
+        }
+    };
+    
+    const validateModalUrl = () => {
+        const url = newUrlInput2.value.trim();
+        if (!url) {
+            urlValidationMessage.style.display = 'none';
+            newUrlInput2.style.borderColor = '';
+            detailsContainer.style.display = 'none';
+            return;
+        }
+        
+        const urlValidation = validateUrl(url);
+        if (!urlValidation.valid) {
+            urlValidationMessage.textContent = urlValidation.message;
+            urlValidationMessage.style.display = 'block';
+            newUrlInput2.style.borderColor = '#ef5350';
+            detailsContainer.style.display = 'none';
+            return;
+        }
+        
+        // 檢查重複連結
+        const duplicateCheck = checkDuplicateUrl(url, currentModalProductName);
+        if (duplicateCheck.isDuplicate) {
+            urlValidationMessage.textContent = duplicateCheck.message;
+            urlValidationMessage.style.display = 'block';
+            newUrlInput2.style.borderColor = '#ef5350';
+            detailsContainer.style.display = 'none';
+            return;
+        }
+        
+        urlValidationMessage.style.display = 'none';
+        newUrlInput2.style.borderColor = '';
+        detailsContainer.style.display = 'block';
+    };
+    
+    newUrlInput2.addEventListener('input', () => {
+        setTimeout(validateModalUrl, 300);
+    });
+    
+    newUrlInput2.addEventListener('blur', validateModalUrl);
+    
+    [totalInput, shippingInput, couponInput].forEach(input => {
+        input.addEventListener('blur', (e) => {
+            const value = parseFloat(e.target.value);
+            if (!isNaN(value)) {
+                e.target.value = formatNumber(value);
+            }
+            calculateModalPrice();
+        });
+        input.addEventListener('input', calculateModalPrice);
+    });
+    
+    quantityInput.addEventListener('input', calculateModalPrice);
+}
+
+// 為所有輸入框添加 Delete 鍵清空功能
+function setupInputDeleteBehavior(element = document) {
+    // 選擇所有輸入框（text, number, url, textarea）
+    const inputs = element.querySelectorAll ? element.querySelectorAll('input[type="text"], input[type="number"], input[type="url"], textarea') : [];
+    
+    inputs.forEach(input => {
+        // 檢查是否已經添加過事件監聽器（避免重複添加）
+        if (input.dataset.deleteHandlerAdded) return;
+        input.dataset.deleteHandlerAdded = 'true';
+        
+        input.addEventListener('keydown', (e) => {
+            // 當按下 Delete 鍵時（不是 Backspace）
+            if (e.key === 'Delete' || e.keyCode === 46) {
+                // 阻止默認行為
+                e.preventDefault();
+                // 清空輸入框
+                input.value = '';
+                // 觸發 input 事件以觸發相關驗證或計算
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                // 觸發 change 事件
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    });
+}
+
+// 頁面載入時初始化
+document.addEventListener('DOMContentLoaded', async () => {
+    initForm();
+    await loadData();
+    
+    // 設置輸入框 Delete 鍵行為
+    setupInputDeleteBehavior();
+    
+    // 提交新增店家表單
+    const addStoreModalForm = document.getElementById('addStoreModalForm');
+    if (addStoreModalForm) {
+        addStoreModalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const storeUrl = document.getElementById('modalStoreUrl').value.trim();
+            const totalPrice = roundToTwoDecimals(parseFloat(document.getElementById('modalTotalPrice').value));
+            const quantity = parseInt(document.getElementById('modalQuantity').value || 1);
+            const shippingCost = roundToTwoDecimals(parseFloat(document.getElementById('modalShipping').value) || 0);
+            const couponAmount = roundToTwoDecimals(parseFloat(document.getElementById('modalCoupon').value) || 0);
+            
+            if (!storeUrl || isNaN(totalPrice) || totalPrice <= 0 || quantity < 1) {
+                alert('請填寫完整的店家資訊（商家連結、總金額、數量）');
+                return;
+            }
+            
+            const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
+            const unitPrice = roundToTwoDecimals(productPrice / quantity);
+            const finalPrice = totalPrice;
+            
+            const newRecord = {
+                id: Date.now() + Math.random(),
+                productName: currentModalProductName,
+                storeUrl,
+                productPrice,
+                quantity,
+                shippingCost,
+                couponAmount,
+                finalPrice,
+                unitPrice
+            };
+            
+            priceData.push(newRecord);
+            saveData();
+            renderComparisonList();
+            closeAddStoreModal();
+        });
+    }
+    
+    // 點擊彈出視窗外部關閉
+    const addStoreModal = document.getElementById('addStoreModal');
+    if (addStoreModal) {
+        addStoreModal.addEventListener('click', (e) => {
+            if (e.target === addStoreModal) {
+                closeAddStoreModal();
+            }
+        });
+    }
+    
+    // 提交編輯記錄表單
+    const editRecordModalForm = document.getElementById('editRecordModalForm');
+    if (editRecordModalForm) {
+        editRecordModalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (!currentEditRecordId) return;
+            
+            // 獲取原始記錄的商品名稱（不可修改）
+            const recordIndex = priceData.findIndex(r => r.id === currentEditRecordId);
+            if (recordIndex === -1) return;
+            const originalRecord = priceData[recordIndex];
+            const productName = originalRecord.productName; // 使用原始商品名稱
+            
+            const storeUrl = document.getElementById('editStoreUrl').value.trim();
+            const totalPrice = roundToTwoDecimals(parseFloat(document.getElementById('editTotalPrice').value));
+            const quantity = parseInt(document.getElementById('editQuantity').value || 1);
+            const shippingCost = roundToTwoDecimals(parseFloat(document.getElementById('editShipping').value) || 0);
+            const couponAmount = roundToTwoDecimals(parseFloat(document.getElementById('editCoupon').value) || 0);
+            
+            if (!storeUrl || isNaN(totalPrice) || totalPrice <= 0 || quantity < 1) {
+                alert('請填寫完整的店家資訊（商家連結、總金額、數量）');
+                return;
+            }
+            
+            const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
+            const unitPrice = roundToTwoDecimals(productPrice / quantity);
+            const finalPrice = totalPrice;
+            
+            if (recordIndex !== -1) {
+                priceData[recordIndex] = {
+                    id: currentEditRecordId,
+                    productName,
+                    storeUrl,
+                    productPrice,
+                    quantity,
+                    shippingCost,
+                    couponAmount,
+                    finalPrice,
+                    unitPrice
+                };
+                
+                saveData();
+                renderComparisonList();
+                closeEditRecordModal();
+            }
+        });
+    }
+    
+    // 點擊編輯彈出視窗外部關閉
+    const editRecordModal = document.getElementById('editRecordModal');
+    if (editRecordModal) {
+        editRecordModal.addEventListener('click', (e) => {
+            if (e.target === editRecordModal) {
+                closeEditRecordModal();
+            }
+        });
+    }
+});
+    </script>
+</body>
+</html>
