@@ -73,7 +73,6 @@ header h1 {
     font-weight: 700;
 }
 
-
 .main-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -135,7 +134,17 @@ input[type="checkbox"] {
 input[type="text"],
 input[type="number"],
 input[type="url"],
-select,
+select {
+    padding: 12px var(--spacing-sm);
+    font-size: 1em;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: var(--transition);
+    font-family: inherit;
+    width: 100%;
+}
+
 textarea {
     padding: 12px var(--spacing-sm);
     font-size: 1em;
@@ -145,6 +154,8 @@ textarea {
     transition: var(--transition);
     font-family: inherit;
     width: 100%;
+    resize: vertical;
+    min-height: 80px;
 }
 
 input:focus,
@@ -168,11 +179,6 @@ input[type="number"] {
 select {
     cursor: pointer;
     background: white;
-}
-
-textarea {
-    resize: vertical;
-    min-height: 80px;
 }
 
 .form-actions {
@@ -282,8 +288,8 @@ textarea {
 
 .results-header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--spacing-sm);
     margin-bottom: 25px;
     padding-bottom: var(--spacing-sm);
 }
@@ -295,10 +301,30 @@ textarea {
     width: 100%;
 }
 
-.results-actions {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
+.search-container {
+    width: 100%;
+    margin-top: var(--spacing-xs);
+}
+
+.search-input {
+    padding: 10px var(--spacing-sm);
+    font-size: 0.95em;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: var(--transition);
+    font-family: inherit;
+    width: 100%;
+    background: white;
+}
+
+.search-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
 }
 
 .empty-state {
@@ -361,6 +387,19 @@ textarea {
     color: var(--text-primary);
     margin: 0;
     flex: 1;
+    cursor: default;
+}
+
+.product-group-name.has-image,
+.product-group-name.no-image {
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.product-group-name.has-image:hover,
+.product-group-name.no-image:hover {
+    color: var(--primary);
+    text-decoration: underline;
 }
 
 .btn-add-store-to-product {
@@ -404,6 +443,57 @@ textarea {
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: modalSlideIn 0.3s ease;
+}
+
+.image-view-modal-content {
+    max-width: 90vw;
+    max-height: 90vh;
+    padding: var(--spacing-md);
+}
+
+.image-view-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 200px;
+    background: var(--bg-main);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
+}
+
+.image-view-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.image-view-image:hover {
+    opacity: 0.8;
+}
+
+.image-view-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 1.1em;
+    padding: var(--spacing-md);
+    text-align: center;
+    cursor: pointer;
+    min-height: 200px;
+}
+
+.image-view-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    align-items: center;
 }
 
 @keyframes modalSlideIn {
@@ -619,7 +709,6 @@ textarea {
     margin-left: 10px;
 }
 
-
 .stores-container {
     display: none;
 }
@@ -683,6 +772,172 @@ textarea {
     display: none !important;
 }
 
+/* 圖片上傳樣式 */
+.image-upload-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.image-preview-container {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.image-preview-container:hover {
+    border-color: var(--primary);
+    background: var(--bg-hover);
+}
+
+.image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 1.1em;
+    padding: var(--spacing-md);
+    text-align: center;
+}
+
+.image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.image-preview:hover {
+    opacity: 0.8;
+}
+
+/* 圖片上的移除按鈕 */
+.image-remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: var(--transition);
+}
+
+.image-remove-btn:hover {
+    background: var(--danger-dark);
+    transform: scale(1.1);
+}
+
+.upload-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--border-light);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.upload-progress span {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+/* 商品圖片顯示樣式 */
+.product-image {
+    max-width: 100px;
+    max-height: 100px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    margin-right: var(--spacing-sm);
+}
+
+/* 懸停縮圖樣式 */
+.product-name-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.hover-thumbnail {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    background: white;
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    width: 200px;
+    margin-top: 10px;
+    pointer-events: none;
+}
+
+.hover-thumbnail::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 20px;
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+    transform: rotate(45deg);
+}
+
+.hover-thumbnail img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+}
+
+.product-name-wrapper:hover .hover-thumbnail {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 1024px) {
     .main-content {
         grid-template-columns: 1fr;
@@ -732,6 +987,7 @@ textarea {
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
 </head>
 <body>
     <div class="container">
@@ -751,7 +1007,32 @@ textarea {
                             id="productName" 
                             required
                         >
-                        <span id="productNameValidation" class="product-name-validation validation-message"></span>
+                        <span id="productNameValidation" class="validation-message"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productImage">商品圖片</label>
+                        <div class="image-upload-container">
+                            <input 
+                                type="file" 
+                                id="productImage" 
+                                accept="image/*"
+                                style="display: none;"
+                            >
+                            <div class="image-preview-container">
+                                <img id="productImagePreview" src="" alt="預覽圖片" class="image-preview hidden">
+                                <button type="button" id="removeImageBtn" class="image-remove-btn hidden" title="移除圖片">×</button>
+                                <div id="productImagePlaceholder" class="image-placeholder">
+                                    <span>新增圖片</span>
+                                </div>
+                            </div>
+                            <div id="imageUploadProgress" class="upload-progress hidden">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                </div>
+                                <span id="progressText">上傳中...</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="storesContainer" class="stores-container">
@@ -769,6 +1050,13 @@ textarea {
             <div class="results-section">
                 <div class="results-header">
                     <h2>結果</h2>
+                    <div class="search-container">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="search-input"
+                        >
+                    </div>
                 </div>
 
                 <div id="emptyState" class="empty-state">
@@ -864,6 +1152,47 @@ textarea {
                     <button type="button" class="btn btn-secondary btn-flex" onclick="closeEditRecordModal()">取消</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- 圖片查看彈出視窗 -->
+    <div id="imageViewModal" class="modal">
+        <div class="modal-content image-view-modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="imageViewModalTitle">商品圖片</h3>
+                <button class="modal-close" onclick="closeImageViewModal()">&times;</button>
+            </div>
+            <div class="image-view-container" id="imageViewContainer">
+                <img id="imageViewImage" src="" alt="商品圖片" class="image-view-image">
+                <div id="imageViewPlaceholder" class="image-view-placeholder hidden">
+                    <span>新增圖片</span>
+                </div>
+                <button id="imageViewRemoveBtn" class="image-remove-btn" title="刪除圖片">×</button>
+            </div>
+            <div class="image-view-actions">
+                <input type="file" id="imageViewFileInput" accept="image/*" style="display: none;">
+                <div id="imageViewUploadProgress" class="upload-progress hidden">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="imageViewProgressFill"></div>
+                    </div>
+                    <span id="imageViewProgressText">上傳中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 刪除圖片確認彈出視窗 -->
+    <div id="deleteImageConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">正在刪除圖片</h3>
+            </div>
+            <div class="modal-body" style="padding: var(--spacing-md) 0;">
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary btn-flex" id="confirmDeleteImageBtn">是的</button>
+                    <button type="button" class="btn btn-secondary btn-flex" onclick="closeDeleteImageConfirmModal()">取消</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -966,9 +1295,11 @@ const firebaseConfig = {
 
 // 初始化 Firebase
 let db = null;
+let storage = null;
 try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
+    storage = firebase.storage();
     console.log('Firebase 初始化成功');
 } catch (error) {
     console.error('Firebase 初始化失敗:', error);
@@ -978,6 +1309,7 @@ try {
 let priceData = [];
 let storeGroupCounter = 0;
 let useFirebase = false;
+let isAddingStoreGroup = false;
 
 // 檢查 Firebase 是否可用
 if (db) {
@@ -1156,6 +1488,129 @@ const formatNumber = (value) => {
     return rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(2);
 };
 
+// 通用的輸入框事件綁定函數
+const bindNumberInputEvents = (inputs, calculateCallback, onBlurCallback = null) => {
+    inputs.forEach(input => {
+        input.addEventListener('blur', (e) => {
+            const value = parseFloat(e.target.value);
+            if (!isNaN(value)) {
+                e.target.value = formatNumber(value);
+            }
+            calculateCallback();
+            if (onBlurCallback) onBlurCallback(input, e);
+        });
+        input.addEventListener('input', calculateCallback);
+    });
+};
+
+// 通用的輸入框克隆函數
+const cloneInputElements = (inputIds) => {
+    const cloned = {};
+    inputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            const clonedInput = input.cloneNode(true);
+            input.parentNode.replaceChild(clonedInput, input);
+            cloned[id] = document.getElementById(id);
+        }
+    });
+    return cloned;
+};
+
+// 從表單元素獲取價格數據
+const getFormPriceData = (urlId, totalId, quantityId, shippingId, couponId) => {
+    const storeUrl = document.getElementById(urlId)?.value.trim() || '';
+    const totalPrice = roundToTwoDecimals(parseFloat(document.getElementById(totalId)?.value || 0));
+    const quantity = parseInt(document.getElementById(quantityId)?.value || 1);
+    const shippingCost = roundToTwoDecimals(parseFloat(document.getElementById(shippingId)?.value || 0));
+    const couponAmount = roundToTwoDecimals(parseFloat(document.getElementById(couponId)?.value || 0));
+    const { productPrice, productUnitPrice } = calculatePrice(totalPrice, quantity, shippingCost);
+    
+    return {
+        storeUrl,
+        totalPrice,
+        quantity,
+        shippingCost,
+        couponAmount,
+        productPrice,
+        unitPrice: productUnitPrice,
+        finalPrice: totalPrice
+    };
+};
+
+// 驗證價格表單數據
+const validatePriceFormData = (data) => {
+    if (!data.storeUrl || isNaN(data.totalPrice) || data.totalPrice <= 0 || data.quantity < 1) {
+        return { valid: false, message: '請填寫完整的店家資訊（商家連結、總金額、數量）' };
+    }
+    return { valid: true, message: '' };
+};
+
+// 通用的URL驗證和顯示函數
+const validateAndShowUrl = (urlInput, urlValidationMessage, detailsContainer, excludeRecordId = null, currentIndex = null) => {
+    const url = urlInput.value.trim();
+    if (!url) {
+        urlValidationMessage.style.display = 'none';
+        urlInput.style.borderColor = '';
+        if (detailsContainer) detailsContainer.classList.add('hidden');
+        return false;
+    }
+    
+    const urlValidation = validateUrl(url);
+    if (!urlValidation.valid) {
+        urlValidationMessage.textContent = urlValidation.message;
+        urlValidationMessage.style.display = 'block';
+        urlInput.style.borderColor = '#ef5350';
+        if (detailsContainer) detailsContainer.classList.add('hidden');
+        return false;
+    }
+    
+    const duplicateCheck = checkDuplicateUrl(url, excludeRecordId, currentIndex);
+    if (duplicateCheck.isDuplicate) {
+        urlValidationMessage.textContent = duplicateCheck.message;
+        urlValidationMessage.style.display = 'block';
+        urlInput.style.borderColor = '#ef5350';
+        if (detailsContainer) detailsContainer.classList.add('hidden');
+        return false;
+    }
+    
+    urlValidationMessage.style.display = 'none';
+    urlInput.style.borderColor = '';
+    if (detailsContainer) detailsContainer.classList.remove('hidden');
+    return true;
+};
+
+// 查找商品圖片的輔助函數
+const findProductImageUrl = (productName, originalRecord = null) => {
+    if (originalRecord?.productImageUrl) return originalRecord.productImageUrl;
+    const existingRecord = priceData.find(r => r.productName === productName && r.productImageUrl);
+    return existingRecord?.productImageUrl || null;
+};
+
+// 創建價格記錄對象
+const createPriceRecord = (productName, formData, id = null, productImageUrl = null) => {
+    return {
+        id: id || (Date.now() + Math.random()),
+        productName,
+        storeUrl: formData.storeUrl,
+        productImageUrl: productImageUrl || null,
+        productPrice: formData.productPrice,
+        quantity: formData.quantity,
+        shippingCost: formData.shippingCost,
+        couponAmount: formData.couponAmount,
+        finalPrice: formData.finalPrice,
+        unitPrice: formData.unitPrice
+    };
+};
+
+// 通用的彈出視窗外部點擊關閉
+const setupModalOutsideClick = (modalId, closeCallback) => {
+    const modal = document.getElementById(modalId);
+    modal?.addEventListener('click', (e) => {
+        if (e.target === modal) closeCallback();
+    });
+};
+
 const formatPriceDisplay = (value) => {
     const formatted = formatNumber(value);
     const parts = formatted.split('.');
@@ -1183,10 +1638,11 @@ const tryParseUrl = (url) => {
 const validateUrl = (url) => {
     if (!url || !url.trim()) return { valid: false, message: '' };
     
-    // 檢查是否以 https:// 開頭
     const trimmedUrl = url.trim();
-    if (!trimmedUrl.toLowerCase().startsWith('https://')) {
-        return { valid: false, message: '請貼上連結' };
+    // 檢查是否以 http:// 或 https:// 開頭
+    const lowerUrl = trimmedUrl.toLowerCase();
+    if (!lowerUrl.startsWith('http://') && !lowerUrl.startsWith('https://')) {
+        return { valid: false, message: '請貼上連結（需以 http:// 或 https:// 開頭）' };
     }
     
     const result = tryParseUrl(url);
@@ -1312,6 +1768,23 @@ const createStoreGroup = (index) => {
     `;
 };
 
+// 通用價格計算函數
+const calculatePrice = (totalPrice, quantity, shippingCost = 0) => {
+    const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
+    const productUnitPrice = quantity > 0 ? roundToTwoDecimals(productPrice / quantity) : 0;
+    return { productPrice, productUnitPrice };
+};
+
+// 更新價格顯示
+const updatePriceDisplay = (calculatedTotalEl, calculatedPriceEl, productPrice, productUnitPrice, quantity) => {
+    if (calculatedTotalEl) {
+        calculatedTotalEl.textContent = productPrice > 0 ? formatPriceDisplay(productPrice) : '-';
+    }
+    if (calculatedPriceEl) {
+        calculatedPriceEl.textContent = (productPrice > 0 && quantity > 0) ? formatPriceDisplay(productUnitPrice) : '-';
+    }
+};
+
 const calculateProductPrice = (group) => {
     const totalPrice = parseFloat(group.querySelector('.store-total-input')?.value) || 0;
     const quantity = parseInt(group.querySelector('.store-quantity-input')?.value) || 1;
@@ -1320,30 +1793,22 @@ const calculateProductPrice = (group) => {
     
     const shippingCost = roundToTwoDecimals(parseFloat(shippingInput?.value) || 0);
     const couponAmount = roundToTwoDecimals(parseFloat(couponInput?.value) || 0);
-    // 總金額已含優惠金額，所以商品價格 = 總金額 - 運費
-    const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
-    const productUnitPrice = quantity > 0 ? roundToTwoDecimals(productPrice / quantity) : 0;
+    const { productPrice, productUnitPrice } = calculatePrice(totalPrice, quantity, shippingCost);
     
     const calculatedTotalEl = group.querySelector('.store-calculated-total');
     const calculatedPriceEl = group.querySelector('.store-calculated-price');
-    
-    if (calculatedTotalEl) {
-        calculatedTotalEl.textContent = productPrice > 0 ? formatPriceDisplay(productPrice) : '-';
-    }
-    if (calculatedPriceEl) {
-        calculatedPriceEl.textContent = (productPrice > 0 && quantity > 0) ? formatPriceDisplay(productUnitPrice) : '-';
-    }
+    updatePriceDisplay(calculatedTotalEl, calculatedPriceEl, productPrice, productUnitPrice, quantity);
     
     return { productPrice, shippingCost, couponAmount, quantity };
 };
 
-// 檢查URL是否重複
-const checkDuplicateUrl = (url, productName, currentIndex = null) => {
+// 檢查URL是否重複（全域檢測）
+const checkDuplicateUrl = (url, excludeRecordId = null, currentIndex = null) => {
     if (!url || !url.trim()) return { isDuplicate: false, message: '' };
     
     const normalizedUrl = normalizeUrl(url);
     
-    // 如果提供了currentIndex，檢查表單中的重複
+    // 如果提供了currentIndex，檢查表單中的重複（新增表單內的檢測）
     if (currentIndex !== null) {
         const allGroups = document.querySelectorAll('.store-group');
         for (const otherGroup of allGroups) {
@@ -1357,13 +1822,15 @@ const checkDuplicateUrl = (url, productName, currentIndex = null) => {
         }
     }
     
-    // 檢查priceData中的重複
-    if (productName && priceData) {
+    // 全域檢測：檢查priceData中所有商品的連結
+    if (priceData && priceData.length > 0) {
         const existingRecord = priceData.find(record => {
-            return record.productName === productName && record.storeUrl && normalizeUrl(record.storeUrl) === normalizedUrl;
+            // 排除當前正在編輯的記錄
+            if (excludeRecordId && record.id === excludeRecordId) return false;
+            return record.storeUrl && normalizeUrl(record.storeUrl) === normalizedUrl;
         });
         if (existingRecord) {
-            return { isDuplicate: true, message: currentIndex !== null ? '此商品名稱下已存在相同的商家連結' : '連結重複請貼上新連結' };
+            return { isDuplicate: true, message: '連結重複請貼上新連結' };
         }
     }
     
@@ -1391,46 +1858,11 @@ const addStoreGroup = () => {
     let inputDebounceTimer = null;
     
     const validateStoreUrlInput = () => {
-        const url = urlInput.value.trim();
-        if (!url) {
-            urlValidationMessage.style.display = 'none';
-            urlInput.style.borderColor = '';
-            return;
-        }
-        
-        const urlValidation = validateUrl(url);
-        if (!urlValidation.valid) {
-            urlValidationMessage.textContent = urlValidation.message;
-            urlValidationMessage.style.display = 'block';
-            urlInput.style.borderColor = '#ef5350';
-            return;
-        }
-        
-        const productName = document.getElementById('productName')?.value.trim();
-        const duplicateCheck = checkDuplicateUrl(url, productName, index);
-        if (duplicateCheck.isDuplicate) {
-            urlValidationMessage.textContent = duplicateCheck.message;
-            urlValidationMessage.style.display = 'block';
-            urlInput.style.borderColor = '#ef5350';
-            return;
-        }
-        
-        urlValidationMessage.style.display = 'none';
-        urlInput.style.borderColor = '';
-        if (detailsContainer) detailsContainer.style.display = 'block';
-    };
-    
-    const toggleStoreDetailsVisibility = () => {
-        if (!detailsContainer) return;
-        const url = urlInput.value.trim();
-        const urlValidation = validateUrl(url);
-        const productName = document.getElementById('productName')?.value.trim();
-        const duplicateCheck = url ? checkDuplicateUrl(url, productName, index) : { isDuplicate: false };
-        detailsContainer.style.display = (url && urlValidation.valid && !duplicateCheck.isDuplicate) ? 'block' : 'none';
+        validateAndShowUrl(urlInput, urlValidationMessage, detailsContainer, null, index);
     };
     
     const checkAndAddNextStoreGroup = () => {
-        if (window.isAddingStoreGroup) {
+        if (isAddingStoreGroup) {
             return;
         }
         const url = urlInput.value.trim();
@@ -1439,8 +1871,7 @@ const addStoreGroup = () => {
         const urlValidation = validateUrl(url);
         if (!urlValidation.valid) return;
         
-        const productName = document.getElementById('productName')?.value.trim();
-        const duplicateCheck = checkDuplicateUrl(url, productName, index);
+        const duplicateCheck = checkDuplicateUrl(url, null, index);
         if (duplicateCheck.isDuplicate) return;
         
         const allGroups = storesList.querySelectorAll('.store-group');
@@ -1463,10 +1894,10 @@ const addStoreGroup = () => {
                 }
             }
             
-            window.isAddingStoreGroup = true;
+            isAddingStoreGroup = true;
             setTimeout(() => {
                 addStoreGroup();
-                window.isAddingStoreGroup = false;
+                isAddingStoreGroup = false;
             }, 0);
         }
     };
@@ -1489,7 +1920,6 @@ const addStoreGroup = () => {
             inputDebounceTimer = null;
         }
         validateStoreUrlInput();
-        toggleStoreDetailsVisibility();
         checkAndAddNextStoreGroup();
     });
     
@@ -1501,11 +1931,28 @@ const addStoreGroup = () => {
         // 對於 URL 輸入，使用較短的延遲（300ms）
         inputDebounceTimer = setTimeout(() => {
             validateStoreUrlInput();
-            toggleStoreDetailsVisibility();
             // 貼上連結後自動跳出下一組
             checkAndAddNextStoreGroup();
             inputDebounceTimer = null;
         }, 300);
+    });
+    
+    // 添加 paste 事件監聽器，貼上時立即處理
+    // 注意：此事件監聽器對於貼上功能至關重要，請勿移除或修改
+    urlInput.addEventListener('paste', (e) => {
+        // 清除防抖計時器，避免與 input 事件衝突
+        if (inputDebounceTimer) {
+            clearTimeout(inputDebounceTimer);
+            inputDebounceTimer = null;
+        }
+        // 使用較長的延遲確保貼上的內容已經完全寫入輸入框
+        // 50ms 是經過測試的最佳值，太短可能無法獲取到貼上的內容
+        setTimeout(() => {
+            if (urlInput.value.trim()) {
+                validateStoreUrlInput();
+                checkAndAddNextStoreGroup();
+            }
+        }, 50);
     });
     
     // 當商品名稱或其他店家組的URL改變時，重新驗證當前URL（用於檢測重複）
@@ -1610,12 +2057,245 @@ function initForm() {
         document.getElementById('storesList').innerHTML = '';
         storesContainer.classList.remove('active');
         storeGroupCounter = 0;
+        // 重置圖片上傳
+        resetImageUpload();
     });
 
+    // 初始化圖片上傳功能
+    initImageUpload();
+}
+
+// 圖片上傳相關變量
+let currentProductImageUrl = null;
+let currentProductImageFile = null;
+
+// 處理圖片文件的通用函數
+function handleImageFile(file) {
+    if (!file) return;
+    
+    // 檢查是否為圖片文件
+    if (!file.type.startsWith('image/')) {
+        alert('請選擇圖片文件');
+        return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+        alert('圖片大小不能超過 5MB');
+        return;
+    }
+    
+    currentProductImageFile = file;
+    
+    // 顯示預覽
+    const imagePreview = document.getElementById('productImagePreview');
+    const imagePlaceholder = document.getElementById('productImagePlaceholder');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        imagePreview.classList.remove('hidden');
+        imagePlaceholder.classList.add('hidden');
+        removeImageBtn.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+
+// 初始化圖片上傳功能
+function initImageUpload() {
+    const imageInput = document.getElementById('productImage');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    const imagePreview = document.getElementById('productImagePreview');
+    const imagePlaceholder = document.getElementById('productImagePlaceholder');
+    const previewContainer = imagePreview.parentElement;
+    const imageUploadContainer = previewContainer.parentElement;
+    
+    // 預覽容器點擊選擇圖片（無論是否有圖片都可以點擊上傳或更換）
+    // 但排除移除按鈕的點擊
+    previewContainer.addEventListener('click', (e) => {
+        // 如果點擊的是移除按鈕，不觸發文件選擇
+        if (e.target === removeImageBtn || e.target.closest('.image-remove-btn')) {
+            return;
+        }
+        imageInput.click();
+    });
+    
+    // 文件選擇
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        handleImageFile(file);
+    });
+    
+    // 移除圖片（阻止事件冒泡，避免觸發文件選擇）
+    removeImageBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // 阻止事件冒泡
+        resetImageUpload();
+    });
+    
+    // 複製貼上圖片功能
+    // 使用全局監聽，但只在焦點不在輸入框時處理圖片貼上
+    let pasteHandler = (e) => {
+        // 如果圖片查看彈出視窗打開，不處理貼上（讓圖片查看彈出視窗的處理器處理）
+        const imageViewModal = document.getElementById('imageViewModal');
+        if (imageViewModal && imageViewModal.classList.contains('active')) {
+            return;
+        }
+        
+        // 如果焦點在輸入框或文字區域，不處理圖片貼上（讓用戶正常輸入）
+        const activeElement = document.activeElement;
+        if (activeElement && (
+            activeElement.tagName === 'INPUT' || 
+            activeElement.tagName === 'TEXTAREA' ||
+            activeElement.isContentEditable
+        )) {
+            // 但如果輸入框是圖片選擇器，則可以處理
+            if (activeElement.type !== 'file') {
+                return;
+            }
+        }
+        
+        const items = e.clipboardData?.items;
+        
+        if (!items || items.length === 0) return;
+        
+        // 檢查是否有圖片
+        let hasImage = false;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                hasImage = true;
+                break;
+            }
+        }
+        
+        if (!hasImage) return;
+        
+        // 遍歷剪貼板項目
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            
+            // 檢查是否為圖片類型
+            if (item.type.indexOf('image') !== -1) {
+                e.preventDefault(); // 阻止默認行為
+                
+                const blob = item.getAsFile();
+                
+                // 將 Blob 轉換為 File 對象
+                const timestamp = Date.now();
+                const fileName = `pasted-image-${timestamp}.png`;
+                const file = new File([blob], fileName, { type: blob.type || 'image/png' });
+                
+                handleImageFile(file);
+                
+                // 顯示提示訊息（如果placeholder可見）
+                if (!imagePreview.src || imagePreview.classList.contains('hidden')) {
+                    const placeholderText = imagePlaceholder.querySelector('span');
+                    if (placeholderText) {
+                        const originalText = placeholderText.innerHTML;
+                        placeholderText.style.color = 'var(--success)';
+                        placeholderText.innerHTML = '✓ 圖片已貼上！<br><small style="font-size: 0.85em; opacity: 0.7;">點擊可更換圖片</small>';
+                        setTimeout(() => {
+                            placeholderText.innerHTML = originalText;
+                            placeholderText.style.color = '';
+                        }, 2000);
+                    }
+                }
+                break; // 只處理第一個圖片
+            }
+        }
+    };
+    
+    // 在文檔上監聽貼上事件（全局）
+    document.addEventListener('paste', pasteHandler);
+    
+    // 添加提示文字說明支援貼上功能
+    const placeholderText = imagePlaceholder.querySelector('span');
+    if (placeholderText) {
+        placeholderText.innerHTML = '新增圖片';
+    }
+}
+
+// 重置圖片上傳
+function resetImageUpload() {
+    const imageInput = document.getElementById('productImage');
+    const imagePreview = document.getElementById('productImagePreview');
+    const imagePlaceholder = document.getElementById('productImagePlaceholder');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    const uploadProgress = document.getElementById('imageUploadProgress');
+    
+    imageInput.value = '';
+    imagePreview.src = '';
+    imagePreview.classList.add('hidden');
+    imagePlaceholder.classList.remove('hidden');
+    removeImageBtn.classList.add('hidden');
+    uploadProgress.classList.add('hidden');
+    currentProductImageUrl = null;
+    currentProductImageFile = null;
+    
+    // 恢復提示文字
+    const placeholderText = imagePlaceholder.querySelector('span');
+    if (placeholderText) {
+        placeholderText.innerHTML = '新增圖片';
+        placeholderText.style.color = '';
+    }
+}
+
+// 上傳圖片到 Firebase Storage
+async function uploadProductImage(file) {
+    if (!storage || !file) return null;
+    
+    try {
+        const uploadProgress = document.getElementById('imageUploadProgress');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        
+        // 顯示上傳進度
+        uploadProgress.classList.remove('hidden');
+        progressFill.style.width = '0%';
+        progressText.textContent = '上傳中...';
+        
+        // 生成唯一文件名
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 15);
+        const fileExt = file.name.split('.').pop();
+        const fileName = `product-images/${timestamp}_${randomStr}.${fileExt}`;
+        
+        // 上傳文件
+        const storageRef = storage.ref().child(fileName);
+        const uploadTask = storageRef.put(file);
+        
+        // 監聽上傳進度
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                progressFill.style.width = progress + '%';
+                progressText.textContent = `上傳中... ${Math.round(progress)}%`;
+            },
+            (error) => {
+                console.error('圖片上傳失敗:', error);
+                uploadProgress.classList.add('hidden');
+                alert('圖片上傳失敗，請稍後再試');
+            }
+        );
+        
+        // 等待上傳完成
+        await uploadTask;
+        
+        // 獲取並返回下載 URL
+        const downloadURL = await storageRef.getDownloadURL();
+        uploadProgress.classList.add('hidden');
+        currentProductImageUrl = downloadURL; // 更新全局變量以備不時之需
+        return downloadURL;
+        
+    } catch (error) {
+        console.error('上傳圖片時出錯:', error);
+        const uploadProgress = document.getElementById('imageUploadProgress');
+        uploadProgress.classList.add('hidden');
+        throw error;
+    }
 }
 
 // 新增所有比價記錄
-function addAllPriceRecords() {
+async function addAllPriceRecords() {
     const productName = document.getElementById('productName').value.trim();
     
     if (!productName) {
@@ -1628,6 +2308,17 @@ function addAllPriceRecords() {
         alert('請輸入正確的商品名稱');
         document.getElementById('productName').focus();
         return;
+    }
+
+    // 上傳圖片（如果有）
+    let productImageUrl = null;
+    if (currentProductImageFile) {
+        try {
+            productImageUrl = await uploadProductImage(currentProductImageFile);
+        } catch (error) {
+            alert('圖片上傳失敗，請稍後再試');
+            return;
+        }
     }
 
     const storeGroups = document.querySelectorAll('.store-group');
@@ -1665,20 +2356,18 @@ function addAllPriceRecords() {
         }
 
         // 所有項目都完整，加入新增列表
-        const finalPrice = totalPrice;
-        // 單價應該用商品價格計算，不是總金額
-        const unitPrice = roundToTwoDecimals(productPrice / quantity);
-
+        const { productUnitPrice } = calculatePrice(totalPrice, quantity, shippingCost);
         const record = {
             id: Date.now() + Math.random(), // 確保唯一ID
             productName,
+            productImageUrl: productImageUrl || null,
             storeUrl,
             productPrice,
             quantity,
             shippingCost,
             couponAmount,
-            finalPrice,
-            unitPrice
+            finalPrice: totalPrice,
+            unitPrice: productUnitPrice
         };
 
         newRecords.push(record);
@@ -1710,10 +2399,13 @@ function addAllPriceRecords() {
     document.getElementById('storesList').innerHTML = '';
     document.getElementById('storesContainer').classList.remove('active');
     storeGroupCounter = 0;
+    resetImageUpload();
 }
 
 // 編輯記錄（使用彈出視窗）
 let currentEditRecordId = null;
+let currentViewProductName = null;
+let currentViewImageUrl = null;
 
 function editRecord(id) {
     const record = priceData.find(r => r.id === id);
@@ -1724,39 +2416,325 @@ function editRecord(id) {
     // 打開編輯彈出視窗
     const modal = document.getElementById('editRecordModal');
     const modalTitle = document.getElementById('editModalTitle');
+    const urlInput = document.getElementById('editStoreUrl');
+    const totalInput = document.getElementById('editTotalPrice');
+    const quantityInput = document.getElementById('editQuantity');
+    const shippingInput = document.getElementById('editShipping');
+    const couponInput = document.getElementById('editCoupon');
+    const urlValidation = document.getElementById('editUrlValidation');
+    const detailsContainer = document.getElementById('editStoreDetails');
+    
     modalTitle.textContent = `編輯【${record.productName}】比價記錄`;
     modal.classList.add('active');
     
-    // 填充表單數據（商品名稱不顯示，因為不應該被修改）
-    document.getElementById('editStoreUrl').value = record.storeUrl || '';
-    
-    // 總金額已含優惠金額，直接使用 finalPrice
+    // 填充表單數據
+    urlInput.value = record.storeUrl || '';
     const finalPrice = record.finalPrice || (record.productPrice + (record.shippingCost || 0));
-    document.getElementById('editTotalPrice').value = formatNumber(finalPrice);
-    document.getElementById('editQuantity').value = record.quantity || 1;
-    
-    // 設置運費和優惠金額
-    document.getElementById('editShipping').value = record.shippingCost != null && record.shippingCost > 0 ? formatNumber(record.shippingCost) : '';
-    document.getElementById('editCoupon').value = record.couponAmount != null && record.couponAmount > 0 ? formatNumber(record.couponAmount) : '';
+    totalInput.value = formatNumber(finalPrice);
+    quantityInput.value = record.quantity || 1;
+    shippingInput.value = record.shippingCost != null && record.shippingCost > 0 ? formatNumber(record.shippingCost) : '';
+    couponInput.value = record.couponAmount != null && record.couponAmount > 0 ? formatNumber(record.couponAmount) : '';
     
     // 重置驗證訊息
-    document.getElementById('editUrlValidation').style.display = 'none';
-    document.getElementById('editStoreUrl').style.borderColor = '';
+    urlValidation.style.display = 'none';
+    urlInput.style.borderColor = '';
+    detailsContainer.classList.remove('hidden');
     
-    // 顯示詳細資料區域（因為是編輯，應該已經有數據）
-    document.getElementById('editStoreDetails').style.display = 'block';
-    
-    // 初始化編輯表單事件
+    // 初始化編輯表單事件並觸發計算
     initEditModalForm();
-    
-    // 觸發計算
     calculateEditModalPrice();
 }
 
 function closeEditRecordModal() {
-    const modal = document.getElementById('editRecordModal');
-    modal.classList.remove('active');
+    document.getElementById('editRecordModal')?.classList.remove('active');
     currentEditRecordId = null;
+}
+
+// 查看商品圖片
+function viewProductImage(imageUrl, productName) {
+    const modal = document.getElementById('imageViewModal');
+    const modalTitle = document.getElementById('imageViewModalTitle');
+    const imageViewImage = document.getElementById('imageViewImage');
+    const imageViewPlaceholder = document.getElementById('imageViewPlaceholder');
+    const imageViewRemoveBtn = document.getElementById('imageViewRemoveBtn');
+    
+    if (!modal || !modalTitle || !imageViewImage) return;
+    
+    // 保存當前查看的商品名稱和圖片URL
+    currentViewProductName = productName;
+    currentViewImageUrl = imageUrl;
+    
+    modalTitle.textContent = '商品圖片';
+    
+    // 根據是否有圖片顯示不同狀態
+    if (imageUrl) {
+        imageViewImage.src = imageUrl;
+        imageViewImage.alt = '商品圖片';
+        imageViewImage.classList.remove('hidden');
+        if (imageViewPlaceholder) imageViewPlaceholder.classList.add('hidden');
+        if (imageViewRemoveBtn) imageViewRemoveBtn.classList.remove('hidden');
+    } else {
+        imageViewImage.classList.add('hidden');
+        if (imageViewPlaceholder) imageViewPlaceholder.classList.remove('hidden');
+        if (imageViewRemoveBtn) imageViewRemoveBtn.classList.add('hidden');
+    }
+    
+    modal.classList.add('active');
+    
+    // 初始化圖片查看彈出視窗功能
+    initImageViewReplace();
+}
+
+// 新增商品圖片（打開圖片查看彈出視窗，顯示為佔位符狀態）
+function addProductImage(productName) {
+    viewProductImage(null, productName);
+}
+
+function closeImageViewModal() {
+    document.getElementById('imageViewModal')?.classList.remove('active');
+    currentViewProductName = null;
+    currentViewImageUrl = null;
+    // 重置文件輸入
+    const fileInput = document.getElementById('imageViewFileInput');
+    if (fileInput) fileInput.value = '';
+}
+
+// 顯示刪除圖片確認彈出視窗
+function showDeleteImageConfirmModal() {
+    const modal = document.getElementById('deleteImageConfirmModal');
+    if (modal) {
+        modal.classList.add('active');
+    }
+}
+
+// 關閉刪除圖片確認彈出視窗
+function closeDeleteImageConfirmModal() {
+    const modal = document.getElementById('deleteImageConfirmModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+// 確認刪除圖片
+async function confirmDeleteImage() {
+    // 刪除該商品所有記錄的圖片
+    if (currentViewProductName && priceData) {
+        priceData.forEach(record => {
+            if (record.productName === currentViewProductName) {
+                record.productImageUrl = null;
+            }
+        });
+        
+        // 保存數據
+        await saveData();
+        
+        // 更新顯示為佔位符狀態
+        const imageViewImage = document.getElementById('imageViewImage');
+        const imageViewPlaceholder = document.getElementById('imageViewPlaceholder');
+        const imageViewRemoveBtn = document.getElementById('imageViewRemoveBtn');
+        
+        if (imageViewImage) imageViewImage.classList.add('hidden');
+        if (imageViewPlaceholder) imageViewPlaceholder.classList.remove('hidden');
+        if (imageViewRemoveBtn) imageViewRemoveBtn.classList.add('hidden');
+        currentViewImageUrl = null;
+        
+        // 重新渲染列表
+        renderComparisonList();
+        
+        // 關閉確認彈出視窗
+        closeDeleteImageConfirmModal();
+    }
+}
+
+// 初始化圖片查看彈出視窗的替換功能
+function initImageViewReplace() {
+    const fileInput = document.getElementById('imageViewFileInput');
+    if (!fileInput) return;
+    
+    const imageViewImage = document.getElementById('imageViewImage');
+    const imageViewPlaceholder = document.getElementById('imageViewPlaceholder');
+    const imageViewRemoveBtn = document.getElementById('imageViewRemoveBtn');
+    
+    // 處理文件選擇
+    fileInput.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        await handleImageViewFile(file);
+    };
+    
+    // 點擊圖片或佔位符選擇文件
+    if (imageViewImage) {
+        imageViewImage.onclick = () => fileInput.click();
+    }
+    if (imageViewPlaceholder) {
+        imageViewPlaceholder.onclick = () => fileInput.click();
+    }
+    
+    // 刪除圖片
+    if (imageViewRemoveBtn) {
+        imageViewRemoveBtn.onclick = (e) => {
+            e.stopPropagation();
+            showDeleteImageConfirmModal();
+        };
+    }
+    
+    // 複製貼上圖片功能
+    if (!window.imageViewPasteHandler) {
+        window.imageViewPasteHandler = (e) => {
+            const modal = document.getElementById('imageViewModal');
+            if (!modal || !modal.classList.contains('active')) return;
+            
+            // 如果焦點在輸入框或文字區域，不處理圖片貼上
+            const activeElement = document.activeElement;
+            if (activeElement && (
+                activeElement.tagName === 'INPUT' || 
+                activeElement.tagName === 'TEXTAREA' ||
+                activeElement.isContentEditable
+            )) {
+                if (activeElement.type !== 'file') {
+                    return;
+                }
+            }
+            
+            const items = e.clipboardData?.items;
+            if (!items || items.length === 0) return;
+            
+            // 檢查是否有圖片
+            let hasImage = false;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    hasImage = true;
+                    break;
+                }
+            }
+            
+            if (!hasImage) return;
+            
+            // 遍歷剪貼板項目
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    
+                    const blob = item.getAsFile();
+                    const timestamp = Date.now();
+                    const fileName = `pasted-image-${timestamp}.png`;
+                    const file = new File([blob], fileName, { type: blob.type || 'image/png' });
+                    
+                    handleImageViewFile(file);
+                    break;
+                }
+            }
+        };
+        
+        document.addEventListener('paste', window.imageViewPasteHandler);
+    }
+}
+
+// 處理圖片查看彈出視窗的文件
+async function handleImageViewFile(file) {
+    // 檢查是否為圖片文件
+    if (!file.type.startsWith('image/')) {
+        alert('請選擇圖片文件');
+        return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+        alert('圖片大小不能超過 5MB');
+        return;
+    }
+    
+    try {
+        // 上傳圖片
+        const newImageUrl = await uploadProductImageToView(file);
+        
+        // 更新該商品所有記錄的圖片URL
+        if (currentViewProductName && priceData) {
+            priceData.forEach(record => {
+                if (record.productName === currentViewProductName) {
+                    record.productImageUrl = newImageUrl;
+                }
+            });
+            
+            // 保存數據
+            await saveData();
+            
+            // 更新顯示
+            const imageViewImage = document.getElementById('imageViewImage');
+            const imageViewPlaceholder = document.getElementById('imageViewPlaceholder');
+            const imageViewRemoveBtn = document.getElementById('imageViewRemoveBtn');
+            
+            if (imageViewImage) {
+                imageViewImage.src = newImageUrl;
+                imageViewImage.classList.remove('hidden');
+            }
+            if (imageViewPlaceholder) imageViewPlaceholder.classList.add('hidden');
+            if (imageViewRemoveBtn) imageViewRemoveBtn.classList.remove('hidden');
+            currentViewImageUrl = newImageUrl;
+            
+            // 重新渲染列表
+            renderComparisonList();
+        }
+    } catch (error) {
+        console.error('上傳圖片失敗:', error);
+        alert('圖片上傳失敗，請稍後再試');
+    }
+}
+
+// 上傳圖片到Firebase Storage（用於圖片查看彈出視窗）
+async function uploadProductImageToView(file) {
+    if (!storage || !file) return null;
+    
+    try {
+        const uploadProgress = document.getElementById('imageViewUploadProgress');
+        const progressFill = document.getElementById('imageViewProgressFill');
+        const progressText = document.getElementById('imageViewProgressText');
+        
+        // 顯示上傳進度
+        if (uploadProgress) {
+            uploadProgress.classList.remove('hidden');
+            if (progressFill) progressFill.style.width = '0%';
+            if (progressText) progressText.textContent = '上傳中...';
+        }
+        
+        // 生成唯一文件名
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 15);
+        const fileExt = file.name.split('.').pop();
+        const fileName = `product-images/${timestamp}_${randomStr}.${fileExt}`;
+        
+        // 上傳文件
+        const storageRef = storage.ref().child(fileName);
+        const uploadTask = storageRef.put(file);
+        
+        // 監聽上傳進度
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                if (progressFill) progressFill.style.width = progress + '%';
+                if (progressText) progressText.textContent = `上傳中... ${Math.round(progress)}%`;
+            },
+            (error) => {
+                console.error('圖片上傳失敗:', error);
+                if (uploadProgress) uploadProgress.classList.add('hidden');
+                alert('圖片上傳失敗，請稍後再試');
+            }
+        );
+        
+        // 等待上傳完成
+        await uploadTask;
+        
+        // 獲取並返回下載 URL
+        const downloadURL = await storageRef.getDownloadURL();
+        if (uploadProgress) uploadProgress.classList.add('hidden');
+        return downloadURL;
+        
+    } catch (error) {
+        console.error('上傳圖片時出錯:', error);
+        const uploadProgress = document.getElementById('imageViewUploadProgress');
+        if (uploadProgress) uploadProgress.classList.add('hidden');
+        throw error;
+    }
 }
 
 function initEditModalForm() {
@@ -1775,67 +2753,36 @@ function initEditModalForm() {
     const detailsContainer = document.getElementById('editStoreDetails');
     
     // 移除舊的事件監聽器（通過重新綁定來實現）
-    const newUrlInput = urlInput.cloneNode(true);
-    urlInput.parentNode.replaceChild(newUrlInput, urlInput);
-    const newUrlInput2 = document.getElementById('editStoreUrl');
+    const clonedInputs = cloneInputElements(['editStoreUrl', 'editTotalPrice', 'editQuantity', 'editShipping', 'editCoupon']);
+    const newUrlInput = clonedInputs['editStoreUrl'];
+    const newTotalInput = clonedInputs['editTotalPrice'];
+    const newQuantityInput = clonedInputs['editQuantity'];
+    const newShippingInput = clonedInputs['editShipping'];
+    const newCouponInput = clonedInputs['editCoupon'];
     
     const validateEditUrl = () => {
-        const url = newUrlInput2.value.trim();
-        if (!url) {
-            urlValidationMessage.style.display = 'none';
-            newUrlInput2.style.borderColor = '';
-            return;
-        }
-        
-        const urlValidation = validateUrl(url);
-        if (!urlValidation.valid) {
-            urlValidationMessage.textContent = urlValidation.message;
-            urlValidationMessage.style.display = 'block';
-            newUrlInput2.style.borderColor = '#ef5350';
-            return;
-        }
-        
-        urlValidationMessage.style.display = 'none';
-        newUrlInput2.style.borderColor = '';
-        detailsContainer.style.display = 'block';
+        validateAndShowUrl(newUrlInput, urlValidationMessage, detailsContainer, currentEditRecordId);
     };
     
-    newUrlInput2.addEventListener('input', () => {
+    newUrlInput.addEventListener('input', () => {
         setTimeout(validateEditUrl, 300);
     });
     
-    newUrlInput2.addEventListener('blur', validateEditUrl);
+    newUrlInput.addEventListener('blur', validateEditUrl);
     
-    [totalInput, shippingInput, couponInput].forEach(input => {
-        input.addEventListener('blur', (e) => {
-            const value = parseFloat(e.target.value);
-            if (!isNaN(value)) {
-                e.target.value = formatNumber(value);
-            }
-            calculateEditModalPrice();
-        });
-        input.addEventListener('input', calculateEditModalPrice);
-    });
-    
-    quantityInput.addEventListener('input', calculateEditModalPrice);
+    bindNumberInputEvents([newTotalInput, newShippingInput, newCouponInput], calculateEditModalPrice);
+    newQuantityInput.addEventListener('input', calculateEditModalPrice);
 }
 
 function calculateEditModalPrice() {
     const totalPrice = parseFloat(document.getElementById('editTotalPrice')?.value) || 0;
     const quantity = parseInt(document.getElementById('editQuantity')?.value) || 1;
     const shippingCost = roundToTwoDecimals(parseFloat(document.getElementById('editShipping')?.value) || 0);
-    const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
-    const productUnitPrice = quantity > 0 ? roundToTwoDecimals(productPrice / quantity) : 0;
+    const { productPrice, productUnitPrice } = calculatePrice(totalPrice, quantity, shippingCost);
     
     const calculatedTotalEl = document.getElementById('editCalculatedTotal');
     const calculatedPriceEl = document.getElementById('editCalculatedPrice');
-    
-    if (calculatedTotalEl) {
-        calculatedTotalEl.textContent = productPrice > 0 ? formatPriceDisplay(productPrice) : '-';
-    }
-    if (calculatedPriceEl) {
-        calculatedPriceEl.textContent = (productPrice > 0 && quantity > 0) ? formatPriceDisplay(productUnitPrice) : '-';
-    }
+    updatePriceDisplay(calculatedTotalEl, calculatedPriceEl, productPrice, productUnitPrice, quantity);
 }
 
 // 刪除記錄
@@ -1847,35 +2794,35 @@ function deleteRecord(id) {
 
 // 移除商品組（移除該商品名稱下的所有記錄）
 function removeProductGroup(productName) {
-    if (confirm(`確定要移除「${productName}」的所有比價記錄嗎？此操作無法復原。`)) {
-        priceData = priceData.filter(r => r.productName !== productName);
-        saveData();
-        renderComparisonList();
-    }
+    if (!confirm(`確定要移除「${productName}」的所有比價記錄嗎？此操作無法復原。`)) return;
+    priceData = priceData.filter(r => r.productName !== productName);
+    saveData();
+    renderComparisonList();
 }
 
 const toggleStoreDetails = (id) => {
     const details = document.getElementById(`details-${id}`);
     const arrow = document.getElementById(`arrow-${id}`);
-    if (details && arrow) {
-        details.classList.toggle('expanded');
-        arrow.classList.toggle('expanded');
-    }
+    if (!details || !arrow) return;
+    details.classList.toggle('expanded');
+    arrow.classList.toggle('expanded');
 };
 
 // 渲染比價列表
 function renderComparisonList() {
     const comparisonList = document.getElementById('comparisonList');
     const emptyState = document.getElementById('emptyState');
+    const searchInput = document.getElementById('searchInput');
+    const searchKeyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
     if (priceData.length === 0) {
-        comparisonList.style.display = 'none';
+        comparisonList.classList.add('hidden');
         emptyState.style.display = 'block';
         return;
     }
 
     emptyState.style.display = 'none';
-    comparisonList.style.display = 'flex';
+    comparisonList.classList.remove('hidden');
 
     // 按商品名稱分組（不修改原始數據）
     const groupedData = {};
@@ -1887,8 +2834,28 @@ function renderComparisonList() {
         groupedData[productName].push(record);
     });
 
+    // 根據搜尋關鍵字過濾商品
+    let filteredProductNames = Object.keys(groupedData);
+    if (searchKeyword) {
+        filteredProductNames = filteredProductNames.filter(productName => {
+            return productName.toLowerCase().includes(searchKeyword);
+        });
+    }
+
+    // 如果搜尋後沒有結果，顯示空狀態
+    if (filteredProductNames.length === 0) {
+        comparisonList.classList.add('hidden');
+        const safeSearchKeyword = searchKeyword.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        emptyState.innerHTML = `
+            <p>🔍 未找到符合「${safeSearchKeyword}」的商品</p>
+            <p class="hint">請嘗試其他關鍵字</p>
+        `;
+        emptyState.style.display = 'block';
+        return;
+    }
+
     // 生成HTML
-    comparisonList.innerHTML = Object.keys(groupedData).map(productName => {
+    comparisonList.innerHTML = filteredProductNames.map(productName => {
         // 創建副本進行排序，不修改原始數據
         const allRecords = [...groupedData[productName]];
         
@@ -1899,8 +2866,8 @@ function renderComparisonList() {
         }).sort((a, b) => a.calculatedUnitPrice - b.calculatedUnitPrice);
         const minUnitPrice = recordsByUnitPrice[0]?.calculatedUnitPrice;
         const bestUnitPriceRecordIds = new Set();
-        recordsByUnitPrice.forEach((record, index) => {
-            if (record.calculatedUnitPrice === minUnitPrice && index === 0) {
+        recordsByUnitPrice.forEach((record) => {
+            if (record.calculatedUnitPrice === minUnitPrice) {
                 bestUnitPriceRecordIds.add(record.id);
             }
         });
@@ -1909,8 +2876,8 @@ function renderComparisonList() {
         const recordsByTotalPrice = [...allRecords].sort((a, b) => a.finalPrice - b.finalPrice);
         const minTotalPrice = recordsByTotalPrice[0]?.finalPrice;
         const bestTotalPriceRecordIds = new Set();
-        recordsByTotalPrice.forEach((record, index) => {
-            if (record.finalPrice === minTotalPrice && index === 0) {
+        recordsByTotalPrice.forEach((record) => {
+            if (record.finalPrice === minTotalPrice) {
                 bestTotalPriceRecordIds.add(record.id);
             }
         });
@@ -1918,13 +2885,37 @@ function renderComparisonList() {
         // 按單價排序用於顯示
         const records = recordsByUnitPrice;
         
+        // 獲取商品圖片（從該商品的所有記錄中尋找有圖片的記錄）
+        const recordWithImage = allRecords.find(r => r.productImageUrl);
+        const productImageUrl = recordWithImage ? recordWithImage.productImageUrl : null;
+        const hasImage = productImageUrl !== null;
+        
+        // 處理特殊字符，防止破壞 HTML 屬性
+        // 轉義順序：反斜線 -> 引號 -> HTML實體
+        const escapeForJs = (str) => str.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+        const escapeForHtml = (str) => str.replace(/"/g, "&quot;");
+        
+        const safeImageUrl = hasImage ? escapeForHtml(escapeForJs(productImageUrl)) : '';
+        const safeProductName = escapeForHtml(escapeForJs(productName));
+        
+        const imageClickHandler = hasImage ? `onclick="viewProductImage('${safeImageUrl}', '${safeProductName}')"` : `onclick="addProductImage('${safeProductName}')"`;
+        const nameClass = hasImage ? 'product-group-name has-image' : 'product-group-name no-image';
+        const titleAttr = hasImage ? `title="點擊查看圖片"` : `title="點擊新增圖片"`;
+        
         return `
             <div class="product-group">
                 <div class="product-group-header">
-                    <h3 class="product-group-name">${productName}</h3>
+                    <div class="product-name-wrapper">
+                        <h3 class="${nameClass}" ${imageClickHandler} ${titleAttr}>${productName}</h3>
+                        ${hasImage ? `
+                        <div class="hover-thumbnail">
+                            <img src="${safeImageUrl}" alt="${safeProductName}">
+                        </div>
+                        ` : ''}
+                    </div>
                     <div class="btn-group">
-                        <button class="btn btn-circle btn-add-store-to-product" onclick="openAddStoreModal('${productName.replace(/'/g, "\\'")}')">+</button>
-                        <button class="btn btn-circle btn-remove-product" onclick="removeProductGroup('${productName.replace(/'/g, "\\'")}')">-</button>
+                        <button class="btn btn-circle btn-add-store-to-product" onclick="openAddStoreModal('${safeProductName}')">+</button>
+                        <button class="btn btn-circle btn-remove-product" onclick="removeProductGroup('${safeProductName}')">-</button>
                     </div>
                 </div>
                 <div class="product-stores-list">
@@ -2019,23 +3010,27 @@ function openAddStoreModal(productName) {
     currentModalProductName = productName;
     const modal = document.getElementById('addStoreModal');
     const modalTitle = document.getElementById('modalProductName');
+    const form = document.getElementById('addStoreModalForm');
+    const detailsContainer = document.getElementById('modalStoreDetails');
+    const urlValidation = document.getElementById('modalUrlValidation');
+    const calculatedPrice = document.getElementById('modalCalculatedPrice');
+    const calculatedTotal = document.getElementById('modalCalculatedTotal');
+    
     modalTitle.textContent = `新增【${productName}】比價商家`;
     modal.classList.add('active');
     
     // 重置表單
-    document.getElementById('addStoreModalForm').reset();
-    document.getElementById('modalStoreDetails').style.display = 'none';
-    document.getElementById('modalUrlValidation').style.display = 'none';
-    document.getElementById('modalCalculatedPrice').textContent = '-';
-    document.getElementById('modalCalculatedTotal').textContent = '-';
+    form.reset();
+    detailsContainer.classList.add('hidden');
+    urlValidation.style.display = 'none';
+    calculatedPrice.textContent = '-';
+    calculatedTotal.textContent = '-';
     
-    // 綁定事件
     initModalForm();
 }
 
 function closeAddStoreModal() {
-    const modal = document.getElementById('addStoreModal');
-    modal.classList.remove('active');
+    document.getElementById('addStoreModal')?.classList.remove('active');
     currentModalProductName = '';
 }
 
@@ -2057,76 +3052,33 @@ function initModalForm() {
     const calculatedTotalEl = document.getElementById('modalCalculatedTotal');
     
     // 移除舊的事件監聽器（通過重新綁定來實現）
-    const newUrlInput = urlInput.cloneNode(true);
-    urlInput.parentNode.replaceChild(newUrlInput, urlInput);
-    const newUrlInput2 = document.getElementById('modalStoreUrl');
+    const clonedInputs = cloneInputElements(['modalStoreUrl', 'modalTotalPrice', 'modalQuantity', 'modalShipping', 'modalCoupon']);
+    const newUrlInput = clonedInputs['modalStoreUrl'];
+    const newTotalInput = clonedInputs['modalTotalPrice'];
+    const newQuantityInput = clonedInputs['modalQuantity'];
+    const newShippingInput = clonedInputs['modalShipping'];
+    const newCouponInput = clonedInputs['modalCoupon'];
     
     const calculateModalPrice = () => {
-        const totalPrice = parseFloat(totalInput?.value) || 0;
-        const quantity = parseInt(quantityInput?.value) || 1;
-        const shippingCost = roundToTwoDecimals(parseFloat(shippingInput?.value) || 0);
-        const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
-        const productUnitPrice = quantity > 0 ? roundToTwoDecimals(productPrice / quantity) : 0;
-        
-        if (calculatedTotalEl) {
-            calculatedTotalEl.textContent = productPrice > 0 ? formatPriceDisplay(productPrice) : '-';
-        }
-        if (calculatedPriceEl) {
-            calculatedPriceEl.textContent = (productPrice > 0 && quantity > 0) ? formatPriceDisplay(productUnitPrice) : '-';
-        }
+        const totalPrice = parseFloat(newTotalInput?.value) || 0;
+        const quantity = parseInt(newQuantityInput?.value) || 1;
+        const shippingCost = roundToTwoDecimals(parseFloat(newShippingInput?.value) || 0);
+        const { productPrice, productUnitPrice } = calculatePrice(totalPrice, quantity, shippingCost);
+        updatePriceDisplay(calculatedTotalEl, calculatedPriceEl, productPrice, productUnitPrice, quantity);
     };
     
     const validateModalUrl = () => {
-        const url = newUrlInput2.value.trim();
-        if (!url) {
-            urlValidationMessage.style.display = 'none';
-            newUrlInput2.style.borderColor = '';
-            detailsContainer.style.display = 'none';
-            return;
-        }
-        
-        const urlValidation = validateUrl(url);
-        if (!urlValidation.valid) {
-            urlValidationMessage.textContent = urlValidation.message;
-            urlValidationMessage.style.display = 'block';
-            newUrlInput2.style.borderColor = '#ef5350';
-            detailsContainer.style.display = 'none';
-            return;
-        }
-        
-        // 檢查重複連結
-        const duplicateCheck = checkDuplicateUrl(url, currentModalProductName);
-        if (duplicateCheck.isDuplicate) {
-            urlValidationMessage.textContent = duplicateCheck.message;
-            urlValidationMessage.style.display = 'block';
-            newUrlInput2.style.borderColor = '#ef5350';
-            detailsContainer.style.display = 'none';
-            return;
-        }
-        
-        urlValidationMessage.style.display = 'none';
-        newUrlInput2.style.borderColor = '';
-        detailsContainer.style.display = 'block';
+        validateAndShowUrl(newUrlInput, urlValidationMessage, detailsContainer);
     };
     
-    newUrlInput2.addEventListener('input', () => {
+    newUrlInput.addEventListener('input', () => {
         setTimeout(validateModalUrl, 300);
     });
     
-    newUrlInput2.addEventListener('blur', validateModalUrl);
+    newUrlInput.addEventListener('blur', validateModalUrl);
     
-    [totalInput, shippingInput, couponInput].forEach(input => {
-        input.addEventListener('blur', (e) => {
-            const value = parseFloat(e.target.value);
-            if (!isNaN(value)) {
-                e.target.value = formatNumber(value);
-            }
-            calculateModalPrice();
-        });
-        input.addEventListener('input', calculateModalPrice);
-    });
-    
-    quantityInput.addEventListener('input', calculateModalPrice);
+    bindNumberInputEvents([newTotalInput, newShippingInput, newCouponInput], calculateModalPrice);
+    newQuantityInput.addEventListener('input', calculateModalPrice);
 }
 
 // 為所有輸入框添加 Delete 鍵清空功能
@@ -2163,39 +3115,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 設置輸入框 Delete 鍵行為
     setupInputDeleteBehavior();
     
+    // 搜尋功能（即時搜尋）
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            // 即時搜尋，每次輸入立即觸發
+            renderComparisonList();
+        });
+        
+        // 清除搜尋框時也重新渲染
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                renderComparisonList();
+                searchInput.blur();
+            }
+        });
+    }
+    
     // 提交新增店家表單
     const addStoreModalForm = document.getElementById('addStoreModalForm');
     if (addStoreModalForm) {
         addStoreModalForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const storeUrl = document.getElementById('modalStoreUrl').value.trim();
-            const totalPrice = roundToTwoDecimals(parseFloat(document.getElementById('modalTotalPrice').value));
-            const quantity = parseInt(document.getElementById('modalQuantity').value || 1);
-            const shippingCost = roundToTwoDecimals(parseFloat(document.getElementById('modalShipping').value) || 0);
-            const couponAmount = roundToTwoDecimals(parseFloat(document.getElementById('modalCoupon').value) || 0);
+            const formData = getFormPriceData('modalStoreUrl', 'modalTotalPrice', 'modalQuantity', 'modalShipping', 'modalCoupon');
+            const validation = validatePriceFormData(formData);
             
-            if (!storeUrl || isNaN(totalPrice) || totalPrice <= 0 || quantity < 1) {
-                alert('請填寫完整的店家資訊（商家連結、總金額、數量）');
+            if (!validation.valid) {
+                alert(validation.message);
                 return;
             }
             
-            const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
-            const unitPrice = roundToTwoDecimals(productPrice / quantity);
-            const finalPrice = totalPrice;
-            
-            const newRecord = {
-                id: Date.now() + Math.random(),
-                productName: currentModalProductName,
-                storeUrl,
-                productPrice,
-                quantity,
-                shippingCost,
-                couponAmount,
-                finalPrice,
-                unitPrice
-            };
-            
+            const newRecord = createPriceRecord(currentModalProductName, formData, null, findProductImageUrl(currentModalProductName));
             priceData.push(newRecord);
             saveData();
             renderComparisonList();
@@ -2203,15 +3155,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
-    // 點擊彈出視窗外部關閉
-    const addStoreModal = document.getElementById('addStoreModal');
-    if (addStoreModal) {
-        addStoreModal.addEventListener('click', (e) => {
-            if (e.target === addStoreModal) {
-                closeAddStoreModal();
-            }
-        });
-    }
+    setupModalOutsideClick('addStoreModal', closeAddStoreModal);
     
     // 提交編輯記錄表單
     const editRecordModalForm = document.getElementById('editRecordModalForm');
@@ -2221,57 +3165,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             if (!currentEditRecordId) return;
             
-            // 獲取原始記錄的商品名稱（不可修改）
             const recordIndex = priceData.findIndex(r => r.id === currentEditRecordId);
             if (recordIndex === -1) return;
+            
+            const productName = priceData[recordIndex].productName;
             const originalRecord = priceData[recordIndex];
-            const productName = originalRecord.productName; // 使用原始商品名稱
+            const formData = getFormPriceData('editStoreUrl', 'editTotalPrice', 'editQuantity', 'editShipping', 'editCoupon');
+            const validation = validatePriceFormData(formData);
             
-            const storeUrl = document.getElementById('editStoreUrl').value.trim();
-            const totalPrice = roundToTwoDecimals(parseFloat(document.getElementById('editTotalPrice').value));
-            const quantity = parseInt(document.getElementById('editQuantity').value || 1);
-            const shippingCost = roundToTwoDecimals(parseFloat(document.getElementById('editShipping').value) || 0);
-            const couponAmount = roundToTwoDecimals(parseFloat(document.getElementById('editCoupon').value) || 0);
-            
-            if (!storeUrl || isNaN(totalPrice) || totalPrice <= 0 || quantity < 1) {
-                alert('請填寫完整的店家資訊（商家連結、總金額、數量）');
+            if (!validation.valid) {
+                alert(validation.message);
                 return;
             }
             
-            const productPrice = roundToTwoDecimals(totalPrice - shippingCost);
-            const unitPrice = roundToTwoDecimals(productPrice / quantity);
-            const finalPrice = totalPrice;
-            
-            if (recordIndex !== -1) {
-                priceData[recordIndex] = {
-                    id: currentEditRecordId,
-                    productName,
-                    storeUrl,
-                    productPrice,
-                    quantity,
-                    shippingCost,
-                    couponAmount,
-                    finalPrice,
-                    unitPrice
-                };
-                
-                saveData();
-                renderComparisonList();
-                closeEditRecordModal();
-            }
+            priceData[recordIndex] = createPriceRecord(productName, formData, currentEditRecordId, findProductImageUrl(productName, originalRecord));
+            saveData();
+            renderComparisonList();
+            closeEditRecordModal();
         });
     }
     
-    // 點擊編輯彈出視窗外部關閉
-    const editRecordModal = document.getElementById('editRecordModal');
-    if (editRecordModal) {
-        editRecordModal.addEventListener('click', (e) => {
-            if (e.target === editRecordModal) {
-                closeEditRecordModal();
-            }
-        });
+    setupModalOutsideClick('editRecordModal', closeEditRecordModal);
+    setupModalOutsideClick('imageViewModal', closeImageViewModal);
+    setupModalOutsideClick('deleteImageConfirmModal', closeDeleteImageConfirmModal);
+    
+    // 綁定確認刪除按鈕
+    const confirmDeleteImageBtn = document.getElementById('confirmDeleteImageBtn');
+    if (confirmDeleteImageBtn) {
+        confirmDeleteImageBtn.addEventListener('click', confirmDeleteImage);
     }
 });
     </script>
 </body>
 </html>
+
