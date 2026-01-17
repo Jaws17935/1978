@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://images.unsplash.com">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" crossorigin>
     <style>
         :root {
             --primary: #00a8ff;
@@ -28,9 +28,7 @@
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         @keyframes neonGlow {
             0%, 100% { text-shadow: 0 0 5px var(--primary); }
@@ -105,14 +103,14 @@
             cursor: pointer;
         }
 
-        .service-card.locked {
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(15, 15, 15, 0.6) 100%);
-        }
-
-        .service-card.locked:hover {
+        .service-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-hover);
             border-color: var(--secondary);
+        }
+
+        .service-card.locked {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(15, 15, 15, 0.6) 100%);
         }
 
         .service-card.locked::before {
@@ -147,12 +145,6 @@
         .service-card.locked:hover .service-title {
             filter: none;
             transform: scale(1.05);
-        }
-
-        .service-card:not(.locked):hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-            border-color: var(--secondary);
         }
 
         .service-icon {
@@ -213,9 +205,7 @@
             align-items: center;
         }
 
-        .password-modal.active {
-            display: flex;
-        }
+        .password-modal.active { display: flex; }
 
         .password-box {
             background: var(--bg-card);
@@ -239,14 +229,8 @@
             font-family: 'Orbitron', sans-serif;
         }
 
-        .password-input::placeholder {
-            color: transparent;
-        }
-
-        .password-input:focus {
-            outline: none;
-            box-shadow: var(--shadow-text);
-        }
+        .password-input::placeholder { color: transparent; }
+        .password-input:focus { outline: none; box-shadow: var(--shadow-text); }
 
         @media (max-width: 1024px) {
             .card-grid { grid-template-columns: repeat(2, minmax(250px, 300px)); gap: 1.5rem; }
@@ -274,27 +258,25 @@
 
             checkPassword(url) {
                 const handleEscape = e => e.key === 'Escape' && this.closeModal(modal, handleEscape);
-                const modal = document.createElement('div');
-                modal.className = 'password-modal active';
-                modal.onclick = e => e.target === modal && this.closeModal(modal, handleEscape);
+                const modal = Object.assign(document.createElement('div'), {
+                    className: 'password-modal active',
+                    onclick: e => e.target === modal && this.closeModal(modal, handleEscape)
+                });
 
-                const input = document.createElement('input');
-                input.type = 'password';
-                input.className = 'password-input';
-                input.maxLength = this.PASSWORD.length;
-                input.oninput = () => {
-                    if (input.value.length === this.PASSWORD.length) {
-                        if (input.value === this.PASSWORD) {
-                            document.removeEventListener('keydown', handleEscape);
-                            window.location.href = url;
-                        } else {
-                            this.closeModal(modal, handleEscape);
+                const input = Object.assign(document.createElement('input'), {
+                    type: 'password',
+                    className: 'password-input',
+                    maxLength: this.PASSWORD.length,
+                    oninput: () => {
+                        if (input.value.length === this.PASSWORD.length) {
+                            input.value === this.PASSWORD 
+                                ? (document.removeEventListener('keydown', handleEscape), window.location.href = url)
+                                : this.closeModal(modal, handleEscape);
                         }
                     }
-                };
+                });
 
-                const box = document.createElement('div');
-                box.className = 'password-box';
+                const box = Object.assign(document.createElement('div'), { className: 'password-box' });
                 box.appendChild(input);
                 modal.appendChild(box);
                 document.body.appendChild(modal);
@@ -310,17 +292,15 @@
             },
 
             updateDateTime() {
-                if (!this.dateEl) this.dateEl = document.getElementById('date');
-                if (!this.timeEl) this.timeEl = document.getElementById('time');
+                this.dateEl ??= document.getElementById('date');
+                this.timeEl ??= document.getElementById('time');
                 if (!this.dateEl || !this.timeEl) return;
 
                 const now = new Date();
-                this.dateEl.textContent = now.toLocaleDateString('zh-TW', { 
-                    year: 'numeric', month: 'long', day: 'numeric' 
-                });
-                this.timeEl.textContent = now.toLocaleTimeString('zh-TW', { 
-                    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
-                });
+                const dateOpt = { year: 'numeric', month: 'long', day: 'numeric' };
+                const timeOpt = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                this.dateEl.textContent = now.toLocaleDateString('zh-TW', dateOpt);
+                this.timeEl.textContent = now.toLocaleTimeString('zh-TW', timeOpt);
             },
 
             init() {
@@ -333,30 +313,24 @@
                         if (url) {
                             card.classList.contains('locked') 
                                 ? this.checkPassword(url) 
-                                : window.location.href = url;
+                                : (window.location.href = url);
                         }
                     });
                 });
             }
         };
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => App.init());
-        } else {
-            App.init();
-        }
+        (document.readyState === 'loading' 
+            ? document.addEventListener('DOMContentLoaded', () => App.init())
+            : App.init());
     </script>
 </head>
 <body>
     <div class="container">
         <div class="card-grid">
             <div class="info-box">
-                <div class="info-item">
-                    <div class="info-value" id="date"></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-value" id="time"></div>
-                </div>
+                <div class="info-item"><div class="info-value" id="date"></div></div>
+                <div class="info-item"><div class="info-value" id="time"></div></div>
                 <div class="info-item temperature-row">
                     <div class="info-value">☀️ 25°C</div>
                     <div class="info-value">🌡️ 27°C</div>
