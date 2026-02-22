@@ -1,0 +1,10 @@
+# API 金鑰與敏感設定（勿提交到版本庫）
+API KEY/config.js
+
+# 常見開發/系統檔
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.local
+*.local
