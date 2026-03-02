@@ -49,9 +49,12 @@
         .password-input-wrap{position:relative;width:100%}
         .password-input{background:rgba(0,0,0,.3);border:2px solid var(--primary);border-radius:4px;padding:.6rem .8rem;color:transparent;font-size:1.1rem;width:100%;text-align:center;font-family:inherit;letter-spacing:.2em;caret-color:transparent}
         .password-input::placeholder{color:transparent}
+        .password-input.is-error::placeholder{color:#ff6b6b}
         .password-input:focus{outline:none;box-shadow:var(--shadow-text)}
         .password-caret{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
         .password-caret::after{content:'';width:2px;height:1.1em;background:var(--text);animation:caretBlink 1s step-end infinite}
+        .password-msg{text-align:center;font-size:.9rem;margin-top:.5rem;min-height:1.2em}
+        .password-countdown{text-align:center;font-size:1rem;margin-top:.5rem;color:var(--primary)}
     </style>
     <noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=block" rel="stylesheet"></noscript>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.4/lunar.min.js"></script>
@@ -64,6 +67,7 @@
             const $=id=>document.getElementById(id);
             const els={};
             let lastDateKey='';
+            let pwdWrongCount=0, pwdLockUntil=0;
 
             function closeModal(modal,onEsc){
                 if(onEsc) document.removeEventListener('keydown',onEsc);
@@ -106,19 +110,35 @@
                 const onEsc=e=>e.key==='Escape'&&(document.removeEventListener('keydown',onEsc),closeModal(modal,onEsc));
                 const box=document.createElement('div');
                 box.className='password-box';
+                const cd=s=>'剩餘 '+Math.floor(s/60)+' 分 '+(s%60)+' 秒';
+                const now=Date.now();
+                if(now<pwdLockUntil){
+                    const remain=Math.ceil((pwdLockUntil-now)/1e3);
+                    box.innerHTML='<div class="password-msg">錯誤次數過多，麻煩稍後再試</div><div class="password-countdown">'+cd(remain)+'</div>';
+                    const countEl=box.querySelector('.password-countdown');
+                    const tick=setInterval(()=>{
+                        const r=Math.ceil((pwdLockUntil-Date.now())/1e3);
+                        if(r<=0){ clearInterval(tick); closeModal(modal,onEsc); return; }
+                        if(countEl) countEl.textContent=cd(r);
+                    },1e3);
+                    modal.append(box); document.body.append(modal); document.addEventListener('keydown',onEsc);
+                    return;
+                }
                 box.innerHTML='<div class="password-input-wrap"><input type="password" class="password-input" placeholder="密碼" maxlength="20" autocomplete="off"><div class="password-caret"></div></div>';
                 const inp=box.querySelector('input');
                 inp.oninput=async function(){
+                    if(inp.classList.contains('is-error')){ inp.classList.remove('is-error'); inp.placeholder='密碼'; }
                     const raw=inp.value.trim();
-                    if(!raw) return;
-                    if((await sha256Hex(raw))!==PWD_HASH) return;
-                    document.removeEventListener('keydown',onEsc);
-                    window.location.href=url;
+                    if(raw.length<4||raw.length%4!==0) return;
+                    if((await sha256Hex(raw))!==PWD_HASH){
+                        pwdWrongCount++;
+                        inp.value=''; inp.placeholder=pwdWrongCount>=3?'密碼錯誤，已鎖定 5 分鐘':'密碼錯誤'; inp.classList.add('is-error');
+                        if(pwdWrongCount>=3){ pwdLockUntil=Date.now()+3e5; inp.disabled=true; document.removeEventListener('keydown',onEsc); setTimeout(()=>closeModal(modal,onEsc),400); }
+                        return;
+                    }
+                    pwdWrongCount=0; document.removeEventListener('keydown',onEsc); window.location.href=url;
                 };
-                modal.append(box);
-                document.body.append(modal);
-                document.addEventListener('keydown',onEsc);
-                inp.focus();
+                modal.append(box); document.body.append(modal); document.addEventListener('keydown',onEsc); inp.focus();
             }
 
             function getLunarString(y,m,d){
