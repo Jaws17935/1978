@@ -63,6 +63,8 @@
         .password-input{background:rgba(0,0,0,.3);border:2px solid var(--primary);border-radius:4px;padding:.6rem .8rem;color:var(--text);font-size:1.1rem;width:100%;text-align:center;font-family:'Orbitron',sans-serif}
         .password-input::placeholder{color:transparent}
         .password-input:focus{outline:none;box-shadow:var(--shadow-text)}
+        .password-btn{margin-top:.6rem;padding:.4rem .8rem;background:var(--primary);border:1px solid var(--secondary);border-radius:4px;color:var(--text);font-family:'Orbitron',sans-serif;cursor:pointer;width:100%}
+        .password-btn:hover{box-shadow:var(--shadow-text)}
         /* 強制電腦版：已移除 max-width 的 media query */
     </style>
     <noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=block" rel="stylesheet"></noscript>
@@ -119,18 +121,26 @@
                 modal.onclick=e=>e.target===modal&&closeModal(modal,onEsc);
                 const inp=document.createElement('input');
                 inp.type='password';inp.className='password-input';inp.placeholder='密碼';inp.maxLength=20;inp.autocomplete='off';
-                inp.oninput=async function(){
-                    const raw=inp.value;
+                function doVerify(){
+                    const raw=inp.value.trim();
                     if(!raw) return;
-                    const hash=await sha256Hex(raw);
-                    if(hash!==PWD_HASH) return;
-                    document.removeEventListener('keydown',onEsc);
-                    window.open(url,'_blank',Cfg.POPUP);
-                    closeModal(modal,onEsc);
-                };
+                    // Safari/macOS 會阻擋在 async 之後的 window.open，必須在 await 前同步開啟視窗
+                    const w=window.open('','_blank',Cfg.POPUP);
+                    (async function(){
+                        const hash=await sha256Hex(raw);
+                        if(hash!==PWD_HASH){ if(w) w.close(); return; }
+                        document.removeEventListener('keydown',onEsc);
+                        if(w) w.location.href=url;
+                        closeModal(modal,onEsc);
+                    })();
+                }
+                inp.onkeydown=function(e){ if(e.key==='Enter'){ e.preventDefault(); doVerify(); } };
+                const btn=document.createElement('button');
+                btn.type='button';btn.className='password-btn';btn.textContent='確認';
+                btn.onclick=function(){ doVerify(); };
                 const box=document.createElement('div');
                 box.className='password-box';
-                box.append(inp);
+                box.append(inp,btn);
                 modal.append(box);
                 document.body.append(modal);
                 document.addEventListener('keydown',onEsc);
