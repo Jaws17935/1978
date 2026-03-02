@@ -20,30 +20,16 @@
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=block" as="style">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=block" rel="stylesheet" crossorigin>
     <style>
-        :root{
-            --primary:#00a8ff;--secondary:#9c88ff;--bg-card:rgba(15,15,15,.8);--text:#fff;--ease:.3s ease;--blur:blur(5px);
-            --shadow:0 0 20px rgba(0,168,255,.3);--shadow-hover:0 0 30px rgba(156,136,255,.5);--shadow-text:0 0 10px var(--primary);
-            --bg-gradient:linear-gradient(90deg,rgba(10,10,10,.95) 0%,rgba(15,15,15,.85) 50%,rgba(10,10,10,.95) 100%);
-        }
+        :root{--primary:#00a8ff;--secondary:#9c88ff;--bg-card:rgba(15,15,15,.8);--text:#fff;--ease:.3s ease;--blur:blur(5px);--shadow:0 0 20px rgba(0,168,255,.3);--shadow-hover:0 0 30px rgba(156,136,255,.5);--shadow-text:0 0 10px var(--primary);--bg-gradient:linear-gradient(90deg,rgba(10,10,10,.95) 0%,rgba(15,15,15,.85) 50%,rgba(10,10,10,.95) 100%)}
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
         @keyframes neonGlow{0%,100%{text-shadow:0 0 5px var(--primary)}50%{text-shadow:0 0 10px var(--secondary)}}
-        body{
-            font-family:'Orbitron',sans-serif;background:var(--bg-gradient);color:var(--text);line-height:1.6;min-height:100vh;
-            display:flex;justify-content:center;align-items:flex-start;padding:2rem 0;position:relative;overflow-x:hidden;
-            -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-        }
-        body::before{
-            content:'';position:fixed;inset:0;z-index:-1;opacity:.3;
-            background:url('https://images.unsplash.com/photo-1605893417405-c4eac36ac32b?q=75&w=1280&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover;
-        }
+        @keyframes caretBlink{50%{opacity:0}}
+        body{font-family:'Orbitron',sans-serif;background:var(--bg-gradient);color:var(--text);line-height:1.6;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:2rem 0;position:relative;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+        body::before{content:'';position:fixed;inset:0;z-index:-1;opacity:.3;background:url('https://images.unsplash.com/photo-1605893417405-c4eac36ac32b?q=75&w=1280&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover}
         .container{max-width:1200px;width:100%;padding:2rem;position:relative;z-index:2;display:flex;justify-content:center;align-items:center;min-height:100vh}
         .card-grid{display:grid;grid-template-columns:repeat(2,300px);gap:2rem;justify-content:center;width:100%}
-        .service-card,.info-box{
-            background:var(--bg-card);border-radius:8px;padding:2rem;box-shadow:var(--shadow);border:2px solid var(--primary);
-            backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);width:300px;height:200px;display:flex;flex-direction:column;
-            justify-content:center;align-items:center;transition:transform var(--ease),box-shadow var(--ease),border-color var(--ease);position:relative;
-        }
+        .service-card,.info-box{background:var(--bg-card);border-radius:8px;padding:2rem;box-shadow:var(--shadow);border:2px solid var(--primary);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);width:300px;height:200px;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:transform var(--ease),box-shadow var(--ease),border-color var(--ease);position:relative}
         .service-card{cursor:pointer}
         .service-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover);border-color:var(--secondary)}
         .service-card.locked{background:linear-gradient(135deg,var(--bg-card) 0%,rgba(15,15,15,.6) 100%)}
@@ -60,12 +46,12 @@
         .password-modal{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.8);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);justify-content:center;align-items:center}
         .password-modal.active{display:flex}
         .password-box{background:var(--bg-card);padding:1rem 1.2rem;border-radius:8px;border:2px solid var(--primary);box-shadow:0 0 30px rgba(0,168,255,.5);max-width:250px;width:80%}
-        .password-input{background:rgba(0,0,0,.3);border:2px solid var(--primary);border-radius:4px;padding:.6rem .8rem;color:var(--text);font-size:1.1rem;width:100%;text-align:center;font-family:'Orbitron',sans-serif}
+        .password-input-wrap{position:relative;width:100%}
+        .password-input{background:rgba(0,0,0,.3);border:2px solid var(--primary);border-radius:4px;padding:.6rem .8rem;color:transparent;font-size:1.1rem;width:100%;text-align:center;font-family:inherit;letter-spacing:.2em;caret-color:transparent}
         .password-input::placeholder{color:transparent}
         .password-input:focus{outline:none;box-shadow:var(--shadow-text)}
-        .password-btn{margin-top:.6rem;padding:.4rem .8rem;background:var(--primary);border:1px solid var(--secondary);border-radius:4px;color:var(--text);font-family:'Orbitron',sans-serif;cursor:pointer;width:100%}
-        .password-btn:hover{box-shadow:var(--shadow-text)}
-        /* 強制電腦版：已移除 max-width 的 media query */
+        .password-caret{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+        .password-caret::after{content:'';width:2px;height:1.1em;background:var(--text);animation:caretBlink 1s step-end infinite}
     </style>
     <noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=block" rel="stylesheet"></noscript>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.4/lunar.min.js"></script>
@@ -117,30 +103,18 @@
             function checkPassword(url){
                 const modal=document.createElement('div');
                 modal.className='password-modal active';
-                const onEsc=e=>e.key==='Escape'&&closeModal(modal,onEsc);
-                modal.onclick=e=>e.target===modal&&closeModal(modal,onEsc);
-                const inp=document.createElement('input');
-                inp.type='password';inp.className='password-input';inp.placeholder='密碼';inp.maxLength=20;inp.autocomplete='off';
-                function doVerify(){
-                    const raw=inp.value.trim();
-                    if(!raw) return;
-                    // Safari/macOS 會阻擋在 async 之後的 window.open，必須在 await 前同步開啟視窗
-                    const w=window.open('','_blank',Cfg.POPUP);
-                    (async function(){
-                        const hash=await sha256Hex(raw);
-                        if(hash!==PWD_HASH){ if(w) w.close(); return; }
-                        document.removeEventListener('keydown',onEsc);
-                        if(w) w.location.href=url;
-                        closeModal(modal,onEsc);
-                    })();
-                }
-                inp.onkeydown=function(e){ if(e.key==='Enter'){ e.preventDefault(); doVerify(); } };
-                const btn=document.createElement('button');
-                btn.type='button';btn.className='password-btn';btn.textContent='確認';
-                btn.onclick=function(){ doVerify(); };
+                const onEsc=e=>e.key==='Escape'&&(document.removeEventListener('keydown',onEsc),closeModal(modal,onEsc));
                 const box=document.createElement('div');
                 box.className='password-box';
-                box.append(inp,btn);
+                box.innerHTML='<div class="password-input-wrap"><input type="password" class="password-input" placeholder="密碼" maxlength="20" autocomplete="off"><div class="password-caret"></div></div>';
+                const inp=box.querySelector('input');
+                inp.oninput=async function(){
+                    const raw=inp.value.trim();
+                    if(!raw) return;
+                    if((await sha256Hex(raw))!==PWD_HASH) return;
+                    document.removeEventListener('keydown',onEsc);
+                    window.location.href=url;
+                };
                 modal.append(box);
                 document.body.append(modal);
                 document.addEventListener('keydown',onEsc);
@@ -151,69 +125,38 @@
                 if(typeof Solar==='undefined') return '';
                 try{
                     const L=Solar.fromYmd(y,m,d).getLunar();
-                    const gz=L.getYearInGanZhi?.()||'';
-                    const mon=L.getMonthInChinese?.()||(L.getMonth()+'月');
-                    const day=L.getDayInChinese?.()||(L.getDay()+'日');
+                    const gz=L.getYearInGanZhi?.()||'', mon=L.getMonthInChinese?.()||(L.getMonth()+'月'), day=L.getDayInChinese?.()||(L.getDay()+'日');
                     return gz ? gz+'年 '+mon+day : (L.toString()||'');
                 }catch{ return ''; }
             }
 
             function updateDateTime(){
-                els.date=els.date||$('date');
-                els.time=els.time||$('time');
-                els.roc=els.roc||$('roc-date');
-                els.lunar=els.lunar||$('lunar-date');
+                if(!els.time) els.time=$('time'); if(!els.date) els.date=$('date'); if(!els.roc) els.roc=$('roc-date'); if(!els.lunar) els.lunar=$('lunar-date');
                 if(!els.date||!els.time) return;
-                const now=new Date();
-                const y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();
+                const now=new Date(), y=now.getFullYear(), m=now.getMonth()+1, d=now.getDate();
                 els.date.textContent=now.toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
                 els.time.textContent=now.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
-                const dateKey=`${y}-${m}-${d}`;
-                if(dateKey!==lastDateKey){
-                    lastDateKey=dateKey;
-                    if(els.roc) els.roc.textContent=(y-1911)+' 年 '+m+' 月 '+d+' 日';
-                    if(els.lunar) els.lunar.textContent=getLunarString(y,m,d);
-                }
+                const key=`${y}-${m}-${d}`;
+                if(key!==lastDateKey){ lastDateKey=key; if(els.roc) els.roc.textContent=(y-1911)+' 年 '+m+' 月 '+d+' 日'; if(els.lunar) els.lunar.textContent=getLunarString(y,m,d); }
             }
 
-            let weatherEls=null;
+            let we={};
             function fetchWeather(){
-                const cb=(lat,lon)=>{
-                    fetch(`${Cfg.API}?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature&timezone=auto`)
-                        .then(r=>r.json())
-                        .then(data=>{
-                            const cur=data?.current;
-                            if(!cur) return;
-                            if(!weatherEls){ weatherEls={t:$('temp-current'),f:$('temp-feels')}; }
-                            if(weatherEls.t) weatherEls.t.textContent='☀️ '+Math.round(cur.temperature_2m)+'°C';
-                            if(weatherEls.f) weatherEls.f.textContent='🌡️ '+Math.round(cur.apparent_temperature)+'°C';
-                        })
-                        .catch(()=>{});
-                };
-                if(navigator.geolocation) navigator.geolocation.getCurrentPosition(p=>cb(p.coords.latitude,p.coords.longitude),()=>cb(...Cfg.Taipei));
-                else cb(...Cfg.Taipei);
+                const go=(lat,lon)=>fetch(`${Cfg.API}?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature&timezone=auto`).then(r=>r.json()).then(d=>{
+                    const c=d?.current; if(!c) return;
+                    if(!we.t) we={t:$('temp-current'),f:$('temp-feels')};
+                    if(we.t) we.t.textContent='☀️ '+Math.round(c.temperature_2m)+'°C'; if(we.f) we.f.textContent='🌡️ '+Math.round(c.apparent_temperature)+'°C';
+                }).catch(()=>{});
+                navigator.geolocation ? navigator.geolocation.getCurrentPosition(p=>go(p.coords.latitude,p.coords.longitude),()=>go(...Cfg.Taipei)) : go(...Cfg.Taipei);
             }
 
             function init(){
-                updateDateTime();
-                setInterval(updateDateTime,Cfg.tick);
-                fetchWeather();
-                setInterval(fetchWeather,Cfg.weatherInterval);
-                const grid=document.querySelector('.card-grid');
-                const frag=document.createDocumentFragment();
-                CARDS.forEach(({icon,title,url,locked})=>{
-                    const card=document.createElement('div');
-                    card.className='service-card'+(locked?' locked':'');
-                    card.dataset.url=url;
-                    card.innerHTML=`<div class="service-icon">${icon}</div><h3 class="service-title">${title}</h3>`;
-                    frag.appendChild(card);
-                });
+                updateDateTime(); setInterval(updateDateTime,Cfg.tick);
+                fetchWeather(); setInterval(fetchWeather,Cfg.weatherInterval);
+                const grid=document.querySelector('.card-grid'), frag=document.createDocumentFragment();
+                CARDS.forEach(({icon,title,url,locked})=>{ const c=document.createElement('div'); c.className='service-card'+(locked?' locked':''); c.dataset.url=url; c.innerHTML=`<div class="service-icon">${icon}</div><h3 class="service-title">${title}</h3>`; frag.appendChild(c); });
                 grid.appendChild(frag);
-                grid.onclick=e=>{
-                    const card=e.target.closest('.service-card');
-                    if(!card?.dataset.url) return;
-                    card.classList.contains('locked') ? checkPassword(card.dataset.url) : window.open(card.dataset.url,'_blank',Cfg.POPUP);
-                };
+                grid.onclick=e=>{ const c=e.target.closest('.service-card'); if(!c?.dataset.url) return; c.classList.contains('locked') ? checkPassword(c.dataset.url) : window.open(c.dataset.url,'_blank',Cfg.POPUP); };
             }
             if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
             else init();
