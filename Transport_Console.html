@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1200">
+    <title>運費計算 - 後台設定</title>
+    <style>
+        :root {
+            --bg-dark: #1a1a1a;
+            --bg-card: #2d2d2d;
+            --bg-box: #333333;
+            --border-color: #404040;
+            --text-primary: #e0e0e0;
+            --text-secondary: #666;
+            --accent: #ff6b00;
+            --accent-hover: #ff8533;
+            --success: #4caf50;
+            --transition: all 0.3s ease;
+        }
+        body { font-family: 'Microsoft JhengHei', Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 20px; background: var(--bg-dark); color: var(--text-primary); }
+        .console { background: var(--bg-card); padding: 25px; border-radius: 8px; border: 1px solid var(--border-color); }
+        h1 { margin: 0 0 8px; font-size: 1.25em; color: var(--text-primary); border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        .subtitle { color: var(--text-secondary); font-size: 0.9em; margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #aaa; font-size: 0.95em; }
+        .form-group input {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px;
+            background: var(--bg-box); color: var(--text-primary); font-size: 14px; box-sizing: border-box;
+        }
+        .form-group input:focus { outline: none; border-color: var(--accent); }
+        input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .form-group .hint { font-size: 0.8em; color: var(--text-secondary); margin-top: 4px; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold;
+            transition: var(--transition); color: #fff;
+        }
+        .btn-save { background: var(--accent); }
+        .btn-save:hover { background: var(--accent-hover); }
+        .btn-reset { background: #555; }
+        .btn-reset:hover { background: #666; }
+        .btn-open { background: #2196f3; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-open:hover { background: #1976d2; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 6px; background: var(--success); color: #fff; font-weight: bold; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="console">
+        <h1>運費計算 - 後台設定 (Transport_Console)</h1>
+        <p class="subtitle">修改下列參數後按「儲存」，前台運費計算工具會依此計算。</p>
+
+        <div class="form-group">
+            <label>基本里程（公里）</label>
+            <input type="number" id="baseDistanceKm" min="0" step="0.01" placeholder="例：1.25">
+            <div class="hint">此里程內只收「基本費」</div>
+        </div>
+        <div class="form-group">
+            <label>基本費（元）</label>
+            <input type="number" id="baseFee" min="0" step="1" placeholder="例：100">
+            <div class="hint">未超過基本里程時收取的固定金額</div>
+        </div>
+        <div class="form-group">
+            <label>超過基本里程後，每公里單價（元）</label>
+            <input type="number" id="perKmRate" min="0" step="0.01" placeholder="例：16">
+        </div>
+        <div class="form-group">
+            <label>每分鐘單價（元）</label>
+            <input type="number" id="perMinuteRate" min="0" step="0.01" placeholder="例：8">
+            <div class="hint">依行車時間（小時＋分鐘）計算</div>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-save" id="btnSave">儲存設定</button>
+            <button type="button" class="btn btn-reset" id="btnReset">還原預設</button>
+            <a href="Transport.html" target="_blank" class="btn btn-open">開啟運費計算工具</a>
+        </div>
+    </div>
+    <div class="toast" id="toast">已儲存</div>
+
+    <script>
+        (function () {
+            const STORAGE_KEY = 'transportFareConfig';
+            const DEFAULTS = {
+                baseDistanceKm: 1.25,
+                baseFee: 100,
+                perKmRate: 16,
+                perMinuteRate: 8
+            };
+
+            function load() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    const data = raw ? { ...DEFAULTS, ...JSON.parse(raw) } : DEFAULTS;
+                    document.getElementById('baseDistanceKm').value = data.baseDistanceKm;
+                    document.getElementById('baseFee').value = data.baseFee;
+                    document.getElementById('perKmRate').value = data.perKmRate;
+                    document.getElementById('perMinuteRate').value = data.perMinuteRate;
+                } catch (e) {
+                    Object.keys(DEFAULTS).forEach(k => {
+                        const el = document.getElementById(k);
+                        if (el) el.value = DEFAULTS[k];
+                    });
+                }
+            }
+
+            function getForm() {
+                const baseDistanceKm = parseFloat(document.getElementById('baseDistanceKm').value);
+                const baseFee = parseFloat(document.getElementById('baseFee').value);
+                const perKmRate = parseFloat(document.getElementById('perKmRate').value);
+                const perMinuteRate = parseFloat(document.getElementById('perMinuteRate').value);
+                return {
+                    baseDistanceKm: isNaN(baseDistanceKm) ? DEFAULTS.baseDistanceKm : baseDistanceKm,
+                    baseFee: isNaN(baseFee) ? DEFAULTS.baseFee : baseFee,
+                    perKmRate: isNaN(perKmRate) ? DEFAULTS.perKmRate : perKmRate,
+                    perMinuteRate: isNaN(perMinuteRate) ? DEFAULTS.perMinuteRate : perMinuteRate
+                };
+            }
+
+            function save() {
+                const data = getForm();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                const toast = document.getElementById('toast');
+                toast.textContent = '已儲存，前台將使用新參數計算';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            }
+
+            function reset() {
+                document.getElementById('baseDistanceKm').value = DEFAULTS.baseDistanceKm;
+                document.getElementById('baseFee').value = DEFAULTS.baseFee;
+                document.getElementById('perKmRate').value = DEFAULTS.perKmRate;
+                document.getElementById('perMinuteRate').value = DEFAULTS.perMinuteRate;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULTS));
+                const toast = document.getElementById('toast');
+                toast.textContent = '已還原預設並儲存';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            }
+
+            document.getElementById('btnSave').addEventListener('click', save);
+            document.getElementById('btnReset').addEventListener('click', reset);
+            load();
+        })();
+    </script>
+</body>
+</html>

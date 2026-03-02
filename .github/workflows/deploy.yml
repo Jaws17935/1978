@@ -1,0 +1,116 @@
+# 部署到 GitHub Pages（不需 gh-pages 分支，用官方 Actions 部署）
+# API_KEY/config.js 不在版控內，由本 workflow 依 Secrets 直接寫入 API_KEY/，不依賴 scripts
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate API_KEY/config.js（由 workflow 直接寫入 API_KEY/）
+        run: |
+          node -e "
+          const fs=require('fs'),path=require('path');
+          const dir=path.join(process.cwd(),'API_KEY');
+          if(!fs.existsSync(dir)) fs.mkdirSync(dir,{recursive:true});
+          const k=(e)=>JSON.stringify((process.env[e]||'').trim());
+          const out=[
+            '// 由部署流程從環境變數產生，勿提交',
+            '// Products → __FIREBASE_API_KEY__ | 報價單 → __FIREBASE_API_KEY_QUOTATION__ | 競價工具 → __FIREBASE_API_KEY_PRICETOOLS__',
+            'window.__FIREBASE_API_KEY__='+k('FIREBASE_API_KEY')+';',
+            'window.__FIREBASE_API_KEY_QUOTATION__='+k('FIREBASE_API_KEY_QUOTATION')+';',
+            'window.__FIREBASE_API_KEY_PRICETOOLS__='+k('FIREBASE_API_KEY_PRICETOOLS')+';',
+            ''
+          ].join('\n');
+          fs.writeFileSync(path.join(dir,'config.js'),out,'utf8');
+          "
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_API_KEY_QUOTATION: ${{ secrets.FIREBASE_API_KEY_QUOTATION }}
+          FIREBASE_API_KEY_PRICETOOLS: ${{ secrets.FIREBASE_API_KEY_PRICETOOLS }}
+
+      - name: 檢查產出的 config（有金鑰則 Firebase 可用，無則僅提示）
+        run: |
+          if grep -q 'AIza' API_KEY/config.js 2>/dev/null; then
+            echo "Config 已含金鑰，Firebase 將可正常連線。"
+          else
+            echo "::warning::API_KEY/config.js 無金鑰，部署仍會繼續（避免 404）。請到 Settings → Secrets → Actions 設定 FIREBASE_API_KEY、FIREBASE_API_KEY_QUOTATION、FIREBASE_API_KEY_PRICETOOLS 以啟用 Firebase。"
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # 延遲再部署一次，覆蓋「pages build and deployment」的結果（該 workflow 約 39s 完成，會覆蓋我們）
+  deploy-after-pages:
+    needs: deploy
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - name: Wait for pages build to finish
+        run: sleep 50
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Generate API_KEY/config.js（由 workflow 直接寫入 API_KEY/）
+        run: |
+          node -e "
+          const fs=require('fs'),path=require('path');
+          const dir=path.join(process.cwd(),'API_KEY');
+          if(!fs.existsSync(dir)) fs.mkdirSync(dir,{recursive:true});
+          const k=(e)=>JSON.stringify((process.env[e]||'').trim());
+          const out=[
+            '// 由部署流程從環境變數產生，勿提交',
+            '// Products → __FIREBASE_API_KEY__ | 報價單 → __FIREBASE_API_KEY_QUOTATION__ | 競價工具 → __FIREBASE_API_KEY_PRICETOOLS__',
+            'window.__FIREBASE_API_KEY__='+k('FIREBASE_API_KEY')+';',
+            'window.__FIREBASE_API_KEY_QUOTATION__='+k('FIREBASE_API_KEY_QUOTATION')+';',
+            'window.__FIREBASE_API_KEY_PRICETOOLS__='+k('FIREBASE_API_KEY_PRICETOOLS')+';',
+            ''
+          ].join('\n');
+          fs.writeFileSync(path.join(dir,'config.js'),out,'utf8');
+          "
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_API_KEY_QUOTATION: ${{ secrets.FIREBASE_API_KEY_QUOTATION }}
+          FIREBASE_API_KEY_PRICETOOLS: ${{ secrets.FIREBASE_API_KEY_PRICETOOLS }}
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy to GitHub Pages (overwrite)
+        uses: actions/deploy-pages@v4
