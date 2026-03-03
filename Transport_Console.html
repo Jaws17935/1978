@@ -5,46 +5,24 @@
     <meta name="viewport" content="width=1200">
     <title>運費計算 - 後台設定</title>
     <style>
-        :root {
-            --bg-dark: #1a1a1a;
-            --bg-card: #2d2d2d;
-            --bg-box: #333333;
-            --border-color: #404040;
-            --text-primary: #e0e0e0;
-            --text-secondary: #666;
-            --accent: #ff6b00;
-            --accent-hover: #ff8533;
-            --success: #4caf50;
-            --transition: all 0.3s ease;
-        }
-        body { font-family: 'Microsoft JhengHei', Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 20px; background: var(--bg-dark); color: var(--text-primary); }
-        .console { background: var(--bg-card); padding: 25px; border-radius: 8px; border: 1px solid var(--border-color); }
-        h1 { margin: 0 0 8px; font-size: 1.25em; color: var(--text-primary); border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
-        .subtitle { color: var(--text-secondary); font-size: 0.9em; margin-bottom: 20px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; margin-bottom: 6px; color: #aaa; font-size: 0.95em; }
-        .form-group input {
-            width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px;
-            background: var(--bg-box); color: var(--text-primary); font-size: 14px; box-sizing: border-box;
-        }
-        .form-group input:focus { outline: none; border-color: var(--accent); }
-        input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .form-group .hint { font-size: 0.8em; color: var(--text-secondary); margin-top: 4px; }
-        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
-        .btn {
-            padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold;
-            transition: var(--transition); color: #fff;
-        }
-        .btn-save { background: var(--accent); }
-        .btn-save:hover { background: var(--accent-hover); }
-        .btn-reset { background: #555; }
-        .btn-reset:hover { background: #666; }
-        .btn-open { background: #2196f3; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
-        .btn-open:hover { background: #1976d2; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 6px; background: var(--success); color: #fff; font-weight: bold; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        .toast.show { opacity: 1; }
+        :root{--bg-dark:#1a1a1a;--bg-card:#2d2d2d;--bg-box:#333;--border-color:#404040;--text-primary:#e0e0e0;--text-secondary:#666;--accent:#ff6b00;--accent-hover:#ff8533;--success:#4caf50;--transition:all .3s ease}
+        body{font-family:'Microsoft JhengHei',Arial,sans-serif;max-width:520px;margin:0 auto;padding:20px;background:var(--bg-dark);color:var(--text-primary)}
+        .console{background:var(--bg-card);padding:25px;border-radius:8px;border:1px solid var(--border-color)}
+        h1{margin:0 0 8px;font-size:1.25em;color:var(--text-primary);border-bottom:2px solid var(--accent);padding-bottom:10px}
+        .subtitle{color:var(--text-secondary);font-size:.9em;margin-bottom:20px}
+        .form-group{margin-bottom:16px}
+        .form-group label{display:block;margin-bottom:6px;color:#aaa;font-size:.95em}
+        .form-group input{width:100%;padding:10px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-box);color:var(--text-primary);font-size:14px;box-sizing:border-box}
+        .form-group input:focus{outline:none;border-color:var(--accent)}
+        input[type="number"]{-moz-appearance:textfield;appearance:textfield}
+        input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+        .form-group .hint{font-size:.8em;color:var(--text-secondary);margin-top:4px}
+        .btn-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+        .btn{padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:bold;transition:var(--transition);color:#fff}
+        .btn-save{background:var(--accent)}.btn-save:hover{background:var(--accent-hover)}
+        .btn-reset{background:#555}.btn-reset:hover{background:#666}
+        .btn-open{background:#2196f3;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.btn-open:hover{background:#1976d2}
+        .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:6px;background:var(--success);color:#fff;font-weight:bold;opacity:0;transition:opacity .3s;pointer-events:none}.toast.show{opacity:1}
     </style>
 </head>
 <body>
