@@ -104,6 +104,18 @@
                 }
                 return sha256HexSync(str);
             }
+            // 正規化輸入：將全形數字、阿拉伯-印度數字等統一為半形 0-9，避免不同裝置/輸入法導致密碼比對失敗
+            function normalizePasswordInput(str){
+                let out='';
+                for(let i=0;i<str.length;i++){
+                    const c=str.charCodeAt(i);
+                    if(c>=0xFF10&&c<=0xFF19) out+=String.fromCharCode(c-0xFF10+0x30); // 全形 ０-９ -> 0-9
+                    else if(c>=0x0660&&c<=0x0669) out+=String.fromCharCode(c-0x0660+0x30); // 阿拉伯-印度數字
+                    else if(c>=0x06F0&&c<=0x06F9) out+=String.fromCharCode(c-0x06F0+0x30); // 擴展阿拉伯-印度
+                    else out+=str[i];
+                }
+                return out;
+            }
             function checkPassword(url){
                 const modal=document.createElement('div');
                 modal.className='password-modal active';
@@ -128,7 +140,7 @@
                 const inp=box.querySelector('input');
                 inp.oninput=async function(){
                     if(inp.classList.contains('is-error')){ inp.classList.remove('is-error'); inp.placeholder='密碼'; }
-                    const raw=inp.value.trim();
+                    const raw=normalizePasswordInput((inp.value.trim()).normalize('NFC'));
                     if(raw.length<4||raw.length%4!==0) return;
                     if((await sha256Hex(raw))!==PWD_HASH){
                         pwdWrongCount++;
