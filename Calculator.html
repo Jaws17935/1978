@@ -1040,10 +1040,15 @@
           if (nameChanged || idOutOfSync) {
             const newDocId = desiredDocId;
             try {
-              await db.collection('總表').doc(newDocId).set(currentData);
-              await db.collection('總表').doc(activeDocId).delete();
-              notifyParent({ type: 'updateProductId', oldId: activeDocId, newId: newDocId, product: currentData });
-              currentEditDocId = newDocId;
+              if (newDocId !== activeDocId) {
+                await db.collection('總表').doc(newDocId).set(currentData);
+                await db.collection('總表').doc(activeDocId).delete();
+                notifyParent({ type: 'updateProductId', oldId: activeDocId, newId: newDocId, product: currentData });
+                currentEditDocId = newDocId;
+              } else {
+                await db.collection('總表').doc(activeDocId).update(currentData);
+                notifyParent({ type: 'calculationComplete', product: currentData });
+              }
               handleSaveSuccess(true);
             } catch (err) {
               showToast('更新失敗', false);

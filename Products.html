@@ -578,7 +578,11 @@
                     
                     const productIndex = products.findIndex(p => p.id === oldId);
                     if (productIndex !== -1) {
-                        products[productIndex] = { ...products[productIndex], ...updatedProduct, id: newId };
+                        const merged = { ...products[productIndex], ...updatedProduct, id: newId };
+                        // 改名搬移後視為最新資料，前端立即反映到第一列
+                        products.splice(productIndex, 1);
+                        products.unshift(merged);
+                        currentSort = { column: null, direction: 'asc' };
                         refreshTableWithSearchState();
                     }
                 }
