@@ -189,27 +189,7 @@
     }
     const db = (firebase.apps && firebase.apps.length > 0) ? firebase.firestore() : null;
 
-    const FIELD_CN = {
-        name:'商品名稱', purchasePrice:'採購價格', quantity:'採購數量',
-        inlandShipping:'內地運費', singleWeight:'單重', totalWeight:'總重',
-        materialCount:'計材', singleCost:'單價成本', totalCost:'採購總成本',
-        suggestedPrice:'建議定價', actualPrice:'實際定價', profitLoss:'定價損益',
-        totalProfitLoss:'定價總損益', profitLossRate:'定價毛利率', returnRate:'定價報酬率',
-        currency:'幣別', exchangeRate:'採購匯率', internationalShipping:'國際運費',
-        platformCommission:'平台抽成', timestamp:'時間戳記',
-            purchasePriceDisplay:'採購價格顯示', originalTotalPrice:'原始總價',
-            priceUnit:'價格單位', lastModifiedField:'最後修改欄位', isEditMode:'編輯模式',
-            singleWeightDisplay:'單重顯示'
-    };
-    const FIELD_EN = Object.fromEntries(Object.entries(FIELD_CN).map(([k,v])=>[v,k]));
-    function toCN(obj) {
-        if (!obj || typeof obj !== 'object') return obj;
-        const r = {};
-        for (const [k,v] of Object.entries(obj)) { if (k === 'id') continue; r[FIELD_CN[k] || k] = v; }
-        return r;
-    }
-
-    let currentPreciseWeights = { singleWeight: null, totalWeight: null };
+    let currentPreciseWeights = { 單重: null, 總重: null };
     let activeInputState = { element: null, value: '', selectionStart: 0, selectionEnd: 0, isRestoring: false };
     function saveInputState() {
       const el = document.activeElement;
@@ -249,10 +229,10 @@
     
     const handlePasteClean = (text) => text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
     
-    const SETTING_FIELD_MAP = { exchangeRate: 'exchange_rate', internationalShipping: 'international_shipping', platformCommission: 'platform_commission_rate_n' };
-    const SETTING_DOC_IDS = { exchangeRate: '採購匯率', internationalShipping: '國際運費', platformCommission: '平台抽成' };
+    const SETTING_FIELD_MAP = { 採購匯率: 'exchange_rate', 國際運費: 'international_shipping', 平台抽成: 'platform_commission_rate_n' };
+    const SETTING_DOC_IDS = { 採購匯率: '採購匯率', 國際運費: '國際運費', 平台抽成: '平台抽成' };
     const loadFirebaseSettings = async () => {
-      const defaults = { exchangeRate: '4.5', internationalShipping: '45', platformCommission: '20' };
+      const defaults = { 採購匯率: '4.5', 國際運費: '45', 平台抽成: '20' };
       const apply = (s) => { Object.entries(SETTING_FIELD_MAP).forEach(([k, id]) => { const el = getById(id); if (el) el.value = s[k] != null && s[k] !== '' ? String(s[k]) : defaults[k]; }); };
       if (!db) { apply(defaults); return; }
       try {
@@ -266,33 +246,33 @@
     };
     
     const buildCurrentData = () => {
-      const singleWeight = currentPreciseWeights.singleWeight ? parseFloat(currentPreciseWeights.singleWeight) : '';
-      const inlandShipping = getFormattedInlandShipping();
-      let purchasePrice = getById('product_price').value;
-      const priceUnit = getById('price_unit').value;
-      const quantity = parseFloat(getById('purchase_quantity').value) || 0;
-      const priceResult = processPurchasePrice(purchasePrice, priceUnit, quantity);
-      purchasePrice = priceResult.processedPrice;
-      const originalTotalPrice = priceResult.originalTotalPrice;
+      const 單重 = currentPreciseWeights.單重 ? parseFloat(currentPreciseWeights.單重) : '';
+      const 內地運費 = getFormattedInlandShipping();
+      let 採購價格 = getById('product_price').value;
+      const 價格單位 = getById('price_unit').value;
+      const 採購數量 = parseFloat(getById('purchase_quantity').value) || 0;
+      const priceResult = processPurchasePrice(採購價格, 價格單位, 採購數量);
+      採購價格 = priceResult.processedPrice;
+      const 原始總價 = priceResult.原始總價;
       
       return {
-        name: getById('pageTitle').textContent,
-        currency: getById('price_currency').value,
-        purchasePrice: parseFloat(purchasePrice).toFixed(6),
-        purchasePriceDisplay: formatNumber(purchasePrice),
-        priceUnit: priceUnit,
-        originalTotalPrice: originalTotalPrice,
-        quantity: parseInt(quantity),
-        inlandShipping: inlandShipping,
-        singleWeight: singleWeight ? parseFloat(singleWeight).toFixed(6) : '',
-        singleWeightDisplay: singleWeight ? formatNumber(singleWeight) : '',
-        materialCount: parseInt(getById('material_count').value) || 0,
-        actualPrice: getById('profit_margin_rate_n').value ? formatNumber(getById('profit_margin_rate_n').value, true) : '',
-        singleCost: getById('result_single_cost').textContent.replace('單價：', '').replace(' 元', ''),
-        totalCost: getById('result_total_cost').textContent.replace('總成本：', '').replace(' 元', ''),
-        suggestedPrice: getById('suggested_pricing').textContent.replace(' 元', ''),
-        profitLoss: getById('suggested_profit_loss').textContent.replace(' 元', ''),
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        商品名稱: getById('pageTitle').textContent,
+        幣別: getById('price_currency').value,
+        採購價格: parseFloat(採購價格).toFixed(6),
+        採購價格顯示: formatNumber(採購價格),
+        價格單位: 價格單位,
+        原始總價: 原始總價,
+        採購數量: parseInt(採購數量),
+        內地運費: 內地運費,
+        單重: 單重 ? parseFloat(單重).toFixed(6) : '',
+        單重顯示: 單重 ? formatNumber(單重) : '',
+        計材: parseInt(getById('material_count').value) || 0,
+        實際定價: getById('profit_margin_rate_n').value ? formatNumber(getById('profit_margin_rate_n').value, true) : '',
+        單價成本: getById('result_single_cost').textContent.replace('單價：', '').replace(' 元', ''),
+        採購總成本: getById('result_total_cost').textContent.replace('總成本：', '').replace(' 元', ''),
+        建議定價: getById('suggested_pricing').textContent.replace(' 元', ''),
+        定價損益: getById('suggested_profit_loss').textContent.replace(' 元', ''),
+        時間戳記: firebase.firestore.FieldValue.serverTimestamp()
       };
     };
     
@@ -330,12 +310,12 @@
         });
       });
 
-      const radioButtons = document.querySelectorAll('input[type="radio"][name="shipping_included"]');
+      const radioButtons = document.querySelectorAll('input[type="radio"][商品名稱="shipping_included"]');
       radioButtons.forEach(radio => {
-        radio.addEventListener('click', e => { const c = document.querySelector('input[name="shipping_included"]:checked'); if (c && c !== e.target) e.target.dataset.originalValue = c.value; });
+        radio.addEventListener('click', e => { const c = document.querySelector('input[商品名稱="shipping_included"]:checked'); if (c && c !== e.target) e.target.dataset.originalValue = c.value; });
         radio.addEventListener('keydown', e => {
           if (e.key !== 'Escape' || e.target.dataset.originalValue === undefined) return;
-          const orig = document.querySelector(`input[name="shipping_included"][value="${e.target.dataset.originalValue}"]`);
+          const orig = document.querySelector(`input[商品名稱="shipping_included"][value="${e.target.dataset.originalValue}"]`);
           if (orig) { orig.checked = true; e.target.checked = false; }
           delete e.target.dataset.originalValue;
           handleShippingMode();
@@ -404,7 +384,7 @@
         isSaving = true;
         const editData = JSON.parse(decodeURIComponent(getUrlParams().get('data')));
         const currentData = buildCurrentData();
-        await db.collection('總表').doc(editData.id).update(toCN(currentData));
+        await db.collection('總表').doc(editData.id).update(currentData);
         notifyParent({ type: 'calculationComplete', product: currentData });
         showDataChangeStatus(lastChangedElement, 'saved');
       } catch (error) { showDataChangeStatus(lastChangedElement, 'error'); }
@@ -432,8 +412,8 @@
 
     function getFormattedInlandShipping(id = 'inland_shipping') { const v = getById(id).value; return (!v || parseFloat(v) === 0) ? '無' : formatNumber(v); }
     function processPurchasePrice(price, unit, qty) {
-      if (unit === 'total' && qty > 0) return { processedPrice: (parseFloat(price) / qty).toFixed(6), originalTotalPrice: formatNumber(price) };
-      return { processedPrice: price, originalTotalPrice: '' };
+      if (unit === 'total' && qty > 0) return { processedPrice: (parseFloat(price) / qty).toFixed(6), 原始總價: formatNumber(price) };
+      return { processedPrice: price, 原始總價: '' };
     }
 
     let calculationCache = new Map();
@@ -441,18 +421,18 @@
     let domElements = {};
     
     const DOM_IDS = ['product_price','purchase_quantity','exchange_rate','international_shipping','platform_commission_rate_n','profit_margin_rate_n','price_currency','price_unit','shipping_included_yes','inland_shipping','weight_value','weight_unit','weight_mode','material_count','result_single_weight','result_total_weight','result_extra_material_fee','result_single_cost','result_total_cost','suggested_pricing','suggested_profit_loss','product_price_error','purchase_quantity_error','exchange_rate_error'];
-    const DOM_KEYS = ['productPrice','purchaseQuantity','exchangeRate','internationalShipping','platformCommission','profitMargin','priceCurrency','priceUnit','shippingIncludedYes','inlandShipping','weightValue','weightUnit','weightMode','materialCount','resultSingleWeight','resultTotalWeight','resultExtraMaterialFee','resultSingleCost','resultTotalCost','suggestedPricing','suggestedProfitLoss','productPriceError','purchaseQuantityError','exchangeRateError'];
+    const DOM_KEYS = ['productPrice','purchaseQuantity','採購匯率','國際運費','平台抽成','profitMargin','priceCurrency','價格單位','shippingIncludedYes','內地運費','weightValue','weightUnit','weightMode','計材','resultSingleWeight','resultTotalWeight','resultExtraMaterialFee','resultSingleCost','resultTotalCost','suggestedPricing','suggestedProfitLoss','productPriceError','purchaseQuantityError','exchangeRateError'];
     function initCalculationElements() {
       if (Object.keys(domElements).length === 0) domElements = Object.fromEntries(DOM_KEYS.map((k, i) => [k, getById(DOM_IDS[i])]));
     }
     
     function updateResultDisplay(result) {
       const updates = {
-        singleWeight: () => domElements.resultSingleWeight.innerText = result.singleWeight ? `單重：${result.singleWeight} Kg` : '',
-        totalWeight: () => domElements.resultTotalWeight.innerText = result.totalWeight ? `總重：${result.totalWeight} Kg` : '',
+        單重: () => domElements.resultSingleWeight.innerText = result.單重 ? `單重：${result.單重} Kg` : '',
+        總重: () => domElements.resultTotalWeight.innerText = result.總重 ? `總重：${result.總重} Kg` : '',
         extraMaterialFee: () => domElements.resultExtraMaterialFee.innerText = result.extraMaterialFee || '',
-        singleCost: () => domElements.resultSingleCost.innerText = `單價：${result.singleCost} 元`,
-        totalCost: () => domElements.resultTotalCost.innerText = `總成本：${result.totalCost} 元`,
+        單價成本: () => domElements.resultSingleCost.innerText = `單價：${result.單價成本} 元`,
+        採購總成本: () => domElements.resultTotalCost.innerText = `總成本：${result.採購總成本} 元`,
         suggestedPricing: () => domElements.suggestedPricing.innerText = `${result.suggestedPricing} 元`,
         finalProfit: () => domElements.suggestedProfitLoss.innerText = `${result.finalProfit} 元`
       };
@@ -471,18 +451,18 @@
         const inputs = {
           productPrice: parseFloat(domElements.productPrice.value) || 0,
           purchaseQuantity: parseFloat(domElements.purchaseQuantity.value) || 0,
-          exchangeRate: parseFloat(domElements.exchangeRate.value) || 0,
-          internationalShipping: parseFloat(domElements.internationalShipping.value) || 0,
-          platformCommission: parseFloat(domElements.platformCommission.value) || 0,
+          採購匯率: parseFloat(domElements.採購匯率.value) || 0,
+          國際運費: parseFloat(domElements.國際運費.value) || 0,
+          平台抽成: parseFloat(domElements.平台抽成.value) || 0,
           profitMargin: parseFloat(domElements.profitMargin.value) || 0,
-          currency: domElements.priceCurrency.value,
-          priceUnit: domElements.priceUnit.value,
+          幣別: domElements.priceCurrency.value,
+          價格單位: domElements.價格單位.value,
           shippingIncluded: domElements.shippingIncludedYes.checked,
-          inlandShipping: (domElements.shippingIncludedYes.checked && domElements.priceUnit.value !== 'total') ? (parseFloat(domElements.inlandShipping.value) || 0) : 0,
+          內地運費: (domElements.shippingIncludedYes.checked && domElements.價格單位.value !== 'total') ? (parseFloat(domElements.內地運費.value) || 0) : 0,
           weightValue: parseFloat(domElements.weightValue.value) || 0,
           weightUnit: domElements.weightUnit.value,
           weightMode: domElements.weightMode.value,
-          materialCount: parseInt(domElements.materialCount.value) || 0
+          計材: parseInt(domElements.計材.value) || 0
         };
         
         const inputsKey = JSON.stringify(inputs);
@@ -491,7 +471,7 @@
           return;
         }
 
-        let singleCost = 0, totalCost = 0;
+        let 單價成本 = 0, 採購總成本 = 0;
         if (isNaN(inputs.productPrice) || inputs.productPrice < 0) {
           domElements.productPriceError.innerText = '請輸入有效的價格';
           return;
@@ -502,8 +482,8 @@
           return;
         }
 
-        if (inputs.currency === 'CNY') {
-          if (inputs.exchangeRate === 0) {
+        if (inputs.幣別 === 'CNY') {
+          if (inputs.採購匯率 === 0) {
             domElements.exchangeRateError.innerText = '請輸入採購匯率';
             return;
           }
@@ -511,61 +491,61 @@
 
         let calculationResult = {};
         
-        if (inputs.currency === 'CNY') {
-          const totalProductCost = inputs.priceUnit === 'unit' ?
+        if (inputs.幣別 === 'CNY') {
+          const totalProductCost = inputs.價格單位 === 'unit' ?
             inputs.productPrice * inputs.purchaseQuantity :
             inputs.productPrice;
 
-          const costAfterExchange = (totalProductCost + inputs.inlandShipping) * inputs.exchangeRate;
+          const costAfterExchange = (totalProductCost + inputs.內地運費) * inputs.採購匯率;
           const weightUnitFactor = inputs.weightUnit === 'kg' ? 1 : 0.001;
           const rawWeightValInKg = inputs.weightValue * weightUnitFactor;
           const finalWeightVal = inputs.weightMode === 'single' ?
             rawWeightValInKg * inputs.purchaseQuantity :
             rawWeightValInKg;
           let extraShippingFee = 0;
-          if (inputs.materialCount > 6) {
-            extraShippingFee = (inputs.materialCount - 6) * 25;
+          if (inputs.計材 > 6) {
+            extraShippingFee = (inputs.計材 - 6) * 25;
           }
-          const internationalShippingTotal = (finalWeightVal * inputs.internationalShipping) + extraShippingFee;
-          totalCost = costAfterExchange + internationalShippingTotal;
-          singleCost = inputs.purchaseQuantity > 0 ? totalCost / inputs.purchaseQuantity : totalCost;
+          const internationalShippingTotal = (finalWeightVal * inputs.國際運費) + extraShippingFee;
+          採購總成本 = costAfterExchange + internationalShippingTotal;
+          單價成本 = inputs.purchaseQuantity > 0 ? 採購總成本 / inputs.purchaseQuantity : 採購總成本;
           const calculatedSingleWeight = finalWeightVal / (inputs.purchaseQuantity || 1);
           
-          currentPreciseWeights.singleWeight = calculatedSingleWeight.toFixed(6);
-          currentPreciseWeights.totalWeight = finalWeightVal.toFixed(6);
+          currentPreciseWeights.單重 = calculatedSingleWeight.toFixed(6);
+          currentPreciseWeights.總重 = finalWeightVal.toFixed(6);
           
           calculationResult = {
-            singleWeight: formatNumber(calculatedSingleWeight),
-            totalWeight: formatNumber(finalWeightVal),
-            extraMaterialFee: inputs.materialCount > 6 ? `計材：${formatNumber(extraShippingFee)} 元` : '',
-            singleCost: formatNumber(singleCost),
-            totalCost: formatNumber(totalCost)
+            單重: formatNumber(calculatedSingleWeight),
+            總重: formatNumber(finalWeightVal),
+            extraMaterialFee: inputs.計材 > 6 ? `計材：${formatNumber(extraShippingFee)} 元` : '',
+            單價成本: formatNumber(單價成本),
+            採購總成本: formatNumber(採購總成本)
           };
         } else {
-          if (inputs.priceUnit === 'unit') {
-            singleCost = inputs.productPrice;
-            totalCost = inputs.productPrice * inputs.purchaseQuantity;
+          if (inputs.價格單位 === 'unit') {
+            單價成本 = inputs.productPrice;
+            採購總成本 = inputs.productPrice * inputs.purchaseQuantity;
           } else {
-            totalCost = inputs.productPrice;
-            singleCost = inputs.purchaseQuantity > 0 ? inputs.productPrice / inputs.purchaseQuantity : 0;
+            採購總成本 = inputs.productPrice;
+            單價成本 = inputs.purchaseQuantity > 0 ? inputs.productPrice / inputs.purchaseQuantity : 0;
           }
           
-          currentPreciseWeights.singleWeight = null;
-          currentPreciseWeights.totalWeight = null;
+          currentPreciseWeights.單重 = null;
+          currentPreciseWeights.總重 = null;
           
           calculationResult = {
-            singleWeight: '',
-            totalWeight: '',
+            單重: '',
+            總重: '',
             extraMaterialFee: '',
-            singleCost: formatNumber(singleCost),
-            totalCost: formatNumber(totalCost)
+            單價成本: formatNumber(單價成本),
+            採購總成本: formatNumber(採購總成本)
           };
         }
 
-        const commissionRate = inputs.platformCommission / 100;
-        const suggestedPricing = singleCost / (1 - commissionRate);
-        const platformCommission = inputs.profitMargin * commissionRate;
-        const finalProfit = inputs.profitMargin - platformCommission - singleCost;
+        const commissionRate = inputs.平台抽成 / 100;
+        const suggestedPricing = 單價成本 / (1 - commissionRate);
+        const 平台抽成 = inputs.profitMargin * commissionRate;
+        const finalProfit = inputs.profitMargin - 平台抽成 - 單價成本;
 
         calculationResult.suggestedPricing = formatNumber(suggestedPricing);
         calculationResult.finalProfit = Math.round(finalProfit).toString();
@@ -880,20 +860,20 @@
         const params = getUrlParams();
         try {
           const editData = JSON.parse(decodeURIComponent(params.get('data')));
-          getById('pageTitle').textContent = editData.name || '計算機';
+          getById('pageTitle').textContent = editData.商品名稱 || '計算機';
           const currencySelect = getById('price_currency');
-          currencySelect.value = editData.currency || 'CNY';
-          if (editData.priceUnit === 'total' && editData.originalTotalPrice) {
+          currencySelect.value = editData.幣別 || 'CNY';
+          if (editData.價格單位 === 'total' && editData.原始總價) {
             getById('price_unit').value = 'total';
-            getById('product_price').value = editData.originalTotalPrice;
+            getById('product_price').value = editData.原始總價;
           } else {
             getById('price_unit').value = 'unit';
-            const purchasePrice = editData.purchasePrice || editData.purchasePriceDisplay;
-            if (purchasePrice) getById('product_price').value = formatNumber(purchasePrice);
+            const 採購價格 = editData.採購價格 || editData.採購價格顯示;
+            if (採購價格) getById('product_price').value = formatNumber(採購價格);
           }
-          if (editData.quantity) getById('purchase_quantity').value = parseInt(editData.quantity);
-          if (editData.inlandShipping && parseFloat(editData.inlandShipping) > 0) {
-            getById('inland_shipping').value = formatNumber(editData.inlandShipping);
+          if (editData.採購數量) getById('purchase_quantity').value = parseInt(editData.採購數量);
+          if (editData.內地運費 && parseFloat(editData.內地運費) > 0) {
+            getById('inland_shipping').value = formatNumber(editData.內地運費);
             getById('shipping_included_yes').checked = true;
           } else {
             getById('shipping_included_no').checked = true;
@@ -901,18 +881,18 @@
           }
           handleShippingMode();
           getById('weight_mode').value = 'single';
-          if (editData.singleWeight) {
-            getById('weight_value').value = formatNumber(editData.singleWeight);
-          } else if (editData.totalWeight && editData.quantity) {
-            const totalWeightValue = parseFloat(editData.totalWeight);
-            const quantityValue = parseInt(editData.quantity);
+          if (editData.單重) {
+            getById('weight_value').value = formatNumber(editData.單重);
+          } else if (editData.總重 && editData.採購數量) {
+            const totalWeightValue = parseFloat(editData.總重);
+            const quantityValue = parseInt(editData.採購數量);
             const singleWeightValue = totalWeightValue / quantityValue;
             getById('weight_value').value = formatNumber(singleWeightValue);
             getById('weight_value').dataset.actualSingleWeight = singleWeightValue;
           }
-          if (editData.materialCount) { getById('material_count').value = parseInt(editData.materialCount); handleMaterialInput(); }
+          if (editData.計材) { getById('material_count').value = parseInt(editData.計材); handleMaterialInput(); }
           await loadFirebaseSettings();
-          if (editData.actualPrice) getById('profit_margin_rate_n').value = formatNumber(editData.actualPrice, true);
+          if (editData.實際定價) getById('profit_margin_rate_n').value = formatNumber(editData.實際定價, true);
           document.body.classList.add('edit-mode');
           handleCurrencyMode();
           calculate();
@@ -1017,8 +997,8 @@
     const handleSaveSuccess = (redirect = false) => { showToast('保存成功', true); if (redirect) setTimeout(() => window.location.href = 'Products.html', 1000); };
     const updateDocAndNotify = async (docId, data, redirect = true) => {
       try {
-        await db.collection('總表').doc(docId).update(toCN(data));
-        notifyParent({ type: 'updateProductName', productId: docId, newName: data.name });
+        await db.collection('總表').doc(docId).update(data);
+        notifyParent({ type: 'updateProductName', productId: docId, newName: data.商品名稱 });
         handleSaveSuccess(redirect);
         return true;
       } catch (e) {
@@ -1031,9 +1011,9 @@
       try {
         const currentTitle = getById('pageTitle').textContent.trim();
         const currentData = buildCurrentData();
-        currentData.name = isEditMode() ? currentTitle : (currentTitle !== '商品名稱' ? currentTitle : getById('productNameInput').value.trim());
+        currentData.商品名稱 = isEditMode() ? currentTitle : (currentTitle !== '商品名稱' ? currentTitle : getById('productNameInput').value.trim());
 
-        if (!isEditMode() && !currentData.name) {
+        if (!isEditMode() && !currentData.商品名稱) {
           showToast('請輸入商品名稱', false);
           return;
         }
@@ -1041,12 +1021,12 @@
         if (isEditMode()) {
           const params = getUrlParams();
           const editData = JSON.parse(decodeURIComponent(params.get('data')));
-          const nameChanged = editData.name !== currentData.name;
+          const nameChanged = editData.商品名稱 !== currentData.商品名稱;
 
           if (nameChanged) {
-            const newDocId = generateSafeDocumentId(currentData.name);
+            const newDocId = generateSafeDocumentId(currentData.商品名稱);
             try {
-              await db.collection('總表').doc(newDocId).set(toCN(currentData));
+              await db.collection('總表').doc(newDocId).set(currentData);
               await db.collection('總表').doc(editData.id).delete();
               notifyParent({ type: 'updateProductId', oldId: editData.id, newId: newDocId, product: currentData });
               handleSaveSuccess(true);
@@ -1057,15 +1037,15 @@
             await updateDocAndNotify(editData.id, currentData);
           }
         } else {
-          const safeDocId = generateSafeDocumentId(currentData.name);
+          const safeDocId = generateSafeDocumentId(currentData.商品名稱);
           try {
-            await db.collection('總表').doc(safeDocId).set(toCN(currentData));
+            await db.collection('總表').doc(safeDocId).set(currentData);
             notifyParent({ type: 'addNewProduct', product: { id: safeDocId, ...currentData } });
             handleSaveSuccess();
           } catch (e) {
             try {
               const timestampedId = `${safeDocId}_${Date.now()}`;
-              await db.collection('總表').doc(timestampedId).set(toCN(currentData));
+              await db.collection('總表').doc(timestampedId).set(currentData);
               notifyParent({ type: 'addNewProduct', product: { id: timestampedId, ...currentData } });
               handleSaveSuccess();
             } catch {
@@ -1086,9 +1066,9 @@
       }
     }
 
-    function generateSafeDocumentId(name) {
-      if (!name || !name.trim()) return `product_${Date.now()}`;
-      return name.trim();
+    function generateSafeDocumentId(商品名稱) {
+      if (!商品名稱 || !商品名稱.trim()) return `product_${Date.now()}`;
+      return 商品名稱.trim();
     }
     function viewInProducts() { window.location.href = 'Products.html'; }
 
