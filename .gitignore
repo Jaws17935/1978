@@ -3,6 +3,8 @@
 API_KEY/
 API_KEY/config.js
 
+node_modules/
+
 # 常見開發/系統檔
 .DS_Store
 Thumbs.db

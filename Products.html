@@ -223,6 +223,32 @@
         const $ = (id) => document.getElementById(id);
         const $$ = (sel) => document.querySelector(sel);
 
+        const FIELD_CN = {
+            name:'商品名稱', purchasePrice:'採購價格', quantity:'採購數量',
+            inlandShipping:'內地運費', singleWeight:'單重', totalWeight:'總重',
+            materialCount:'計材', singleCost:'單價成本', totalCost:'採購總成本',
+            suggestedPrice:'建議定價', actualPrice:'實際定價', profitLoss:'定價損益',
+            totalProfitLoss:'定價總損益', profitLossRate:'定價毛利率', returnRate:'定價報酬率',
+            currency:'幣別', exchangeRate:'採購匯率', internationalShipping:'國際運費',
+            platformCommission:'平台抽成', timestamp:'時間戳記',
+            purchasePriceDisplay:'採購價格顯示', originalTotalPrice:'原始總價',
+            priceUnit:'價格單位', lastModifiedField:'最後修改欄位', isEditMode:'編輯模式',
+            singleWeightDisplay:'單重顯示'
+        };
+        const FIELD_EN = Object.fromEntries(Object.entries(FIELD_CN).map(([k,v])=>[v,k]));
+        function toEN(obj) {
+            if (!obj || typeof obj !== 'object') return obj;
+            const r = {};
+            for (const [k,v] of Object.entries(obj)) r[FIELD_EN[k] || k] = v;
+            return r;
+        }
+        function toCN(obj) {
+            if (!obj || typeof obj !== 'object') return obj;
+            const r = {};
+            for (const [k,v] of Object.entries(obj)) { if (k === 'id') continue; r[FIELD_CN[k] || k] = v; }
+            return r;
+        }
+
         const SETTING_DOC_IDS = { exchangeRate: '採購匯率', internationalShipping: '國際運費', platformCommission: '平台抽成' };
         let settings = {
             exchangeRate: undefined,
@@ -380,7 +406,7 @@
                 );
                 const [exchangeRateDoc, internationalShippingDoc, platformCommissionDoc, productsSnapshot] = await Promise.all([
                     ...settingRefs,
-                    db.collection('總表').orderBy('timestamp', 'desc').limit(1000).get()
+                    db.collection('總表').orderBy('時間戳記', 'desc').limit(1000).get()
                 ]);
                 const settingDocs = [exchangeRateDoc, internationalShippingDoc, platformCommissionDoc];
                 const allExist = settingDocs.every(d => d.exists);
@@ -405,7 +431,7 @@
                     }
                 }
 
-                products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...toEN(doc.data()) }));
                 products.forEach(p => recalculateProduct(p));
                 dataCache.products = products;
                 dataCache.lastFetch = now;
@@ -416,7 +442,7 @@
                         const index = products.findIndex(p => p.id === updatedProduct.id);
                         if (index !== -1) {
                             products[index] = { ...products[index], ...updatedProduct };
-                            await db.collection('總表').doc(updatedProduct.id).update(updatedProduct);
+                            await db.collection('總表').doc(updatedProduct.id).update(toCN(updatedProduct));
                         }
                         localStorage.removeItem('updatedProductData');
                     } catch (error) {
@@ -505,7 +531,7 @@
                     }
 
                     Object.assign(product, updatedData);
-                    batch.update(db.collection('總表').doc(product.id), updatedData);
+                    batch.update(db.collection('總表').doc(product.id), toCN(updatedData));
                 }
 
                 await batch.commit();
@@ -533,7 +559,7 @@
                         safeId = createSafeId(event.data.product.name);
                     }
                     const productWithId = { id: safeId, ...event.data.product, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
-                    await db.collection('總表').doc(safeId).set(productWithId);
+                    await db.collection('總表').doc(safeId).set(toCN(productWithId));
                     const newProduct = {
                         id: safeId,
                         ...event.data.product
@@ -546,7 +572,7 @@
                     const index = event.data.index;
                     if (index >= 0 && index < products.length) {
                         const product = products[index];
-                        await db.collection('總表').doc(product.id).update(event.data.product);
+                        await db.collection('總表').doc(product.id).update(toCN(event.data.product));
                         products[index] = { ...product, ...event.data.product };
                         refreshTableWithSearchState();
                     }
@@ -558,7 +584,7 @@
                         const formattedProduct = normalizeProductFromExternal(event.data.product);
                         Object.assign(product, formattedProduct);
                         recalculateProduct(product);
-                        await db.collection('總表').doc(product.id).update(formattedProduct);
+                        await db.collection('總表').doc(product.id).update(toCN(formattedProduct));
                         refreshTableWithSearchState();
                     }
                 }
@@ -608,7 +634,7 @@
                         const product = products[returnData.index];
                         if (product && product.id) {
                             const updatedProduct = normalizeProductFromExternal(returnData.product);
-                            await db.collection('總表').doc(product.id).update(updatedProduct);
+                            await db.collection('總表').doc(product.id).update(toCN(updatedProduct));
                             products[returnData.index] = { ...product, ...updatedProduct };
                             recalculateProduct(products[returnData.index]);
                             refreshTableWithSearchState();
@@ -794,7 +820,7 @@
             const updateData = { ...product };
             delete updateData.totalWeight;
             product.timestamp = updateData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
-            await db.collection('總表').doc(product.id).update(updateData);
+            await db.collection('總表').doc(product.id).update(toCN(updateData));
             const idx = products.indexOf(product);
             if (idx > 0) {
                 products.splice(idx, 1);
@@ -1341,7 +1367,7 @@
                                 safeId = createSafeId(productData.name);
                             }
                             productData.id = safeId;
-                            await db.collection('總表').doc(safeId).set(productData);
+                            await db.collection('總表').doc(safeId).set(toCN(productData));
                             products.unshift(productData);
                         }
                         initTable();
