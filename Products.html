@@ -686,12 +686,8 @@
         }
 
         function createSafeId(productName) {
-            let safeId = productName.trim()
-                .replace(/[\/\\\[\]{}()*+?.,^$|#\s]/g, '_')
-                .replace(/_+/g, '_')
-                .replace(/^_+|_+$/g, '');
-            if (!safeId) return `product_${Date.now()}`;
-            return safeId.length > 100 ? safeId.substring(0, 100) : safeId;
+            if (!productName || !productName.trim()) return `product_${Date.now()}`;
+            return productName.trim();
         }
 
         function returnToIndex() {

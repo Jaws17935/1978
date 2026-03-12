@@ -1024,19 +1024,14 @@
           const nameChanged = editData.name !== currentData.name;
 
           if (nameChanged) {
-            const shouldUpdateDocId = confirm('商品名稱已變更，是否同時更新Firebase文檔ID以便管理？\n\n點選「確定」：更新文檔ID（推薦）\n點選「取消」：僅更新商品名稱');
-            if (shouldUpdateDocId) {
-              const newDocId = generateSafeDocumentId(currentData.name);
-              try {
-                await db.collection('總表').doc(newDocId).set(currentData);
-                await db.collection('總表').doc(editData.id).delete();
-                notifyParent({ type: 'updateProductId', oldId: editData.id, newId: newDocId, product: currentData });
-                handleSaveSuccess(true);
-              } catch (err) {
-                await updateDocAndNotify(editData.id, currentData);
-              }
-            } else {
-              await updateDocAndNotify(editData.id, currentData);
+            const newDocId = generateSafeDocumentId(currentData.name);
+            try {
+              await db.collection('總表').doc(newDocId).set(currentData);
+              await db.collection('總表').doc(editData.id).delete();
+              notifyParent({ type: 'updateProductId', oldId: editData.id, newId: newDocId, product: currentData });
+              handleSaveSuccess(true);
+            } catch (err) {
+              showToast('更新失敗', false);
             }
           } else {
             await updateDocAndNotify(editData.id, currentData);
@@ -1073,8 +1068,7 @@
 
     function generateSafeDocumentId(name) {
       if (!name || !name.trim()) return `product_${Date.now()}`;
-      let id = name.trim().replace(/[\/\\\[\]{}()*+?.,^$|#\s]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
-      return (!id || id.length > 100) ? (id ? id.substring(0, 100) : `product_${Date.now()}`) : id;
+      return name.trim();
     }
     function viewInProducts() { window.location.href = 'Products.html'; }
 
