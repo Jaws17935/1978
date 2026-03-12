@@ -1005,7 +1005,7 @@
     }
 
     function showToast(msg, ok = true) { const t = getById('saveToast'); getById('toastMessage').textContent = msg; t.className = `toast ${ok ? 'success' : 'error'}`; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1000); }
-    const handleSaveSuccess = (redirect = false) => { showToast('保存成功', true); if (redirect) setTimeout(() => window.location.href = 'Products.html', 1000); };
+    const handleSaveSuccess = (redirect = false) => { showToast('保存成功', true); if (redirect) setTimeout(() => window.location.href = 'Calculator_Products.html', 1000); };
     const updateDocAndNotify = async (docId, data, redirect = true) => {
       try {
         await db.collection('總表').doc(docId).update(data);
@@ -1090,7 +1090,7 @@
       if (!商品名稱 || !商品名稱.trim()) return `product_${Date.now()}`;
       return 商品名稱.trim();
     }
-    function viewInProducts() { window.location.href = 'Products.html'; }
+    function viewInProducts() { window.location.href = 'Calculator_Products.html'; }
 
     document.addEventListener('visibilitychange', () => document.hidden ? saveInputState() : restoreInputState());
     window.addEventListener('blur', () => saveInputState());
