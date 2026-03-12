@@ -310,12 +310,12 @@
         });
       });
 
-      const radioButtons = document.querySelectorAll('input[type="radio"][商品名稱="shipping_included"]');
+      const radioButtons = document.querySelectorAll('input[type="radio"][name="shipping_included"]');
       radioButtons.forEach(radio => {
-        radio.addEventListener('click', e => { const c = document.querySelector('input[商品名稱="shipping_included"]:checked'); if (c && c !== e.target) e.target.dataset.originalValue = c.value; });
+        radio.addEventListener('click', e => { const c = document.querySelector('input[name="shipping_included"]:checked'); if (c && c !== e.target) e.target.dataset.originalValue = c.value; });
         radio.addEventListener('keydown', e => {
           if (e.key !== 'Escape' || e.target.dataset.originalValue === undefined) return;
-          const orig = document.querySelector(`input[商品名稱="shipping_included"][value="${e.target.dataset.originalValue}"]`);
+          const orig = document.querySelector(`input[name="shipping_included"][value="${e.target.dataset.originalValue}"]`);
           if (orig) { orig.checked = true; e.target.checked = false; }
           delete e.target.dataset.originalValue;
           handleShippingMode();
@@ -377,15 +377,25 @@
     function debounce(func, wait) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => func(...args), wait); }; }
 
     let isSaving = false;
+    let currentEditDocId = null;
     let lastChangedElement = null;
     const autoSaveInEditMode = async () => {
       if (!isEditMode() || isSaving) return;
       try {
         isSaving = true;
-        const editData = JSON.parse(decodeURIComponent(getUrlParams().get('data')));
         const currentData = buildCurrentData();
-        await db.collection('總表').doc(editData.id).update(currentData);
-        notifyParent({ type: 'calculationComplete', product: currentData });
+        const targetDocId = generateSafeDocumentId(currentData.商品名稱);
+        const activeDocId = currentEditDocId || JSON.parse(decodeURIComponent(getUrlParams().get('data'))).id;
+
+        if (targetDocId && activeDocId && targetDocId !== activeDocId) {
+          await db.collection('總表').doc(targetDocId).set(currentData);
+          await db.collection('總表').doc(activeDocId).delete();
+          notifyParent({ type: 'updateProductId', oldId: activeDocId, newId: targetDocId, product: currentData });
+          currentEditDocId = targetDocId;
+        } else {
+          await db.collection('總表').doc(activeDocId).update(currentData);
+          notifyParent({ type: 'calculationComplete', product: currentData });
+        }
         showDataChangeStatus(lastChangedElement, 'saved');
       } catch (error) { showDataChangeStatus(lastChangedElement, 'error'); }
       finally { isSaving = false; }
@@ -860,6 +870,7 @@
         const params = getUrlParams();
         try {
           const editData = JSON.parse(decodeURIComponent(params.get('data')));
+          currentEditDocId = editData.id;
           getById('pageTitle').textContent = editData.商品名稱 || '計算機';
           const currencySelect = getById('price_currency');
           currencySelect.value = editData.幣別 || 'CNY';
@@ -1021,20 +1032,24 @@
         if (isEditMode()) {
           const params = getUrlParams();
           const editData = JSON.parse(decodeURIComponent(params.get('data')));
+          const activeDocId = currentEditDocId || editData.id;
           const nameChanged = editData.商品名稱 !== currentData.商品名稱;
+          const desiredDocId = generateSafeDocumentId(currentData.商品名稱);
+          const idOutOfSync = activeDocId !== desiredDocId;
 
-          if (nameChanged) {
-            const newDocId = generateSafeDocumentId(currentData.商品名稱);
+          if (nameChanged || idOutOfSync) {
+            const newDocId = desiredDocId;
             try {
               await db.collection('總表').doc(newDocId).set(currentData);
-              await db.collection('總表').doc(editData.id).delete();
-              notifyParent({ type: 'updateProductId', oldId: editData.id, newId: newDocId, product: currentData });
+              await db.collection('總表').doc(activeDocId).delete();
+              notifyParent({ type: 'updateProductId', oldId: activeDocId, newId: newDocId, product: currentData });
+              currentEditDocId = newDocId;
               handleSaveSuccess(true);
             } catch (err) {
               showToast('更新失敗', false);
             }
           } else {
-            await updateDocAndNotify(editData.id, currentData);
+            await updateDocAndNotify(activeDocId, currentData);
           }
         } else {
           const safeDocId = generateSafeDocumentId(currentData.商品名稱);
