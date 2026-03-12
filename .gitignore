@@ -1,0 +1,12 @@
+# API 金鑰與敏感設定（勿提交到版本庫）
+# 部署時由 GitHub Actions 依 Secrets 產生 API_KEY/config.js，本機勿提交
+API_KEY/
+API_KEY/config.js
+
+# 常見開發/系統檔
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.local
+*.local

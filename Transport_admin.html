@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://firestore.googleapis.com https://www.googleapis.com https://www.gstatic.com; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<title>後台管理系統 — 貨運成本系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="API_KEY/config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #f5a623;
+    --accent2: #e8d5a3;
+    --red: #e05252;
+    --blue: #5b8dee;
+    --text: #dce3f0;
+    --muted: #6b7394;
+    --mono: 'Share Tech Mono', monospace;
+    --sans: 'Noto Sans TC', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+  }
+
+  /* ── Login Screen ── */
+  #login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 6px;
+    width: 180px;
+    max-width: 180px;
+    text-align: center;
+  }
+  .login-box input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    height: 36px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-align: center;
+    outline: none;
+    margin: 0 auto;
+    display: block;
+    transition: border-color .2s;
+  }
+  .login-box input:focus { border-color: var(--accent); }
+  .login-box input.pw-error {
+    border-color: var(--red);
+    animation: pwErrorFlash .18s linear 4 alternate;
+  }
+  #pw-input.pw-error::placeholder {
+    color: var(--red);
+    letter-spacing: 0;
+    font-family: var(--sans);
+  }
+  @keyframes pwErrorFlash {
+    from { border-color: var(--border); box-shadow: none; }
+    to { border-color: var(--red); box-shadow: 0 0 0 3px rgba(224,82,82,.15); }
+  }
+  #pw-input::-ms-reveal,
+  #pw-input::-ms-clear { display: none; }
+
+  /* ── Admin Layout ── */
+  #admin-screen { display: none; padding: 24px 16px 60px; }
+
+  header {
+    max-width: 860px;
+    margin: 0 auto 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 18px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  h1 { font-size: clamp(20px, 4vw, 30px); font-weight: 900; }
+  .title-primary { color: var(--text); }
+  .title-accent { color: var(--accent); margin-left: 6px; }
+  .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s;
+    white-space: nowrap;
+  }
+  .btn:hover { opacity: .82; }
+  .btn-save { background: var(--accent); color: #000; }
+  .btn-logout { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .btn-client { background: var(--blue); color: #fff; }
+
+  .main { max-width: 860px; margin: 0 auto; display: grid; gap: 20px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .card-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .params-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .param-item label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    height: 42px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 15px;
+    transition: border-color .2s;
+    outline: none;
+  }
+  input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,166,35,.12); }
+  select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: none;
+    height: 42px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 15px;
+    transition: border-color .2s;
+    outline: none;
+  }
+  select::-ms-expand { display: none; }
+  select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,166,35,.12); }
+
+  /* Per-km preview：三欄等寬，中間那欄(公式)靠左 */
+  .formula-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    gap: 12px;
+  }
+  .formula-row:last-child { border-bottom: none; }
+  .formula-row .label { color: var(--muted); }
+  .formula-row .expr { font-family: var(--mono); font-size: 11px; color: var(--accent2); text-align: left; justify-self: start; }
+  .formula-row .val { font-family: var(--mono); font-weight: 700; justify-self: end; }
+  .total-row {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    font-weight: 700;
+  }
+  .total-row .val { font-family: var(--mono); font-size: 18px; color: var(--accent); }
+
+  .monthly-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+  .monthly-row:last-child { border-bottom: none; }
+  .monthly-row .label { color: var(--muted); }
+  .monthly-row .val { font-family: var(--mono); }
+
+  .tip {
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin-top: 16px;
+    line-height: 1.7;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login">
+  <div class="login-box">
+    <input type="password" id="pw-input" maxlength="4" inputmode="numeric" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
+  </div>
+</div>
+
+<!-- ── ADMIN ── -->
+<div id="admin-screen">
+  <header>
+    <div>
+      <h1>⚙️ <span class="title-primary">後台管理</span><span class="title-accent">系統</span></h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-client" onclick="window.open('Transport.html','_blank')">🔗 客戶頁面</button>
+      <button class="btn btn-save" onclick="saveParams()">💾 儲存設定</button>
+      <button class="btn btn-logout" onclick="logout()">登出</button>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <!-- 基礎參數 -->
+    <div class="card">
+      <div class="card-title">基本參數</div>
+      <div class="params-grid">
+        <div class="param-item">
+          <label>維修保養費</label>
+          <input type="number" id="p_maint_cost" value="8000" oninput="recalc()">
+        </div>
+        <div class="param-item">
+          <label>維護里程數</label>
+          <input type="number" id="p_maint_km" value="10000" oninput="recalc()">
+        </div>
+        <div class="param-item">
+          <label>加滿油費用</label>
+          <input type="number" id="p_oil_cost" value="1300" oninput="recalc()">
+        </div>
+        <div class="param-item">
+          <label>總行駛里程</label>
+          <input type="number" id="p_oil_km" value="500" oninput="recalc()">
+        </div>
+        <div class="param-item">
+          <label>輪胎養護費</label>
+          <input type="number" id="p_tire_cost" value="12000" oninput="recalc()">
+        </div>
+        <div class="param-item">
+          <label>輪胎損耗期</label>
+          <input type="number" id="p_tire_km" value="20000" oninput="recalc()">
+        </div>
+        <div class="param-item">
+          <label>基本時薪費</label>
+          <input type="number" id="p_hourly" value="200" oninput="recalc()">
+        </div>
+        <div class="param-item">
+          <label>車輛保險費</label>
+          <input type="number" id="p_insurance" value="30000" oninput="recalc()">
+        </div>
+        <div class="param-item">
+          <label>車輛檢驗費</label>
+          <input type="number" id="p_inspection" value="450" oninput="recalc()">
+        </div>
+        <div class="param-item">
+          <label>高速過路費</label>
+          <select id="p_vehicle_type" onchange="applyVehicleRate()">
+            <option value="small">小型車</option>
+            <option value="large" selected>大型車</option>
+            <option value="trailer">聯結車</option>
+          </select>
+        </div>
+        <div class="param-item">
+          <label>報價利潤率</label>
+          <input type="number" id="p_profit" value="20" oninput="recalc()">
+        </div>
+      </div>
+      <div class="tip">💡 過路費數據參考遠通；客戶頁面只顯示最終報價，不會看到成本細節</div>
+    </div>
+
+    <!-- 每月固定 -->
+    <div class="card">
+      <div class="card-title">固定成本</div>
+      <div class="monthly-row">
+        <span class="label">保險年費</span>
+        <span class="val" id="r_ins_m">-</span>
+      </div>
+      <div class="monthly-row">
+        <span class="label">檢驗年費</span>
+        <span class="val" id="r_insp_m">-</span>
+      </div>
+      <div class="total-row">
+        <span>固定支出合計</span>
+        <span class="val" id="r_monthly">- 元</span>
+      </div>
+      <div class="tip">💡 建議每月從收入預留這筆金額</div>
+    </div>
+
+    <!-- 每公里預覽 -->
+    <div class="card">
+      <div class="card-title">油耗成本</div>
+      <div class="formula-row">
+        <span class="label">保養</span>
+        <span class="expr">保養費 ÷ 保養週期</span>
+        <span class="val" id="r_maint">-</span>
+      </div>
+      <div class="formula-row">
+        <span class="label">油料</span>
+        <span class="expr">油費 ÷ 加油週期</span>
+        <span class="val" id="r_oil">-</span>
+      </div>
+      <div class="formula-row">
+        <span class="label">輪胎</span>
+        <span class="expr">輪胎費 ÷ 換胎週期</span>
+        <span class="val" id="r_tire">-</span>
+      </div>
+      <div class="formula-row">
+        <span class="label">過路費 ≤200公里</span>
+        <span class="expr" id="expr_toll_std">里程 × 標準過路費 1.50</span>
+        <span class="val" id="r_toll_std">-</span>
+      </div>
+      <div class="formula-row">
+        <span class="label">過路費 超200公里</span>
+        <span class="expr" id="expr_toll_long">超200公里 × 長途過路費 1.12</span>
+        <span class="val" id="r_toll_long">-</span>
+      </div>
+      <div class="total-row">
+        <span>平均每公里小計</span>
+        <span class="val" id="r_per_km">- 元/公里</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const PARAMS_KEY = 'freight_params';
+  const PENDING_SYNC_KEY = 'freight_pending_sync';
+  const PARAMS_DOC_ID = '目前設定';
+  const PW_AUTH_DOC = 'console_auth';
+  const PW_FAIL_KEY = 'freight_pw_fail_count';
+  const PW_LOCK_UNTIL_KEY = 'freight_pw_lock_until';
+  const PW_LOCK_AFTER = 3;
+  const PW_CLOSE_AFTER = 5;
+  const PW_LOCK_MS = 5 * 60 * 1000;
+  const TOLL_LONG_TRIP_THRESHOLD_KM = 200;
+  const setHash = (hash) => history.replaceState(null, '', hash);
+  const $ = (id) => document.getElementById(id);
+  let transportDb = null;
+  const DEPLOY_CONFIG = {
+    deployMode: (window.__TRANSPORT_DEPLOY_MODE__ || 'localStorage').toString(),
+    firebase: {
+      apiKey: (window.__FIREBASE_API_KEY_TRANSPORT__ || '').trim(),
+      authDomain: (window.__FIREBASE_AUTH_DOMAIN_TRANSPORT__ || '').trim(),
+      projectId: (window.__FIREBASE_PROJECT_ID_TRANSPORT__ || '').trim(),
+      storageBucket: (window.__FIREBASE_STORAGE_BUCKET_TRANSPORT__ || '').trim(),
+      messagingSenderId: (window.__FIREBASE_MESSAGING_SENDER_ID_TRANSPORT__ || '').trim(),
+      appId: (window.__FIREBASE_APP_ID_TRANSPORT__ || '').trim(),
+      collection: (window.__FIRESTORE_COLLECTION_TRANSPORT_PARAMS__ || '運費參數').trim() || '運費參數'
+    }
+  };
+
+  function readJsonFromStorage(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (err) {
+      return null;
+    }
+  }
+
+  async function hashPassword(pw) {
+    const msg = new TextEncoder().encode(String(pw));
+    const buf = await crypto.subtle.digest('SHA-256', msg);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function getAuthDocRef() {
+    const db = initFirestore();
+    if (!db) return null;
+    return db.collection(DEPLOY_CONFIG.firebase.collection).doc(PW_AUTH_DOC);
+  }
+
+  async function getAuthHash() {
+    const ref = getAuthDocRef();
+    if (!ref) return null;
+    const snap = await ref.get();
+    if (snap.exists && snap.data()?.pw_hash) return snap.data().pw_hash;
+    return null;
+  }
+
+  async function initAuthHash() {
+    const defaultHash = (window.__CONSOLE_DEFAULT_PW_HASH__ || '').trim();
+    if (!defaultHash) return;
+    const existing = await getAuthHash();
+    if (existing) return;
+    const ref = getAuthDocRef();
+    if (!ref) return;
+    await ref.set({ pw_hash: defaultHash, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  }
+
+  function hasFirebaseConfig() {
+    const f = DEPLOY_CONFIG.firebase;
+    return !!(f.apiKey && f.authDomain && f.projectId && f.appId);
+  }
+
+  function appendPendingSync(type, payload) {
+    if (DEPLOY_CONFIG.deployMode !== 'firebase') return;
+    if (!hasFirebaseConfig()) return;
+    const queue = (readJsonFromStorage(PENDING_SYNC_KEY) || []).filter((item) => item?.type !== type);
+    queue.push({
+      type,
+      payload,
+      createdAt: Date.now()
+    });
+    localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(queue.slice(-50)));
+  }
+
+  function canUseFirebase() {
+    return DEPLOY_CONFIG.deployMode === 'firebase'
+      && hasFirebaseConfig()
+      && typeof window.firebase !== 'undefined'
+      && typeof window.firebase.firestore === 'function';
+  }
+
+  function initFirestore() {
+    if (!canUseFirebase()) return null;
+    if (transportDb) return transportDb;
+    try {
+      const cfg = {
+        apiKey: DEPLOY_CONFIG.firebase.apiKey,
+        authDomain: DEPLOY_CONFIG.firebase.authDomain,
+        projectId: DEPLOY_CONFIG.firebase.projectId,
+        storageBucket: DEPLOY_CONFIG.firebase.storageBucket,
+        messagingSenderId: DEPLOY_CONFIG.firebase.messagingSenderId,
+        appId: DEPLOY_CONFIG.firebase.appId
+      };
+      if (!firebase.apps || firebase.apps.length === 0) {
+        firebase.initializeApp(cfg);
+      }
+      transportDb = firebase.firestore();
+      return transportDb;
+    } catch (err) {
+      console.warn('Transport_admin：Firebase 初始化失敗，改用 localStorage。', err);
+      return null;
+    }
+  }
+
+  function getParamsDocRef() {
+    const db = initFirestore();
+    if (!db) return null;
+    return db.collection(DEPLOY_CONFIG.firebase.collection).doc(PARAMS_DOC_ID);
+  }
+
+  async function writeParamsToCloud(data) {
+    const ref = getParamsDocRef();
+    if (!ref) return false;
+    const zhData = toZhKeys({
+      ...data,
+      updatedBy: 'Transport_admin',
+      updatedAt: '__serverTimestamp__'
+    });
+    zhData[FIELD_ZH['updatedAt']] = firebase.firestore.FieldValue.serverTimestamp();
+    delete zhData['__serverTimestamp__'];
+    await ref.set(zhData, { merge: true });
+    return true;
+  }
+
+  async function flushPendingSync() {
+    const queue = readJsonFromStorage(PENDING_SYNC_KEY) || [];
+    if (!queue.length) return;
+    const failed = [];
+    for (const item of queue) {
+      try {
+        if (item?.type === 'params_upsert' && item?.payload) {
+          await writeParamsToCloud(item.payload);
+        } else {
+          failed.push(item);
+        }
+      } catch (err) {
+        failed.push(item);
+      }
+    }
+    localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(failed.slice(-50)));
+  }
+
+  // Initial route for login screen
+  if (location.hash !== '#login') setHash('#login');
+
+  // ── Login ──
+  function focusPwInput() {
+    const input = $('pw-input');
+    if (!input) return;
+    setTimeout(() => input.focus(), 0);
+  }
+
+  function clearPwInlineError() {
+    const input = $('pw-input');
+    if (!input) return;
+    input.classList.remove('pw-error');
+    input.placeholder = '';
+  }
+
+  function showPwInlineError(msg) {
+    const input = $('pw-input');
+    if (!input) return;
+    input.classList.remove('pw-error');
+    void input.offsetWidth;
+    input.classList.add('pw-error');
+    input.placeholder = msg;
+  }
+
+  function getFailCount() {
+    return parseInt(localStorage.getItem(PW_FAIL_KEY) || '0', 10) || 0;
+  }
+
+  function setFailCount(count) {
+    localStorage.setItem(PW_FAIL_KEY, String(count));
+  }
+
+  function clearPwSecurityState() {
+    localStorage.removeItem(PW_FAIL_KEY);
+    localStorage.removeItem(PW_LOCK_UNTIL_KEY);
+  }
+
+  function getLockUntil() {
+    return parseInt(localStorage.getItem(PW_LOCK_UNTIL_KEY) || '0', 10) || 0;
+  }
+
+  function getLockRemainMs() {
+    return Math.max(0, getLockUntil() - Date.now());
+  }
+
+  function closeWindowForSecurity() {
+    window.open('', '_self');
+    window.close();
+    setTimeout(() => { location.href = 'about:blank'; }, 100);
+  }
+
+  function handleLoginFail(input) {
+    const count = getFailCount() + 1;
+    setFailCount(count);
+
+    if (count >= PW_CLOSE_AFTER) {
+      input.value = '';
+      showPwInlineError('錯誤次數過多，視窗即將關閉');
+      closeWindowForSecurity();
+      return;
+    }
+
+    if (count >= PW_LOCK_AFTER) {
+      const lockUntil = Date.now() + PW_LOCK_MS;
+      localStorage.setItem(PW_LOCK_UNTIL_KEY, String(lockUntil));
+      input.value = '';
+      showPwInlineError('鎖定5分鐘；稍後再試');
+      focusPwInput();
+      return;
+    }
+
+    input.value = '';
+    showPwInlineError('密碼錯誤；重新輸入');
+    focusPwInput();
+  }
+
+  function showAdmin() {
+    clearPwSecurityState();
+    clearPwInlineError();
+    $('login').style.display = 'none';
+    $('admin-screen').style.display = 'block';
+    setHash('#admin');
+    loadParams().finally(() => recalc());
+  }
+
+  async function tryLogin() {
+    const input = $('pw-input');
+    if (!input) return;
+
+    const remainMs = getLockRemainMs();
+    if (remainMs > 0) {
+      const mins = Math.ceil(remainMs / 60000);
+      showPwInlineError(`鎖定${mins}分鐘；稍後再試`);
+      input.value = '';
+      focusPwInput();
+      return;
+    }
+
+    if (getLockUntil() > 0 && remainMs === 0) {
+      localStorage.removeItem(PW_LOCK_UNTIL_KEY);
+      setFailCount(0);
+    }
+
+    const pw = input.value;
+    let storedHash = null;
+    try { storedHash = await getAuthHash(); } catch (e) {}
+    if (!storedHash) {
+      showPwInlineError('尚未設定密碼');
+      input.value = '';
+      focusPwInput();
+      return;
+    }
+    const inputHash = await hashPassword(pw);
+    if (inputHash === storedHash) {
+      showAdmin();
+      return;
+    }
+    handleLoginFail(input);
+  }
+  $('pw-input').addEventListener('input', (e) => {
+    const input = e.target;
+    clearPwInlineError();
+    input.value = input.value.replace(/\D/g, '').slice(0, 4);
+    if (input.value.length === 4) tryLogin();
+  });
+
+  function logout() {
+    $('admin-screen').style.display = 'none';
+    $('login').style.display = 'flex';
+    setHash('#login');
+    $('pw-input').value = '';
+    clearPwInlineError();
+    focusPwInput();
+  }
+
+  // ── Params ──
+  const FIELDS = ['p_maint_cost','p_maint_km','p_oil_cost','p_oil_km','p_tire_cost','p_tire_km','p_hourly','p_insurance','p_inspection','p_profit','p_vehicle_type'];
+  const FIELD_ZH = {
+    p_maint_cost:  '維修保養費',
+    p_maint_km:    '維護里程數',
+    p_oil_cost:    '加滿油費用',
+    p_oil_km:      '總行駛里程',
+    p_tire_cost:   '輪胎養護費',
+    p_tire_km:     '輪胎損耗期',
+    p_hourly:      '基本時薪費',
+    p_insurance:   '車輛保險費',
+    p_inspection:  '車輛檢驗費',
+    p_profit:      '報價利潤率',
+    p_vehicle_type:'車型',
+    p_toll_std:    '標準過路費',
+    p_toll_long:   '長途過路費',
+    updatedBy:     '更新來源',
+    updatedAt:     '更新時間'
+  };
+  const FIELD_ZH_REV = Object.fromEntries(Object.entries(FIELD_ZH).map(([k,v]) => [v,k]));
+  const VEHICLE_TOLL_RATES = {
+    small:   { std: 1.20, long: 0.90, name: '小型車' },
+    large:   { std: 1.50, long: 1.12, name: '大型車' },
+    trailer: { std: 1.80, long: 1.35, name: '聯結車' }
+  };
+
+  function getSelectedVehicleType() {
+    const type = $('p_vehicle_type')?.value || 'large';
+    return VEHICLE_TOLL_RATES[type] ? type : 'large';
+  }
+
+  function getSelectedTollRates() {
+    return VEHICLE_TOLL_RATES[getSelectedVehicleType()] || VEHICLE_TOLL_RATES.large;
+  }
+
+  function inferVehicleTypeByRates(stdRate, longRate) {
+    const near = (a, b) => Math.abs((a || 0) - (b || 0)) < 0.0001;
+    if (near(stdRate, 1.20) && near(longRate, 0.90)) return 'small';
+    if (near(stdRate, 1.80) && near(longRate, 1.35)) return 'trailer';
+    return 'large';
+  }
+
+  function applyVehicleRate() {
+    recalc();
+  }
+
+  function toZhKeys(data) {
+    const out = {};
+    Object.entries(data).forEach(([k, v]) => {
+      out[FIELD_ZH[k] || k] = v;
+    });
+    return out;
+  }
+
+  function fromZhKeys(data) {
+    const out = {};
+    Object.entries(data).forEach(([k, v]) => {
+      out[FIELD_ZH_REV[k] || k] = v;
+    });
+    return out;
+  }
+
+  function applyParamsToForm(saved) {
+    if (!saved) return;
+    const normalized = fromZhKeys(saved);
+    FIELDS.forEach(id => {
+      const el = $(id);
+      if (normalized[id] !== undefined && el) {
+        el.value = normalized[id];
+      }
+    });
+    if (normalized.p_vehicle_type === undefined) {
+      const inferred = inferVehicleTypeByRates(normalized.p_toll_std, normalized.p_toll_long);
+      $('p_vehicle_type').value = inferred;
+    }
+  }
+
+  async function loadParams() {
+    const saved = readJsonFromStorage(PARAMS_KEY);
+    if (saved) applyParamsToForm(saved);
+
+    if (!canUseFirebase()) return;
+    try {
+      const ref = getParamsDocRef();
+      if (!ref) return;
+      const snap = await ref.get();
+      if (snap.exists) {
+        const cloudData = snap.data() || {};
+        localStorage.setItem(PARAMS_KEY, JSON.stringify(cloudData));
+        applyParamsToForm(cloudData);
+      }
+      await flushPendingSync();
+    } catch (err) {
+      console.warn('Transport_admin：讀取雲端參數失敗，改用 localStorage。', err);
+    }
+  }
+
+  async function saveParams() {
+    const data = {};
+    FIELDS.forEach(id => {
+      const el = $(id);
+      if (!el) return;
+      data[id] = id === 'p_vehicle_type' ? el.value : (parseFloat(el.value) || 0);
+    });
+    const rates = getSelectedTollRates();
+    data.p_toll_std = rates.std;
+    data.p_toll_long = rates.long;
+    localStorage.setItem(PARAMS_KEY, JSON.stringify(data));
+    if (!canUseFirebase()) return;
+    try {
+      await writeParamsToCloud(data);
+      await flushPendingSync();
+    } catch (err) {
+      console.warn('Transport_admin：雲端儲存失敗，已加入待同步佇列。', err);
+      appendPendingSync('params_upsert', data);
+    }
+  }
+
+  // ── Recalc preview ──
+  function v(id) { return parseFloat($(id).value) || 0; }
+  function set(id, txt) { $(id).textContent = txt; }
+  function fmt(n) { return n.toLocaleString('zh-TW', {minimumFractionDigits:1, maximumFractionDigits:1}); }
+
+  function recalc() {
+    const A=v('p_maint_cost'), B=v('p_maint_km');
+    const C=v('p_oil_cost'),   D=v('p_oil_km');
+    const F=v('p_tire_cost'),  G=v('p_tire_km');
+    const H=v('p_insurance'),  I=v('p_inspection');
+    const km_m = B ? A/B : 0, km_o = D ? C/D : 0, km_t = G ? F/G : 0;
+    const km_total = km_m + km_o + km_t;
+    set('r_maint',  fmt(km_m)  + ' 元/公里');
+    set('r_oil',    fmt(km_o)  + ' 元/公里');
+    set('r_tire',   fmt(km_t)  + ' 元/公里');
+    const toll = getSelectedTollRates();
+    set('expr_toll_std',  '里程 × 標準過路費 ' + fmt(toll.std));
+    set('expr_toll_long', '超200公里 × 長途過路費 ' + fmt(toll.long));
+    set('r_toll_std',  `前${TOLL_LONG_TRIP_THRESHOLD_KM}公里 × ${fmt(toll.std)} 元`);
+    set('r_toll_long', '超200公里 × ' + fmt(toll.long) + ' 元');
+    set('r_per_km', '未含過路費 ' + fmt(km_total) + '元/公里');
+    set('r_ins_m',  fmt(H/12) + ' 元');
+    set('r_insp_m', fmt(I/12) + ' 元');
+    set('r_monthly',fmt((H+I)/12) + ' 元');
+    const profit = v('p_profit') || 0;
+    const quoteMultiplier = (1 + profit / 100).toFixed(2);
+    $('admin-screen').dataset.quoteMultiplier = quoteMultiplier;
+  }
+
+  // All inputs:
+  // - Backspace keeps native single-char delete.
+  // - Delete clears the whole field.
+  // - If user leaves field without inserting new data, restore previous value.
+  document.querySelectorAll('input[type="number"]').forEach(input => {
+    input.addEventListener('focus', function() {
+      this.dataset.prevValue = this.value;
+      this.dataset.hasInsertedNewValue = '0';
+    });
+
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Delete') {
+        e.preventDefault();
+        this.value = '';
+        if (this.type === 'number') recalc();
+      }
+    });
+
+    input.addEventListener('input', function(e) {
+      const t = e.inputType || '';
+      if (t.startsWith('insert') && this.value !== '') {
+        this.dataset.hasInsertedNewValue = '1';
+      }
+    });
+
+    input.addEventListener('blur', function() {
+      const changed = this.value !== (this.dataset.prevValue ?? '');
+      const hasInserted = this.dataset.hasInsertedNewValue === '1';
+      if (changed && !hasInserted) {
+        this.value = this.dataset.prevValue ?? '';
+        if (this.type === 'number') recalc();
+      }
+    });
+  });
+
+  window.addEventListener('online', () => { flushPendingSync(); });
+
+  (async function initLogin() {
+    try { await initAuthHash(); } catch (e) {}
+    focusPwInput();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=600">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://maps.gstatic.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://maps.googleapis.com https://maps.gstatic.com https://firestore.googleapis.com https://www.googleapis.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<title>運費計算工具</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="API_KEY/config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<style>
+  :root {
+    --bg-dark: #1a1a1a;
+    --bg-card: #2d2d2d;
+    --bg-box: #333;
+    --border-color: #404040;
+    --text-primary: #e0e0e0;
+    --text-secondary: #666;
+    --accent: #ff6b00;
+    --accent-hover: #ff8533;
+    --transition: all .3s ease;
+    --hover-shadow: 0 2px 8px rgba(255,107,0,.2);
+    --btn-shadow: 0 2px 4px rgba(0,0,0,.2);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: var(--bg-dark); color: var(--text-primary); }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 1000; justify-content: center; align-items: center; }
+  .modal-content { background: var(--bg-card); padding: 28px; border-radius: 10px; max-width: 380px; width: 90%; box-shadow: 0 4px 24px rgba(0,0,0,.4); border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; gap: 16px; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+  .modal-title { color: var(--text-primary); font-size: 1.1em; font-weight: 700; border-bottom: 2px solid var(--accent); padding-bottom: 10px; width: 100%; text-align: center; }
+  .modal-message { color: var(--text-primary); font-size: .9em; line-height: 1.8; text-align: center; width: 100%; }
+  .warning-note {
+    display: inline-block;
+    width: 100%;
+    color: #ff6b6b;
+    font-weight: 700;
+    font-size: calc(.9em - 0.5pt);
+    text-align: center;
+    border-radius: 6px;
+    padding: 6px 10px;
+    line-height: 1.6;
+  }
+  .modal-button { padding: 11px 22px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 700; font-family: inherit; transition: var(--transition); color: #fff; width: 100%; max-width: 220px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+  .modal-button:hover { transform: translateY(-1px); box-shadow: var(--btn-shadow); }
+  .modal-button.contact-phone { background: var(--accent); }
+  .modal-button.contact-phone:hover { background: var(--accent-hover); }
+  .modal-button.contact-line { background: #00c300; }
+  .modal-button.contact-cancel { background: #555; }
+  .contact-buttons { display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center; }
+
+  .calculator { background: var(--bg-card); padding: 24px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.3); border: 1px solid var(--border-color); max-width: 500px; margin: 0 auto; }
+  .title-container { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px; }
+  h1 { font-size: 1.3em; font-weight: 900; color: var(--text-primary); flex: 1; }
+  input[type="date"].date-picker { width: 110px; height: 26px; padding: 0 4px; background: transparent; border: none; color: var(--text-primary); font-size: 12px; font-family: inherit; text-align: right; cursor: pointer; outline: none; -webkit-appearance: none; appearance: none; }
+  .date-picker::-webkit-calendar-picker-indicator { display: none; }
+
+  .location-container { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+  .location-box, .input-row, .button-group { padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-box); transition: var(--transition); }
+  .location-box { position: relative; }
+  .location-box:hover, .input-row:hover, .button-group:hover { box-shadow: var(--hover-shadow); transform: translateY(-1px); }
+  .location-box h2, .input-row h2 { margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); font-size: 1em; color: var(--text-primary); }
+  .location-box h2 { display: flex; align-items: center; justify-content: space-between; white-space: nowrap; margin-bottom: 12px; }
+  .input-row h2 { margin: 0 0 14px; }
+  .location-box h2 span { flex: 1; }
+
+  .form-group { margin-bottom: 10px; position: relative; }
+  .form-group:last-child { margin-bottom: 0; }
+  input[type="text"], input[type="number"] { width: 90%; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 13px; font-family: inherit; transition: var(--transition); margin: 0 auto; display: block; background: var(--bg-card); color: var(--text-primary); }
+  input[type="text"]::placeholder, input[type="number"]::placeholder { color: var(--text-secondary); opacity: .8; }
+  input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(255,107,0,.15); outline: none; }
+  input.invalid { border-color: #f44336; }
+  .error-message { color: var(--accent); font-size: .78em; margin-top: 4px; text-align: center; display: block; }
+  input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+  .add-stop-btn { width: 28px; height: 28px; border: none; border-radius: 8px; cursor: pointer; background: var(--accent); color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: var(--transition); flex-shrink: 0; padding: 0; box-shadow: 0 2px 6px rgba(255,107,0,.35); }
+  .add-stop-btn:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,107,0,.4); }
+  .add-stop-btn:disabled { background: #444; cursor: not-allowed; transform: none; box-shadow: none; opacity: .4; }
+  .adjust-buttons { position: absolute; top: 10px; right: 40px; display: flex; gap: 4px; }
+  .up-btn, .down-btn { width: 26px; height: 26px; border: none; border-radius: 6px; cursor: pointer; background: rgba(255,107,0,.15); color: var(--accent); font-size: 14px; display: flex; align-items: center; justify-content: center; transition: var(--transition); padding: 0; border: 1px solid rgba(255,107,0,.25); }
+  .up-btn:hover, .down-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .up-btn:hover { transform: translateY(-2px); }
+  .down-btn:hover { transform: translateY(2px); }
+  .delete-button { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; color: #e05252; background: rgba(224,82,82,.1); border: 1px solid rgba(224,82,82,.2); display: flex; align-items: center; justify-content: center; transition: var(--transition); padding: 0; }
+  .delete-button:hover { background: #e05252; color: #fff; border-color: #e05252; transform: scale(1.1); }
+
+  .button-group { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .button-group.vertical { flex-direction: column; align-items: center; }
+  .button-group.vertical .nav-button, .button-group.vertical .copy-btn { flex: none; width: 90%; }
+  .button-group .nav-button, .button-group .copy-btn { width: 90%; }
+  .nav-button, .copy-btn { padding: 10px 22px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 700; font-family: inherit; transition: var(--transition); color: #fff; min-width: 0; text-align: center; }
+  .nav-button { background: #2196f3; }
+  .nav-button:hover { background: #1976d2; transform: translateY(-1px); box-shadow: var(--btn-shadow); }
+  .copy-btn { background: #9c27b0; }
+  .copy-btn:hover { background: #7b1fa2; transform: translateY(-1px); box-shadow: var(--btn-shadow); }
+
+  .input-row { margin-bottom: 20px; }
+  .time-input-group, .distance-input-group { display: flex; align-items: center; justify-content: center; gap: 4px; background: var(--bg-card); padding: 5px; border-radius: 4px; border: 1px solid var(--border-color); width: 90%; margin: 0 auto; position: relative; transition: var(--transition); }
+  .time-input-group::after { content: ''; position: absolute; left: 50%; top: 8px; bottom: 8px; width: 1px; background: var(--border-color); transform: translateX(-50%); }
+  .time-input-group input, .distance-input-group input { width: 45%; padding: 4px; text-align: center; font-size: 13px; border: none; background: transparent; margin: 0; display: block; color: var(--text-primary); }
+  .distance-input-group input { width: 100%; }
+  .time-input-group input:focus, .distance-input-group input:focus { border: none; box-shadow: none; outline: none; }
+  .total-fare { margin: 14px auto 0; padding: 10px; background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color); text-align: center; width: 90%; min-height: 38px; display: flex; align-items: center; justify-content: center; }
+  .total-fare p { margin: 0; color: var(--text-primary); font-size: 1.2em; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .total-fare .amount { font-weight: 900; color: var(--accent); font-size: 1.2em; }
+  .fare-breakdown { margin: 8px auto 0; width: 90%; font-size: 11px; color: var(--text-secondary); line-height: 1.8; text-align: center; }
+  .notice { font-size: 12px; font-weight: 500; color: #e57373; text-align: center; margin-top: 16px; line-height: 1.7; padding: 0 10px; }
+
+  .btn-auto { display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #1a73e8, #0d47a1); box-shadow: 0 3px 10px rgba(26,115,232,.35); }
+  .btn-auto:hover { box-shadow: 0 6px 16px rgba(26,115,232,.4); }
+  .btn-auto:disabled { background: #444; box-shadow: none; cursor: not-allowed; transform: none; opacity: .6; }
+  .btn-auto .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+  .btn-auto.loading .spinner { display: block; }
+  .btn-auto.loading .btn-auto-text { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- 使用說明 Modal -->
+<div id="warningModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-title">📝 使用說明 📝</div>
+    <div class="modal-message">
+      如果只想初步估價可單填地址試算<br>
+      接著點【自動帶入】自動帶入計算<br>
+      無法帶入可點【查看行程】填數據
+    </div>
+    <button id="confirmButton" class="modal-button contact-phone">我知道了</button>
+    <div class="modal-message">
+      如果需要安排派車或進行最終詢價<br>
+      需填聯絡人、聯絡電話、收送地址<br>
+      最後點選【複製行程】後聯絡客服
+    </div>
+    <div class="modal-message">
+      <span class="warning-note">❗ 本表單僅供初步試算，實際報價依客服為準 ❗</span><br>
+      <span class="warning-note">最終報價將依路況貨物等因素調整</span>
+    </div>
+  </div>
+</div>
+
+<div class="calculator">
+
+  <div class="title-container">
+    <h1>運費計算工具</h1>
+    <input type="date" id="datePicker" class="date-picker">
+  </div>
+
+  <div class="location-container">
+    <div class="location-box">
+      <h2>
+        <span>出發地資訊</span>
+        <button type="button" id="btnAddStop" class="add-stop-btn" title="新增中途停靠點"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg></button>
+      </h2>
+      <div class="form-group"><input type="text" id="startContact" placeholder="聯絡人"></div>
+      <div class="form-group"><input type="text" id="startPhone" placeholder="聯絡電話"></div>
+      <div class="form-group"><input type="text" id="startAddress" placeholder="出發地點" required></div>
+    </div>
+    <div id="stopPointsContainer"></div>
+    <div class="location-box">
+      <h2>目的地資訊</h2>
+      <div class="form-group"><input type="text" id="destContact" placeholder="聯絡人"></div>
+      <div class="form-group"><input type="text" id="destPhone" placeholder="聯絡電話"></div>
+      <div class="form-group"><input type="text" id="destAddress" placeholder="目的地點" required></div>
+    </div>
+  </div>
+
+  <div class="button-group vertical">
+    <button type="button" id="btnAutoFetch" class="nav-button btn-auto">
+      <div class="spinner"></div>
+      <span class="btn-auto-text">⚡ 自動帶入</span>
+    </button>
+    <button type="button" id="btnEstimateTrip" class="nav-button">🗺️ 查看行程</button>
+  </div>
+  <div class="input-row">
+    <h2>運費初步估算</h2>
+    <div class="form-group">
+      <div class="time-input-group">
+        <input type="number" id="hours" min="0" placeholder="小時" oninput="updateResult()">
+        <input type="number" id="minutes" min="0" max="59" placeholder="分鐘" oninput="updateResult()">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="distance-input-group">
+        <input type="number" id="distance" min="0" placeholder="公里" oninput="updateResult()">
+      </div>
+    </div>
+    <div id="totalFare" class="total-fare">
+      <p>預估運費 <span class="amount"></span></p>
+    </div>
+    <div class="fare-breakdown" id="fareBreakdown"></div>
+  </div>
+
+  <div class="button-group vertical">
+    <button type="button" id="btnCopyRoute" class="copy-btn">📋 複製行程</button>
+    <button type="button" id="btnContact" class="nav-button">📞 聯絡客服</button>
+  </div>
+
+  <div class="notice">※ 本表之試算結果僅供參考，最終報價結果以客服為主</div>
+</div>
+
+<script>
+(function(){
+  const MAX_STOPS  = 5;
+  const $ = id => document.getElementById(id);
+  const $$ = sel => document.querySelectorAll(sel);
+  const STOP_POINT_SELECTORS = {
+    contact: 'input[placeholder="聯絡人"]',
+    phone: 'input[placeholder="聯絡電話"]',
+    address: 'input[placeholder="停靠地點"]'
+  };
+  const FORM_INPUT_SELECTOR = 'input[type="text"], input[type="number"]';
+  const DRAFT_FIELD_MAP = {
+    date: 'datePicker',
+    startContact: 'startContact',
+    startPhone: 'startPhone',
+    startAddress: 'startAddress',
+    destContact: 'destContact',
+    destPhone: 'destPhone',
+    destAddress: 'destAddress',
+    hours: 'hours',
+    minutes: 'minutes',
+    distance: 'distance'
+  };
+  const STOP_ACTION_SELECTOR = '.up-btn, .down-btn, .delete-button';
+  const getTrimmedValue = (id) => ($(id)?.value || '').trim();
+  const getWaypointAddresses = () => getStopPoints().map((sp) => sp.address.trim()).filter(Boolean);
+  function setTripEstimateInputs(km, hrs, mins) {
+    $('distance').value = km;
+    $('hours').value = hrs;
+    $('minutes').value = mins;
+  }
+  function getStopPointData(box) {
+    if (!box) return { contact: '', phone: '', address: '' };
+    return {
+      contact: box.querySelector(STOP_POINT_SELECTORS.contact)?.value || '',
+      phone: box.querySelector(STOP_POINT_SELECTORS.phone)?.value || '',
+      address: box.querySelector(STOP_POINT_SELECTORS.address)?.value || ''
+    };
+  }
+  function setStopPointData(box, data) {
+    if (!box) return;
+    const c = box.querySelector(STOP_POINT_SELECTORS.contact);
+    const p = box.querySelector(STOP_POINT_SELECTORS.phone);
+    const a = box.querySelector(STOP_POINT_SELECTORS.address);
+    if (c) c.value = data?.contact || '';
+    if (p) p.value = data?.phone || '';
+    if (a) a.value = data?.address || '';
+  }
+  function getStopPoints() {
+    return Array.from($$('.stop-point-box')).map(getStopPointData);
+  }
+  function collectRouteTotals(route) {
+    return (route?.legs || []).reduce((acc, leg) => {
+      acc.dist += leg?.distance?.value || 0;
+      acc.dur += leg?.duration?.value || 0;
+      return acc;
+    }, { dist: 0, dur: 0 });
+  }
+  function readDraftFields() {
+    const out = {};
+    Object.entries(DRAFT_FIELD_MAP).forEach(([draftKey, elId]) => {
+      out[draftKey] = $(elId)?.value || '';
+    });
+    return out;
+  }
+  function applyDraftFields(draft) {
+    Object.entries(DRAFT_FIELD_MAP).forEach(([draftKey, elId]) => {
+      const el = $(elId);
+      if (!el) return;
+      el.value = draft?.[draftKey] || '';
+    });
+  }
+  const PARAMS_KEY = 'freight_params';
+  const FORM_DRAFT_KEY = 'transport_form_draft';
+  const PENDING_SYNC_KEY = 'freight_pending_sync';
+  const CLIENT_ID_KEY = 'transport_client_id';
+  const PARAMS_DOC_ID = '目前設定';
+  const DEFAULTS   = { p_maint_cost:8000, p_maint_km:10000, p_oil_cost:1300, p_oil_km:500, p_tire_cost:12000, p_tire_km:20000, p_hourly:200, p_insurance:30000, p_inspection:450, p_profit:20, p_toll_std:1.5, p_toll_long:1.12 };
+  const FIELD_ZH_REV = {
+    '維修保養費':'p_maint_cost', '維護里程數':'p_maint_km',
+    '加滿油費用':'p_oil_cost',   '總行駛里程':'p_oil_km',
+    '輪胎養護費':'p_tire_cost',  '輪胎損耗期':'p_tire_km',
+    '基本時薪費':'p_hourly',     '車輛保險費':'p_insurance',
+    '車輛檢驗費':'p_inspection', '報價利潤率':'p_profit',
+    '車型':'p_vehicle_type',     '標準過路費':'p_toll_std',
+    '長途過路費':'p_toll_long',  '更新來源':'updatedBy',
+    '更新時間':'updatedAt'
+  };
+  function fromZhKeys(data) {
+    return Object.fromEntries(Object.entries(data).map(([k, v]) => [FIELD_ZH_REV[k] || k, v]));
+  }
+  const YEARLY_FIXED_COST_KM = 20000;
+  let transportDb = null;
+  let draftSyncTimer = null;
+  let draftSaveTimer = null;
+  const DEPLOY_CONFIG = {
+    deployMode: (window.__TRANSPORT_DEPLOY_MODE__ || 'localStorage').toString(),
+    googleMapsApiKey: (window.__GOOGLE_MAPS_API_KEY_TRANSPORT__ || '').trim(),
+    firebase: {
+      apiKey: (window.__FIREBASE_API_KEY_TRANSPORT__ || '').trim(),
+      authDomain: (window.__FIREBASE_AUTH_DOMAIN_TRANSPORT__ || '').trim(),
+      projectId: (window.__FIREBASE_PROJECT_ID_TRANSPORT__ || '').trim(),
+      storageBucket: (window.__FIREBASE_STORAGE_BUCKET_TRANSPORT__ || '').trim(),
+      messagingSenderId: (window.__FIREBASE_MESSAGING_SENDER_ID_TRANSPORT__ || '').trim(),
+      appId: (window.__FIREBASE_APP_ID_TRANSPORT__ || '').trim(),
+      collection: (window.__FIRESTORE_COLLECTION_TRANSPORT_ORDER__ || '運費訂單').trim() || '運費訂單',
+      paramsCollection: (window.__FIRESTORE_COLLECTION_TRANSPORT_PARAMS__ || '運費參數').trim() || '運費參數'
+    }
+  };
+
+  function getParams() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(PARAMS_KEY));
+      if (!raw) return DEFAULTS;
+      return { ...DEFAULTS, ...fromZhKeys(raw) };
+    }
+    catch(e) { return DEFAULTS; }
+  }
+
+  function readJsonFromStorage(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function hasFirebaseConfig() {
+    const f = DEPLOY_CONFIG.firebase;
+    return !!(f.apiKey && f.authDomain && f.projectId && f.appId);
+  }
+
+  function canUseFirebase() {
+    return DEPLOY_CONFIG.deployMode === 'firebase'
+      && hasFirebaseConfig()
+      && typeof window.firebase !== 'undefined'
+      && typeof window.firebase.firestore === 'function';
+  }
+
+  function initFirestore() {
+    if (!canUseFirebase()) return null;
+    if (transportDb) return transportDb;
+    try {
+      const { apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId } = DEPLOY_CONFIG.firebase;
+      if (!firebase.apps?.length) firebase.initializeApp({ apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId });
+      transportDb = firebase.firestore();
+      return transportDb;
+    } catch (err) {
+      console.warn('Transport：Firebase 初始化失敗，改用 localStorage。', err);
+      return null;
+    }
+  }
+
+  function getParamsDocRef() {
+    const db = initFirestore();
+    if (!db) return null;
+    return db.collection(DEPLOY_CONFIG.firebase.paramsCollection).doc(PARAMS_DOC_ID);
+  }
+
+  function getClientId() {
+    const existing = localStorage.getItem(CLIENT_ID_KEY);
+    if (existing) return existing;
+    const generated = 'c_' + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem(CLIENT_ID_KEY, generated);
+    return generated;
+  }
+
+  function getOrderDocRef() {
+    const db = initFirestore();
+    if (!db) return null;
+    const docId = '草稿_' + getClientId();
+    return db.collection(DEPLOY_CONFIG.firebase.collection).doc(docId);
+  }
+
+  function appendPendingSync(type, payload) {
+    if (DEPLOY_CONFIG.deployMode !== 'firebase') return;
+    if (!hasFirebaseConfig()) return;
+    const queue = (readJsonFromStorage(PENDING_SYNC_KEY) || []).filter((item) => item?.type !== type);
+    queue.push({
+      type,
+      payload,
+      createdAt: Date.now()
+    });
+    localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(queue.slice(-50)));
+  }
+
+  async function writeDraftToCloud(draft) {
+    const ref = getOrderDocRef();
+    if (!ref) return false;
+    await ref.set({
+      ...draft,
+      status: 'draft',
+      clientId: getClientId(),
+      source: 'Transport.html',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    return true;
+  }
+
+  async function flushPendingSync() {
+    const queue = readJsonFromStorage(PENDING_SYNC_KEY) || [];
+    if (!queue.length) return;
+    const failed = [];
+    for (const item of queue) {
+      try {
+        if (item?.type === 'transport_order_draft' && item?.payload) {
+          await writeDraftToCloud(item.payload);
+        } else {
+          failed.push(item);
+        }
+      } catch (err) {
+        failed.push(item);
+      }
+    }
+    localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(failed.slice(-50)));
+  }
+
+  async function syncParamsFromCloud() {
+    if (!canUseFirebase()) return;
+    try {
+      const ref = getParamsDocRef();
+      if (!ref) return;
+      const snap = await ref.get();
+      if (!snap.exists) return;
+      const cloudParams = fromZhKeys(snap.data() || {});
+      localStorage.setItem(PARAMS_KEY, JSON.stringify(cloudParams));
+      updateResult();
+    } catch (err) {
+      console.warn('Transport：讀取雲端參數失敗，改用 localStorage。', err);
+    }
+  }
+
+  function scheduleDraftCloudSync(draft) {
+    if (!canUseFirebase()) return;
+    if (draftSyncTimer) clearTimeout(draftSyncTimer);
+    draftSyncTimer = setTimeout(async () => {
+      try {
+        await writeDraftToCloud(draft);
+        await flushPendingSync();
+      } catch (err) {
+        appendPendingSync('transport_order_draft', draft);
+      }
+    }, 800);
+  }
+
+  function saveDraft() {
+    const draft = {
+      ...readDraftFields(),
+      updatedAt: Date.now(),
+      stopPoints: getStopPoints()
+    };
+    localStorage.setItem(FORM_DRAFT_KEY, JSON.stringify(draft));
+    if (canUseFirebase()) {
+      scheduleDraftCloudSync(draft);
+    } else if (DEPLOY_CONFIG.deployMode === 'firebase') {
+      appendPendingSync('transport_order_draft', draft);
+    }
+  }
+  function scheduleSaveDraft() {
+    if (draftSaveTimer) clearTimeout(draftSaveTimer);
+    draftSaveTimer = setTimeout(saveDraft, 120);
+  }
+
+  function loadDraft() {
+    const draft = readJsonFromStorage(FORM_DRAFT_KEY);
+    if (!draft) return;
+    applyDraftFields(draft);
+
+    const container = $('stopPointsContainer');
+    if (container) container.innerHTML = '';
+    (draft.stopPoints || []).slice(0, MAX_STOPS).forEach((sp) => {
+      addStopPoint({ persist: false });
+      const last = container?.lastElementChild;
+      setStopPointData(last, sp);
+    });
+    updateResult();
+  }
+
+  function ensureGoogleMapsLoaded() {
+    if (typeof google !== 'undefined' && google.maps) {
+      return Promise.resolve();
+    }
+    if (!DEPLOY_CONFIG.googleMapsApiKey) {
+      return Promise.reject(new Error('MISSING_GOOGLE_MAPS_KEY'));
+    }
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector('script[data-role="maps-loader"]');
+      if (existing) {
+        existing.addEventListener('load', () => resolve(), { once: true });
+        existing.addEventListener('error', () => reject(new Error('MAPS_LOAD_FAILED')), { once: true });
+        return;
+      }
+      const script = document.createElement('script');
+      script.async = true;
+      script.defer = true;
+      script.dataset.role = 'maps-loader';
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(DEPLOY_CONFIG.googleMapsApiKey)}&libraries=places`;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('MAPS_LOAD_FAILED'));
+      document.head.appendChild(script);
+    });
+  }
+
+  function getPerKmRate(p) {
+    return (p.p_maint_km ? p.p_maint_cost / p.p_maint_km : 0)
+         + (p.p_oil_km   ? p.p_oil_cost   / p.p_oil_km   : 0)
+         + (p.p_tire_km  ? p.p_tire_cost  / p.p_tire_km  : 0);
+  }
+
+  function getTollCost(p, dist) {
+    if (!dist) return 0;
+    const stdRate  = p.p_toll_std  || 1.5;
+    const longRate = p.p_toll_long || 1.12;
+    if (dist <= 200) return dist * stdRate;
+    return (200 * stdRate) + ((dist - 200) * longRate);
+  }
+
+  window.updateResult = function() {
+    const p      = getParams();
+    const kmRate = getPerKmRate(p);
+    const hourly = p.p_hourly || 200;
+    const dist   = parseFloat($('distance')?.value) || 0;
+    const hrs    = parseFloat($('hours')?.value)    || 0;
+    const mins   = parseFloat($('minutes')?.value)  || 0;
+    const amtEl  = $('totalFare')?.querySelector('.amount');
+    const brkEl  = $('fareBreakdown');
+    if (!dist && !hrs && !mins) {
+      if (amtEl) amtEl.textContent = '';
+      if (brkEl) brkEl.textContent = '';
+      return;
+    }
+    const totalHrs = hrs + mins / 60;
+    const vCost    = dist * kmRate;
+    const lCost    = totalHrs * hourly;
+    const tCost    = getTollCost(p, dist);
+    const fixedPerKm = ((p.p_insurance || 0) + (p.p_inspection || 0)) / YEARLY_FIXED_COST_KM;
+    const fixedCost  = dist * fixedPerKm;
+    const total    = Math.round(vCost + lCost + tCost + fixedCost);
+    const profitRate = (p.p_profit || 0) / 100;
+    const quoted = Math.round(total * (1 + profitRate));
+    if (amtEl) amtEl.textContent = '≈ ' + quoted.toLocaleString() + ' 元';
+    if (brkEl) brkEl.textContent = '（此為含服務費及過路費之估算報價）';
+  };
+
+  function initDatePicker() {
+    const el = $('datePicker');
+    if (!el) return;
+    el.value = new Date().toISOString().slice(0,10);
+    const open = e => { e.preventDefault(); el.showPicker?.(); };
+    el.addEventListener('click', open);
+    el.addEventListener('touchstart', open);
+  }
+
+  function validatePhone(input) {
+    if (!input) return;
+    input.value = input.value.replace(/[^\d-]/g,'');
+    const digits = input.value.replace(/\D/g,'');
+    const parent = input.parentElement;
+    parent?.querySelector('.error-message')?.remove();
+    if (digits) {
+      const ok = /^09\d{8}$/.test(digits) || /^(02|03|04|05|06|07|08)\d{7,8}$/.test(digits);
+      if (!ok) {
+        input.classList.add('invalid');
+        const err = document.createElement('span');
+        err.className = 'error-message';
+        err.textContent = '請輸入有效的電話號碼';
+        parent?.appendChild(err);
+        return;
+      }
+    }
+    input.classList.remove('invalid');
+  }
+
+  function initPhoneDelegation() {
+    const isPhone = el => el?.placeholder === '聯絡電話';
+    document.body.addEventListener('input',    e => { if (isPhone(e.target)) validatePhone(e.target); });
+    document.body.addEventListener('blur',     e => { if (isPhone(e.target)) validatePhone(e.target); }, true);
+    document.body.addEventListener('keypress', e => { if (isPhone(e.target) && !/[\d-]/.test(e.key)) e.preventDefault(); });
+  }
+
+  function initKeyboardNavDelegation() {
+    document.body.addEventListener('keydown', (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLInputElement)) return;
+      if (!target.matches(FORM_INPUT_SELECTOR)) return;
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const inputs = Array.from($$(FORM_INPUT_SELECTOR));
+        const idx = inputs.indexOf(target);
+        inputs[idx + 1]?.focus();
+        return;
+      }
+      if (e.key === 'Delete' && target.type === 'number') {
+        e.preventDefault();
+        target.value = '';
+        updateResult();
+        scheduleSaveDraft();
+      }
+    });
+  }
+
+  function addStopPoint({ persist = true } = {}) {
+    const c = $('stopPointsContainer');
+    if (!c || c.children.length >= MAX_STOPS) { showAlert(`最多新增 ${MAX_STOPS} 個中途停靠點`); return; }
+    const n = c.children.length + 1;
+    const box = document.createElement('div');
+    box.className = 'location-box stop-point-box';
+    box.innerHTML = `
+      <h2>中途停靠點 ${n}</h2>
+      <div class="form-group"><input type="text" placeholder="聯絡人"></div>
+      <div class="form-group"><input type="text" placeholder="聯絡電話"></div>
+      <div class="form-group"><input type="text" placeholder="停靠地點"></div>
+      <div class="adjust-buttons">
+        <button type="button" class="up-btn" title="上移"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,4 10,8"/></svg></button>
+        <button type="button" class="down-btn" title="下移"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,4 6,8 10,4"/></svg></button>
+      </div>
+      <button type="button" class="delete-button" title="刪除"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></button>`;
+    c.appendChild(box);
+    updateStopNums();
+    updateAddBtn();
+    if (persist) scheduleSaveDraft();
+  }
+  function updateStopNums() {
+    $$('.stop-point-box').forEach((b,i) => { const h = b.querySelector('h2'); if(h) h.textContent = `中途停靠點 ${i+1}`; });
+  }
+  function updateAddBtn() {
+    const c = $('stopPointsContainer'), b = $('btnAddStop');
+    if (b && c) b.disabled = c.children.length >= MAX_STOPS;
+  }
+
+  $('stopPointsContainer')?.addEventListener('click', e => {
+    const clickedBtn = e.target.closest(STOP_ACTION_SELECTOR);
+    if (!clickedBtn) return;
+    const box = clickedBtn.closest('.stop-point-box');
+    if (!box) return;
+    const c = $('stopPointsContainer'), list = Array.from(c.children), idx = list.indexOf(box);
+    let changed = false;
+    if (clickedBtn?.classList.contains('up-btn') && idx > 0) {
+      c.insertBefore(box, list[idx-1]);
+      changed = true;
+    } else if (clickedBtn?.classList.contains('down-btn') && idx < list.length - 1) {
+      c.insertBefore(box, list[idx+1].nextSibling);
+      changed = true;
+    } else if (clickedBtn?.classList.contains('delete-button')) {
+      box.remove();
+      updateAddBtn();
+      changed = true;
+    }
+    if (!changed) return;
+    updateStopNums();
+    scheduleSaveDraft();
+  });
+
+  function estimateTrip() {
+    const s = getTrimmedValue('startAddress');
+    const d = getTrimmedValue('destAddress');
+    if (!s || !d) { showAlert('請輸入出發地和目的地地址'); return; }
+    const wp = getWaypointAddresses();
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(s)}&destination=${encodeURIComponent(d)}&travelmode=driving`;
+    if (wp.length) url += `&waypoints=${wp.map(encodeURIComponent).join('|')}`;
+    window.open(url, '_blank');
+  }
+
+  function copyRoute() {
+    const s = getTrimmedValue('startAddress');
+    const d = getTrimmedValue('destAddress');
+    if (!s || !d) { showAlert('出發地、目的地\n無任何資料，請再次確認'); return; }
+    const date = $('datePicker')?.value || '';
+    let t = `您好～我要確認以下行程報價：\n`;
+    if (date) t += `\n預約日期：${date}\n`;
+    t += `\n==========================\n出發地\n姓名：${$('startContact')?.value||''}\n電話：${$('startPhone')?.value||''}\n位置：${s}\n`;
+    getStopPoints().forEach((sp, i) => {
+      if (!sp.address.trim()) return;
+      t += `\n==========================\n中途停靠點 ${i+1}\n姓名：${sp.contact}\n電話：${sp.phone}\n位置：${sp.address}\n`;
+    });
+    t += `\n==========================\n目的地\n姓名：${$('destContact')?.value||''}\n電話：${$('destPhone')?.value||''}\n位置：${d}`;
+    const dist = $('distance')?.value, hrs = $('hours')?.value, mins = $('minutes')?.value;
+    const amt  = $('totalFare')?.querySelector('.amount')?.textContent;
+    if (dist || hrs || mins) {
+      t += `\n\n==========================\n行程估算`;
+      if (hrs||mins) t += `\n時間：${hrs||0} 小時 ${mins||0} 分鐘`;
+      if (dist)      t += `\n距離：${dist} 公里`;
+      if (amt)       t += `\n預估運費：${amt}`;
+    }
+    navigator.clipboard.writeText(t).then(() => showAlert('行程資訊已複製！\n請直接貼上詢價即可')).catch(() => showAlert('複製失敗，請手動複製'));
+  }
+
+  function showContactOptions() {
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay'; ov.style.display = 'flex';
+    ov.innerHTML = `<div class="modal-content">
+      <div class="modal-title">選擇聯繫方式</div>
+      <div class="contact-buttons">
+        <a href="tel:02-6604-4078,168" class="modal-button contact-phone">📞 客服專線</a>
+        <a href="https://line.me/ti/p/O2eWb5quy2" target="_blank" rel="noopener noreferrer" class="modal-button contact-line">💬 LINE 文字客服</a>
+        <button type="button" class="modal-button contact-cancel cancel-x">🤔 我再想想</button>
+      </div></div>`;
+    ov.querySelector('.cancel-x').onclick = () => ov.remove();
+    document.body.appendChild(ov);
+  }
+
+  async function autoFetch() {
+    const start = getTrimmedValue('startAddress');
+    const dest  = getTrimmedValue('destAddress');
+    if (!start || !dest) { showAlert('請先填寫出發地和目的地'); return; }
+
+    try {
+      await ensureGoogleMapsLoaded();
+    } catch (err) {
+      if (err && err.message === 'MISSING_GOOGLE_MAPS_KEY') {
+        showAlert('尚未設定 Google Maps 金鑰，請先在 API_KEY/config.js 設定 __GOOGLE_MAPS_API_KEY_TRANSPORT__');
+        return;
+      }
+      showAlert('Google Maps 載入失敗，請稍後再試');
+      return;
+    }
+
+    const waypoints = getWaypointAddresses().map((addr) => ({ location: addr, stopover: true }));
+
+    const btn = $('btnAutoFetch');
+    const setAutoFetchLoading = (loading) => {
+      btn.disabled = loading;
+      btn.classList.toggle('loading', loading);
+    };
+    setAutoFetchLoading(true);
+
+    const svc = new google.maps.DirectionsService();
+    svc.route({
+      origin:      start,
+      destination: dest,
+      waypoints:   waypoints,
+      travelMode:  google.maps.TravelMode.DRIVING
+    }, (result, status) => {
+      setAutoFetchLoading(false);
+
+      if (status !== 'OK') {
+        showAlert('無法取得路線資料（' + status + '）\n請確認地址是否正確');
+        return;
+      }
+
+      const firstRoute = Array.isArray(result.routes) ? result.routes[0] : null;
+      if (!firstRoute) {
+        showAlert('無法取得有效路線資料，請稍後再試');
+        return;
+      }
+      const totals = collectRouteTotals(firstRoute);
+      const km = Math.round(totals.dist / 1000 * 10) / 10;
+      const totalMinutes = Math.round(totals.dur / 60);
+      const hrs = Math.floor(totalMinutes / 60);
+      const mins = totalMinutes % 60;
+
+      setTripEstimateInputs(km, hrs, mins);
+      updateResult();
+      scheduleSaveDraft();
+    });
+  }
+
+  function showAlert(msg) {
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay'; ov.style.display = 'flex';
+    ov.innerHTML = `<div class="modal-content"><div class="modal-message" style="white-space:pre-line"></div><button class="modal-button contact-phone ok-x">確定</button></div>`;
+    ov.querySelector('.modal-message').textContent = msg;
+    ov.querySelector('.ok-x').onclick = () => ov.remove();
+    document.body.appendChild(ov);
+  }
+
+  const buttonHandlers = { btnAutoFetch: autoFetch, btnAddStop: addStopPoint, btnEstimateTrip: estimateTrip, btnCopyRoute: copyRoute, btnContact: showContactOptions };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = $('warningModal');
+    if (modal) { modal.style.display = 'flex'; $('confirmButton')?.addEventListener('click', () => { modal.style.display = 'none'; }); }
+    initDatePicker();
+    initPhoneDelegation();
+    initKeyboardNavDelegation();
+    document.querySelector('.calculator')?.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (btn?.id && buttonHandlers[btn.id]) buttonHandlers[btn.id]();
+    });
+    document.body.addEventListener('input', scheduleSaveDraft);
+    loadDraft();
+    syncParamsFromCloud();
+    flushPendingSync();
+  });
+  window.addEventListener('online', flushPendingSync);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+# 部署到 GitHub Pages（Transport / Transport_admin 靜態頁）
+# API_KEY/config.js 由 Secret TRANSPORT_CONFIG_JS 寫入，不提交版控
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 產生 API_KEY/config.js
+        run: |
+          mkdir -p API_KEY
+          printf "window.__FIREBASE_API_KEY__ = '%s';\n" "$FIREBASE_API_KEY" > API_KEY/config.js
+          printf "window.__FIREBASE_API_KEY_QUOTATION__ = '%s';\n" "$FIREBASE_API_KEY_QUOTATION" >> API_KEY/config.js
+          printf "window.__FIREBASE_API_KEY_PRICETOOLS__ = '%s';\n" "$FIREBASE_API_KEY_PRICETOOLS" >> API_KEY/config.js
+          printf '%s\n' "$TRANSPORT_CONFIG_JS" >> API_KEY/config.js
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_API_KEY_QUOTATION: ${{ secrets.FIREBASE_API_KEY_QUOTATION }}
+          FIREBASE_API_KEY_PRICETOOLS: ${{ secrets.FIREBASE_API_KEY_PRICETOOLS }}
+          TRANSPORT_CONFIG_JS: ${{ secrets.TRANSPORT_CONFIG_JS }}
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
