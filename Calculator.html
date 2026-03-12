@@ -61,8 +61,6 @@
     .toast.error .toast-message { color: var(--error-color); text-shadow: 0 0 5px rgba(255,51,102,0.7); }
     @keyframes toastFadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="API_KEY/config.js"></script>
 </head>
 <body>
@@ -184,10 +182,76 @@
     if (!_isApiKeySet(firebaseConfig.apiKey)) {
       console.warn('計算機：請在 API_KEY/config.js 設定 __FIREBASE_API_KEY__ 以使用雲端功能。');
     }
-    if (_isApiKeySet(firebaseConfig.apiKey)) {
-      firebase.initializeApp(firebaseConfig);
+    const FIRESTORE_DATABASE_ID = 'calculator';
+    const SERVER_TIMESTAMP_MARKER = { __serverTimestampMarker: true };
+    function serverTimestamp() { return SERVER_TIMESTAMP_MARKER; }
+    function createFirestoreDbAdapter(cfg, databaseId) {
+      const appModuleUrl = 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+      const firestoreModuleUrl = 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+      let firestoreCtxPromise = null;
+      const isPlainObject = (val) => !!val && typeof val === 'object' && !Array.isArray(val);
+      const transformWriteData = (value, ctx) => {
+        if (value === SERVER_TIMESTAMP_MARKER) return ctx.serverTimestamp();
+        if (Array.isArray(value)) return value.map(v => transformWriteData(v, ctx));
+        if (isPlainObject(value)) {
+          const out = {};
+          Object.keys(value).forEach((k) => { out[k] = transformWriteData(value[k], ctx); });
+          return out;
+        }
+        return value;
+      };
+      const wrapDocSnapshot = (snap) => ({ id: snap.id, exists: snap.exists(), data: () => snap.data() });
+      const ensureFirestoreCtx = async () => {
+        if (firestoreCtxPromise) return firestoreCtxPromise;
+        firestoreCtxPromise = (async () => {
+          const appMod = await import(appModuleUrl);
+          const fsMod = await import(firestoreModuleUrl);
+          const app = appMod.getApps().length ? appMod.getApp() : appMod.initializeApp(cfg);
+          const fs = fsMod.getFirestore(app, databaseId);
+          return { ...fsMod, fs };
+        })().catch((e) => {
+          firestoreCtxPromise = null;
+          throw e;
+        });
+        return firestoreCtxPromise;
+      };
+      const getModularDocRef = (ctx, collectionName, docId) => ctx.doc(ctx.fs, collectionName, docId);
+      const createDocRef = (collectionName, docId) => ({
+        async get() {
+          const ctx = await ensureFirestoreCtx();
+          const snap = await ctx.getDoc(getModularDocRef(ctx, collectionName, docId));
+          return wrapDocSnapshot(snap);
+        },
+        async set(data) {
+          const ctx = await ensureFirestoreCtx();
+          await ctx.setDoc(getModularDocRef(ctx, collectionName, docId), transformWriteData(data, ctx));
+        },
+        async update(data) {
+          const ctx = await ensureFirestoreCtx();
+          await ctx.updateDoc(getModularDocRef(ctx, collectionName, docId), transformWriteData(data, ctx));
+        },
+        async delete() {
+          const ctx = await ensureFirestoreCtx();
+          await ctx.deleteDoc(getModularDocRef(ctx, collectionName, docId));
+        }
+      });
+      const createCollectionRef = (collectionName) => ({
+        doc: (docId) => createDocRef(collectionName, docId)
+      });
+      return {
+        collection: (collectionName) => createCollectionRef(collectionName)
+      };
     }
-    const db = (firebase.apps && firebase.apps.length > 0) ? firebase.firestore() : null;
+    let db = null;
+    if (_isApiKeySet(firebaseConfig.apiKey)) {
+      try {
+        db = createFirestoreDbAdapter(firebaseConfig, FIRESTORE_DATABASE_ID);
+      } catch (e) {
+        console.warn(`計算機：連線資料庫 ${FIRESTORE_DATABASE_ID} 失敗。`, e);
+        db = null;
+      }
+    }
+    const productDocRef = (docId) => db.collection('總表').doc(docId);
 
     let currentPreciseWeights = { 單重: null, 總重: null };
     let activeInputState = { element: null, value: '', selectionStart: 0, selectionEnd: 0, isRestoring: false };
@@ -226,6 +290,15 @@
     
     const getUrlParams = () => new URLSearchParams(window.location.search);
     const isEditMode = () => getUrlParams().has('mode') && getUrlParams().get('mode') === 'edit';
+    const getEditPayload = () => {
+      const raw = getUrlParams().get('data');
+      if (!raw) return null;
+      try {
+        return JSON.parse(decodeURIComponent(raw));
+      } catch (e) {
+        return null;
+      }
+    };
     
     const handlePasteClean = (text) => text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
     
@@ -246,18 +319,29 @@
     };
     
     const buildCurrentData = () => {
+      const pageTitleEl = getById('pageTitle');
+      const productPriceEl = getById('product_price');
+      const priceUnitEl = getById('price_unit');
+      const purchaseQuantityEl = getById('purchase_quantity');
+      const priceCurrencyEl = getById('price_currency');
+      const materialCountEl = getById('material_count');
+      const actualPriceEl = getById('profit_margin_rate_n');
+      const resultSingleCostEl = getById('result_single_cost');
+      const resultTotalCostEl = getById('result_total_cost');
+      const suggestedPricingEl = getById('suggested_pricing');
+      const suggestedProfitLossEl = getById('suggested_profit_loss');
       const 單重 = currentPreciseWeights.單重 ? parseFloat(currentPreciseWeights.單重) : '';
       const 內地運費 = getFormattedInlandShipping();
-      let 採購價格 = getById('product_price').value;
-      const 價格單位 = getById('price_unit').value;
-      const 採購數量 = parseFloat(getById('purchase_quantity').value) || 0;
+      let 採購價格 = productPriceEl.value;
+      const 價格單位 = priceUnitEl.value;
+      const 採購數量 = parseFloat(purchaseQuantityEl.value) || 0;
       const priceResult = processPurchasePrice(採購價格, 價格單位, 採購數量);
       採購價格 = priceResult.processedPrice;
       const 原始總價 = priceResult.原始總價;
       
       return {
-        商品名稱: getById('pageTitle').textContent,
-        幣別: getById('price_currency').value,
+        商品名稱: pageTitleEl.textContent,
+        幣別: priceCurrencyEl.value,
         採購價格: parseFloat(採購價格).toFixed(6),
         採購價格顯示: formatNumber(採購價格),
         價格單位: 價格單位,
@@ -266,13 +350,13 @@
         內地運費: 內地運費,
         單重: 單重 ? parseFloat(單重).toFixed(6) : '',
         單重顯示: 單重 ? formatNumber(單重) : '',
-        計材: parseInt(getById('material_count').value) || 0,
-        實際定價: getById('profit_margin_rate_n').value ? formatNumber(getById('profit_margin_rate_n').value, true) : '',
-        單價成本: getById('result_single_cost').textContent.replace('單價：', '').replace(' 元', ''),
-        採購總成本: getById('result_total_cost').textContent.replace('總成本：', '').replace(' 元', ''),
-        建議定價: getById('suggested_pricing').textContent.replace(' 元', ''),
-        定價損益: getById('suggested_profit_loss').textContent.replace(' 元', ''),
-        時間戳記: firebase.firestore.FieldValue.serverTimestamp()
+        計材: parseInt(materialCountEl.value) || 0,
+        實際定價: actualPriceEl.value ? formatNumber(actualPriceEl.value, true) : '',
+        單價成本: resultSingleCostEl.textContent.replace('單價：', '').replace(' 元', ''),
+        採購總成本: resultTotalCostEl.textContent.replace('總成本：', '').replace(' 元', ''),
+        建議定價: suggestedPricingEl.textContent.replace(' 元', ''),
+        定價損益: suggestedProfitLossEl.textContent.replace(' 元', ''),
+        時間戳記: serverTimestamp()
       };
     };
     
@@ -283,12 +367,45 @@
       if (/[+\-*/]$/.test(str.trim())) str = str.trim().slice(0, -1);
       try { return Function('"use strict"; return (' + str + ');')(); } catch (e) { return NaN; }
     };
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      if (!isEditMode()) {
-        await loadFirebaseSettings();
+    const insertTextWithUndo = (element, text) => {
+      if (document.execCommand && document.execCommand('insertText', false, text)) {
+        return true;
       }
-
+      const sel = window.getSelection();
+      const range = sel.rangeCount > 0 ? sel.getRangeAt(0) : document.createRange();
+      if (sel.rangeCount === 0) {
+        range.selectNodeContents(element);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      range.deleteContents();
+      const textNode = document.createTextNode(text);
+      range.insertNode(textNode);
+      range.setStartAfter(textNode);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      return false;
+    };
+    const setupPasteHandler = (element, isInput = false) => {
+      if (!element) return;
+      element.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        const cleanText = handlePasteClean(paste);
+        if (!cleanText) return;
+        if (isInput) {
+          const start = this.selectionStart || 0;
+          const end = this.selectionEnd || 0;
+          const currentValue = this.value;
+          this.value = currentValue.substring(0, start) + cleanText + currentValue.substring(end);
+          this.setSelectionRange(start + cleanText.length, start + cleanText.length);
+          return;
+        }
+        insertTextWithUndo(this, cleanText);
+      });
+    };
+    const initSelectFieldBindings = () => {
       const selectFields = ['price_currency', 'price_unit', 'weight_mode', 'weight_unit'];
       selectFields.forEach(fieldId => {
         const field = getById(fieldId);
@@ -302,76 +419,56 @@
           (fieldId === 'price_currency' || fieldId === 'price_unit') ? handleCurrencyMode() : calculate();
           e.target.blur();
         });
-        field.addEventListener('change', async () => {
+        field.addEventListener('change', () => {
           if (field.dataset.originalValue !== undefined) delete field.dataset.originalValue;
           (fieldId === 'price_currency' || fieldId === 'price_unit') ? handleCurrencyMode() : calculate();
           if (!isExcludedField(fieldId)) lastChangedElement = field;
           autoSaveInEditMode();
         });
       });
-
+    };
+    const initShippingRadioBindings = () => {
       const radioButtons = document.querySelectorAll('input[type="radio"][name="shipping_included"]');
       radioButtons.forEach(radio => {
-        radio.addEventListener('click', e => { const c = document.querySelector('input[name="shipping_included"]:checked'); if (c && c !== e.target) e.target.dataset.originalValue = c.value; });
+        radio.addEventListener('click', e => {
+          const currentChecked = document.querySelector('input[name="shipping_included"]:checked');
+          if (currentChecked && currentChecked !== e.target) e.target.dataset.originalValue = currentChecked.value;
+        });
         radio.addEventListener('keydown', e => {
           if (e.key !== 'Escape' || e.target.dataset.originalValue === undefined) return;
-          const orig = document.querySelector(`input[name="shipping_included"][value="${e.target.dataset.originalValue}"]`);
-          if (orig) { orig.checked = true; e.target.checked = false; }
+          const original = document.querySelector(`input[name="shipping_included"][value="${e.target.dataset.originalValue}"]`);
+          if (original) { original.checked = true; e.target.checked = false; }
           delete e.target.dataset.originalValue;
           handleShippingMode();
           e.target.blur();
         });
-        radio.addEventListener('change', () => { radioButtons.forEach(r => { if (r.dataset.originalValue !== undefined) delete r.dataset.originalValue; }); handleShippingMode(); lastChangedElement = radio; autoSaveInEditMode(); });
+        radio.addEventListener('change', () => {
+          radioButtons.forEach(r => { if (r.dataset.originalValue !== undefined) delete r.dataset.originalValue; });
+          handleShippingMode();
+          lastChangedElement = radio;
+          autoSaveInEditMode();
+        });
       });
+    };
+    const initTitleAndNamePasteHandlers = () => {
+      setupPasteHandler(getById('pageTitle'));
+      setupPasteHandler(getById('productNameInput'), true);
+    };
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      if (!isEditMode()) {
+        await loadFirebaseSettings();
+      }
+
+      initSelectFieldBindings();
+      initShippingRadioBindings();
 
       handleMaterialInput();
       await checkEditMode();
       
       if (!isEditMode()) { handleCurrencyMode(); handleShippingMode(); calculate(); getById('product_price').focus(); }
       attachEnterKeyListeners();
-      const insertTextWithUndo = (element, text) => {
-        if (document.execCommand && document.execCommand('insertText', false, text)) {
-          return true;
-        }
-        const sel = window.getSelection();
-        const range = sel.rangeCount > 0 ? sel.getRangeAt(0) : document.createRange();
-        if (sel.rangeCount === 0) {
-          range.selectNodeContents(element);
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
-        range.deleteContents();
-        const textNode = document.createTextNode(text);
-        range.insertNode(textNode);
-        range.setStartAfter(textNode);
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
-        return false;
-      };
-
-      const setupPasteHandler = (element, isInput = false) => {
-        if (!element) return;
-        element.addEventListener('paste', function(e) {
-          e.preventDefault();
-          const paste = (e.clipboardData || window.clipboardData).getData('text');
-          const cleanText = handlePasteClean(paste);
-          if (cleanText) {
-            if (isInput) {
-              const start = this.selectionStart || 0;
-              const end = this.selectionEnd || 0;
-              const currentValue = this.value;
-              this.value = currentValue.substring(0, start) + cleanText + currentValue.substring(end);
-              this.setSelectionRange(start + cleanText.length, start + cleanText.length);
-            } else {
-              insertTextWithUndo(this, cleanText);
-            }
-          }
-        });
-      };
-      
-      setupPasteHandler(getById('pageTitle'));
-      setupPasteHandler(getById('productNameInput'), true);
+      initTitleAndNamePasteHandlers();
     });
 
     function debounce(func, wait) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => func(...args), wait); }; }
@@ -385,15 +482,17 @@
         isSaving = true;
         const currentData = buildCurrentData();
         const targetDocId = generateSafeDocumentId(currentData.商品名稱);
-        const activeDocId = currentEditDocId || JSON.parse(decodeURIComponent(getUrlParams().get('data'))).id;
+        const editPayload = getEditPayload();
+        const activeDocId = currentEditDocId || editPayload?.id;
+        if (!activeDocId) throw new Error('缺少編輯模式文件 ID');
 
         if (targetDocId && activeDocId && targetDocId !== activeDocId) {
-          await db.collection('總表').doc(targetDocId).set(currentData);
-          await db.collection('總表').doc(activeDocId).delete();
+          await productDocRef(targetDocId).set(currentData);
+          await productDocRef(activeDocId).delete();
           notifyParent({ type: 'updateProductId', oldId: activeDocId, newId: targetDocId, product: currentData });
           currentEditDocId = targetDocId;
         } else {
-          await db.collection('總表').doc(activeDocId).update(currentData);
+          await productDocRef(activeDocId).update(currentData);
           notifyParent({ type: 'calculationComplete', product: currentData });
         }
         showDataChangeStatus(lastChangedElement, 'saved');
@@ -577,8 +676,13 @@
     };
 
     const CNY_FIELDS_WITH_PARENT = ['weight_value', 'material_count'];
-    const handleCurrencyMode = async () => {
+    const handleCurrencyMode = () => {
       const currencyEl = getById('price_currency');
+      const priceUnitEl = getById('price_unit');
+      const shippingNoEl = getById('shipping_included_no');
+      const inlandEl = getById('inland_shipping');
+      const pageTitleEl = getById('pageTitle');
+      const radioGroupEl = document.querySelector('.radio-group');
       if (isEditMode()) {
         currencyEl.value = 'CNY';
         currencyEl.disabled = true;
@@ -597,18 +701,17 @@
       }
 
       const isCNY = currencyEl.value === 'CNY';
-      const isTotalPrice = getById('price_unit').value === 'total';
-      const pageTitle = getById('pageTitle');
-      pageTitle.contentEditable = isCNY ? 'true' : 'false';
-      pageTitle.style.cursor = isCNY ? 'text' : 'pointer';
+      const isTotalPrice = priceUnitEl.value === 'total';
+      pageTitleEl.contentEditable = isCNY ? 'true' : 'false';
+      pageTitleEl.style.cursor = isCNY ? 'text' : 'pointer';
 
       let fieldsToHide = [];
       if (!isCNY) {
         fieldsToHide = ['shipping_included_yes', 'shipping_included_no', 'weight_value', 'weight_mode', 'weight_unit', 'material_count', 'exchange_rate', 'international_shipping', 'inland_shipping'];
       } else if (isTotalPrice) {
         fieldsToHide = ['shipping_included_yes', 'shipping_included_no', 'inland_shipping'];
-        getById('shipping_included_no').checked = true;
-        getById('inland_shipping').value = '';
+        shippingNoEl.checked = true;
+        inlandEl.value = '';
       }
       const fieldsToShow = ['product_price', 'purchase_quantity', 'platform_commission_rate_n', 'profit_margin_rate_n'];
 
@@ -616,8 +719,7 @@
         ['weight_value', 'weight_mode', 'weight_unit', 'material_count', 'exchange_rate', 'international_shipping', 'inland_shipping'].forEach(fieldId => {
           setDisplay(fieldId, CNY_FIELDS_WITH_PARENT.includes(fieldId) ? 'flex' : 'block', CNY_FIELDS_WITH_PARENT.includes(fieldId));
         });
-        const radioGroup = document.querySelector('.radio-group');
-        if (radioGroup) radioGroup.style.display = 'flex';
+        if (radioGroupEl) radioGroupEl.style.display = 'flex';
         ['shipping_included_yes', 'shipping_included_no'].forEach(fieldId => setDisplay(fieldId, 'inline-flex', true));
       }
 
@@ -626,9 +728,8 @@
         const el = getById(fieldId);
         setDisplay(fieldId, 'none', el?.type === 'radio' || hideUseParent.includes(fieldId));
       });
-      const radioGroup = document.querySelector('.radio-group');
-      if (radioGroup && (fieldsToHide.includes('shipping_included_yes') || fieldsToHide.includes('shipping_included_no'))) {
-        radioGroup.style.display = 'none';
+      if (radioGroupEl && (fieldsToHide.includes('shipping_included_yes') || fieldsToHide.includes('shipping_included_no'))) {
+        radioGroupEl.style.display = 'none';
       }
 
       document.querySelectorAll('.card label').forEach(label => {
@@ -667,8 +768,9 @@
       const inland = getById('inland_shipping');
       const isTotal = getById('price_unit').value === 'total';
       const isCNY = getById('price_currency').value === 'CNY';
+      const shippingIncludedYesEl = getById('shipping_included_yes');
       if (isCNY && isTotal) { inland.style.display = 'none'; inland.value = ''; inland.disabled = true; }
-      else if (getById('shipping_included_yes').checked) { inland.style.display = 'block'; inland.disabled = false; if (!inland.value || inland.value === '0') inland.value = ''; }
+      else if (shippingIncludedYesEl.checked) { inland.style.display = 'block'; inland.disabled = false; if (!inland.value || inland.value === '0') inland.value = ''; }
       else { inland.style.display = 'none'; inland.value = ''; inland.disabled = true; }
       calculate();
     };
@@ -678,7 +780,8 @@
       const isTotal = getById('price_unit').value === 'total';
       let flow = [getById('product_price'), getById('purchase_quantity')];
       if (isCNY) {
-        if (!isTotal && getById('shipping_included_yes').checked) flow.push(getById('inland_shipping'));
+        const shippingIncludedYesEl = getById('shipping_included_yes');
+        if (!isTotal && shippingIncludedYesEl.checked) flow.push(getById('inland_shipping'));
         flow.push(getById('weight_value'), getById('material_count'), getById('exchange_rate'), getById('international_shipping'));
       }
       flow.push(getById('platform_commission_rate_n'), getById('profit_margin_rate_n'));
@@ -867,9 +970,9 @@
 
     const checkEditMode = async () => {
       if (isEditMode()) {
-        const params = getUrlParams();
         try {
-          const editData = JSON.parse(decodeURIComponent(params.get('data')));
+          const editData = getEditPayload();
+          if (!editData) throw new Error('缺少編輯資料');
           currentEditDocId = editData.id;
           getById('pageTitle').textContent = editData.商品名稱 || '計算機';
           const currencySelect = getById('price_currency');
@@ -984,14 +1087,17 @@
 
 
     async function saveToFirestore() {
-      const currentTitle = getById('pageTitle').textContent.trim();
+      const pageTitleEl = getById('pageTitle');
+      const productNameInputEl = getById('productNameInput');
+      const nameModalEl = getById('nameModal');
+      const currentTitle = pageTitleEl.textContent.trim();
       
       if (isEditMode()) {
         await confirmSave();
       } else if (currentTitle === '商品名稱' || currentTitle === '') {
-        getById('nameModal').classList.add('show');
-        getById('productNameInput').value = '';
-        getById('productNameInput').focus();
+        nameModalEl.classList.add('show');
+        productNameInputEl.value = '';
+        productNameInputEl.focus();
       } else {
         await confirmSave();
       }
@@ -999,8 +1105,10 @@
 
     function closeNameModal(forceClose = false) {
       const inp = getById('productNameInput');
-      if (!forceClose && inp.value.trim() && inp.value.trim() !== getById('pageTitle').textContent && !confirm('您有未保存的更改，確定要關閉嗎？')) return;
-      getById('nameModal').classList.remove('show');
+      const pageTitleEl = getById('pageTitle');
+      const nameModalEl = getById('nameModal');
+      if (!forceClose && inp.value.trim() && inp.value.trim() !== pageTitleEl.textContent && !confirm('您有未保存的更改，確定要關閉嗎？')) return;
+      nameModalEl.classList.remove('show');
       inp.value = '';
     }
 
@@ -1008,7 +1116,7 @@
     const handleSaveSuccess = (redirect = false) => { showToast('保存成功', true); if (redirect) setTimeout(() => window.location.href = 'Calculator_Products.html', 1000); };
     const updateDocAndNotify = async (docId, data, redirect = true) => {
       try {
-        await db.collection('總表').doc(docId).update(data);
+        await productDocRef(docId).update(data);
         notifyParent({ type: 'updateProductName', productId: docId, newName: data.商品名稱 });
         handleSaveSuccess(redirect);
         return true;
@@ -1020,9 +1128,11 @@
 
     async function confirmSave() {
       try {
-        const currentTitle = getById('pageTitle').textContent.trim();
+        const pageTitleEl = getById('pageTitle');
+        const productNameInputEl = getById('productNameInput');
+        const currentTitle = pageTitleEl.textContent.trim();
         const currentData = buildCurrentData();
-        currentData.商品名稱 = isEditMode() ? currentTitle : (currentTitle !== '商品名稱' ? currentTitle : getById('productNameInput').value.trim());
+        currentData.商品名稱 = isEditMode() ? currentTitle : (currentTitle !== '商品名稱' ? currentTitle : productNameInputEl.value.trim());
 
         if (!isEditMode() && !currentData.商品名稱) {
           showToast('請輸入商品名稱', false);
@@ -1030,8 +1140,11 @@
         }
 
         if (isEditMode()) {
-          const params = getUrlParams();
-          const editData = JSON.parse(decodeURIComponent(params.get('data')));
+          const editData = getEditPayload();
+          if (!editData?.id) {
+            showToast('更新失敗', false);
+            return;
+          }
           const activeDocId = currentEditDocId || editData.id;
           const nameChanged = editData.商品名稱 !== currentData.商品名稱;
           const desiredDocId = generateSafeDocumentId(currentData.商品名稱);
@@ -1041,12 +1154,12 @@
             const newDocId = desiredDocId;
             try {
               if (newDocId !== activeDocId) {
-                await db.collection('總表').doc(newDocId).set(currentData);
-                await db.collection('總表').doc(activeDocId).delete();
+                await productDocRef(newDocId).set(currentData);
+                await productDocRef(activeDocId).delete();
                 notifyParent({ type: 'updateProductId', oldId: activeDocId, newId: newDocId, product: currentData });
                 currentEditDocId = newDocId;
               } else {
-                await db.collection('總表').doc(activeDocId).update(currentData);
+                await productDocRef(activeDocId).update(currentData);
                 notifyParent({ type: 'calculationComplete', product: currentData });
               }
               handleSaveSuccess(true);
@@ -1059,13 +1172,13 @@
         } else {
           const safeDocId = generateSafeDocumentId(currentData.商品名稱);
           try {
-            await db.collection('總表').doc(safeDocId).set(currentData);
+            await productDocRef(safeDocId).set(currentData);
             notifyParent({ type: 'addNewProduct', product: { id: safeDocId, ...currentData } });
             handleSaveSuccess();
           } catch (e) {
             try {
               const timestampedId = `${safeDocId}_${Date.now()}`;
-              await db.collection('總表').doc(timestampedId).set(currentData);
+              await productDocRef(timestampedId).set(currentData);
               notifyParent({ type: 'addNewProduct', product: { id: timestampedId, ...currentData } });
               handleSaveSuccess();
             } catch {
@@ -1073,7 +1186,7 @@
               return;
             }
           }
-          getById('pageTitle').textContent = '商品名稱';
+          pageTitleEl.textContent = '商品名稱';
           ['product_price', 'purchase_quantity', 'inland_shipping', 'weight_value', 'material_count', 'profit_margin_rate_n'].forEach(id => {
             const el = getById(id);
             if (el) el.value = '';

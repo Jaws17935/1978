@@ -15,7 +15,7 @@
         h1::before{top:0;left:0}
         h1::after{bottom:0;right:0}
         h1:hover::before,h1:hover::after{width:100%}
-        .table-container{margin-top:12px;width:100%;max-height:calc(100vh - 280px);overflow-y:auto;position:relative}
+        .table-container{margin-top:12px;width:100%;max-height:calc(100vh - 180px);min-height:60vh;overflow-y:auto;position:relative}
         table{width:100%;min-width:900px;border-collapse:separate;border-spacing:0;table-layout:fixed;margin-bottom:0;background:rgba(0,0,0,.5);border-radius:8px}
 
         thead, thead tr, th { background: var(--thead-bg) !important; position: sticky; top: 0; z-index: 10; backdrop-filter: none; opacity: 1; }
@@ -106,8 +106,6 @@
     </style>
     <!-- Firebase 金鑰來自 API_KEY/config.js（空白版已提交，避免遠端 404） -->
     <script src="API_KEY/config.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -213,12 +211,110 @@
         if (!_isApiKeySet(firebaseConfig.apiKey)) {
             console.warn('商品銷售總表：請在 API_KEY/config.js 設定 __FIREBASE_API_KEY__ 以使用雲端功能。');
         }
-        if (_isApiKeySet(firebaseConfig.apiKey)) {
-            firebase.initializeApp(firebaseConfig);
+        const FIRESTORE_DATABASE_ID = 'calculator';
+        const SERVER_TIMESTAMP_MARKER = { __serverTimestampMarker: true };
+        function serverTimestamp() { return SERVER_TIMESTAMP_MARKER; }
+        function createFirestoreDbAdapter(cfg, databaseId) {
+            const appModuleUrl = 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+            const firestoreModuleUrl = 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+            let firestoreCtxPromise = null;
+            const isPlainObject = (val) => !!val && typeof val === 'object' && !Array.isArray(val);
+            const transformWriteData = (value, ctx) => {
+                if (value === SERVER_TIMESTAMP_MARKER) return ctx.serverTimestamp();
+                if (Array.isArray(value)) return value.map(v => transformWriteData(v, ctx));
+                if (isPlainObject(value)) {
+                    const out = {};
+                    Object.keys(value).forEach((k) => { out[k] = transformWriteData(value[k], ctx); });
+                    return out;
+                }
+                return value;
+            };
+            const wrapDocSnapshot = (snap) => ({ id: snap.id, exists: snap.exists(), data: () => snap.data() });
+            const wrapQuerySnapshot = (snap) => {
+                const docs = snap.docs.map(wrapDocSnapshot);
+                return { size: snap.size, docs, forEach: (cb) => docs.forEach(cb) };
+            };
+            const ensureFirestoreCtx = async () => {
+                if (firestoreCtxPromise) return firestoreCtxPromise;
+                firestoreCtxPromise = (async () => {
+                    const appMod = await import(appModuleUrl);
+                    const fsMod = await import(firestoreModuleUrl);
+                    const app = appMod.getApps().length ? appMod.getApp() : appMod.initializeApp(cfg);
+                    const fs = fsMod.getFirestore(app, databaseId);
+                    return { ...fsMod, fs };
+                })().catch((e) => {
+                    firestoreCtxPromise = null;
+                    throw e;
+                });
+                return firestoreCtxPromise;
+            };
+            const getModularDocRef = (ctx, collectionName, docId) => ctx.doc(ctx.fs, collectionName, docId);
+            const createDocRef = (collectionName, docId) => ({
+                __collectionName: collectionName,
+                __docId: docId,
+                async get() {
+                    const ctx = await ensureFirestoreCtx();
+                    const snap = await ctx.getDoc(getModularDocRef(ctx, collectionName, docId));
+                    return wrapDocSnapshot(snap);
+                },
+                async set(data) {
+                    const ctx = await ensureFirestoreCtx();
+                    await ctx.setDoc(getModularDocRef(ctx, collectionName, docId), transformWriteData(data, ctx));
+                },
+                async update(data) {
+                    const ctx = await ensureFirestoreCtx();
+                    await ctx.updateDoc(getModularDocRef(ctx, collectionName, docId), transformWriteData(data, ctx));
+                },
+                async delete() {
+                    const ctx = await ensureFirestoreCtx();
+                    await ctx.deleteDoc(getModularDocRef(ctx, collectionName, docId));
+                }
+            });
+            const createCollectionRef = (collectionName, constraints = []) => ({
+                doc: (docId) => createDocRef(collectionName, docId),
+                orderBy(field, direction) { return createCollectionRef(collectionName, [...constraints, { type: 'orderBy', field, direction: direction || 'asc' }]); },
+                limit(count) { return createCollectionRef(collectionName, [...constraints, { type: 'limit', count }]); },
+                async get() {
+                    const ctx = await ensureFirestoreCtx();
+                    const colRef = ctx.collection(ctx.fs, collectionName);
+                    const modularConstraints = constraints.map((c) => c.type === 'orderBy' ? ctx.orderBy(c.field, c.direction) : ctx.limit(c.count));
+                    const qRef = modularConstraints.length ? ctx.query(colRef, ...modularConstraints) : colRef;
+                    const snap = await ctx.getDocs(qRef);
+                    return wrapQuerySnapshot(snap);
+                }
+            });
+            return {
+                collection: (collectionName) => createCollectionRef(collectionName),
+                batch: () => {
+                    const operations = [];
+                    return {
+                        update(docRef, data) { operations.push({ type: 'update', docRef, data }); },
+                        async commit() {
+                            const ctx = await ensureFirestoreCtx();
+                            const batch = ctx.writeBatch(ctx.fs);
+                            operations.forEach((op) => {
+                                const modularDocRef = getModularDocRef(ctx, op.docRef.__collectionName, op.docRef.__docId);
+                                if (op.type === 'update') batch.update(modularDocRef, transformWriteData(op.data, ctx));
+                            });
+                            await batch.commit();
+                        }
+                    };
+                }
+            };
         }
-        const db = (firebase.apps && firebase.apps.length > 0) ? firebase.firestore() : null;
+        let db = null;
+        if (_isApiKeySet(firebaseConfig.apiKey)) {
+            try {
+                db = createFirestoreDbAdapter(firebaseConfig, FIRESTORE_DATABASE_ID);
+            } catch (e) {
+                console.warn(`商品銷售總表：連線資料庫 ${FIRESTORE_DATABASE_ID} 失敗。`, e);
+                db = null;
+            }
+        }
+        const settingsDocRef = (docId) => db.collection('設定').doc(docId);
+        const productDocRef = (docId) => db.collection('總表').doc(docId);
         let products = [];
-        const itemsPerPage = 50;
+        const itemsPerPage = 100;
         let currentPage = 1;
         const $ = (id) => document.getElementById(id);
         const $$ = (sel) => document.querySelector(sel);
@@ -280,6 +376,9 @@
         let currentSort = { column: null, direction: 'asc' };
         let selectedItem = null;
         let highlightTimer = null;
+        function clearNameActionStates() {
+            document.querySelectorAll('.商品名稱-cell.show-actions').forEach(c => c.classList.remove('show-actions'));
+        }
         function clearHighlight() {
             if (highlightTimer) {
                 clearTimeout(highlightTimer);
@@ -344,6 +443,73 @@
         };
         
         const CACHE_DURATION = 5 * 60 * 1000;
+        function setNoFirebaseBannerVisible(visible) {
+            const banner = $('noFirebaseBanner');
+            if (banner) banner.style.display = visible ? 'block' : 'none';
+        }
+        function syncViewModeUiState() {
+            initCachedElements();
+            if (cachedElements.viewModeToggle && cachedElements.tableContainer) {
+                cachedElements.viewModeToggle.textContent = isFullView ? '簡易模式' : '完整模式';
+                cachedElements.tableContainer.classList.toggle('simplified-view', !isFullView);
+            }
+        }
+        function isDataCacheValid(now) {
+            return !!(dataCache.settings && dataCache.products && (now - dataCache.lastFetch) < CACHE_DURATION);
+        }
+        function applyCachedData() {
+            settings = dataCache.settings;
+            products = dataCache.products;
+            applySettingsToUI(settings);
+            initTable();
+        }
+        async function fetchSettingsAndProductsSnapshot() {
+            const settingRefs = Object.keys(SETTING_DOC_IDS).map(key => settingsDocRef(SETTING_DOC_IDS[key]).get());
+            const [exchangeRateDoc, internationalShippingDoc, platformCommissionDoc, productsSnapshot] = await Promise.all([
+                ...settingRefs,
+                db.collection('總表').orderBy('時間戳記', 'desc').limit(1000).get()
+            ]);
+            return {
+                settingDocs: [exchangeRateDoc, internationalShippingDoc, platformCommissionDoc],
+                productsSnapshot
+            };
+        }
+        async function resolveSettingsFromDocs(settingDocs) {
+            const allExist = settingDocs.every(d => d.exists);
+            if (allExist) {
+                settings.採購匯率 = settingDocs[0].data()?.value;
+                settings.國際運費 = settingDocs[1].data()?.value;
+                settings.平台抽成 = settingDocs[2].data()?.value;
+                dataCache.settings = settings;
+                applySettingsToUI(settings);
+                try { await settingsDocRef('global').delete(); } catch (e) { /* 若已不存在或權限不足則忽略 */ }
+                return;
+            }
+            const globalDoc = await settingsDocRef('global').get();
+            if (globalDoc.exists) {
+                const legacy = globalDoc.data();
+                settings.採購匯率 = legacy.採購匯率;
+                settings.國際運費 = legacy.國際運費;
+                settings.平台抽成 = legacy.平台抽成;
+                dataCache.settings = settings;
+                applySettingsToUI(settings);
+                await writeSettingsToDocs(undefined, settings);
+                await settingsDocRef('global').delete();
+            }
+        }
+        async function applyPendingUpdatedProductFromLocalStorage() {
+            const updatedData = localStorage.getItem('updatedProductData');
+            if (!updatedData) return;
+            try {
+                const updatedProduct = JSON.parse(updatedData);
+                const index = products.findIndex(p => p.id === updatedProduct.id);
+                if (index !== -1) {
+                    products[index] = { ...products[index], ...updatedProduct };
+                    await productDocRef(updatedProduct.id).update(updatedProduct);
+                }
+                localStorage.removeItem('updatedProductData');
+            } catch (error) {}
+        }
         function applySettingsToUI(s) {
             const el = (id) => $(id);
             if (s.採購匯率 !== undefined && el('globalExchangeRate')) el('globalExchangeRate').value = s.採購匯率;
@@ -353,8 +519,7 @@
 
         async function loadData(forceRefresh = false) {
             try {
-                const banner = document.getElementById('noFirebaseBanner');
-                if (banner) banner.style.display = 'none';
+                setNoFirebaseBannerVisible(false);
                 if (!db) {
                     alert('⚠️ 無法連接 Firebase\n\n請確認：\n1. 網域已加入 Firebase 授權\n2. Repo Secrets 已設定 FIREBASE_API_KEY');
                     initCachedElements();
@@ -363,76 +528,30 @@
                     return;
                 }
                 const now = Date.now();
-                initCachedElements();
-                if (cachedElements.viewModeToggle && cachedElements.tableContainer) {
-                    cachedElements.viewModeToggle.textContent = isFullView ? '簡易模式' : '完整模式';
-                    cachedElements.tableContainer.classList.toggle('simplified-view', !isFullView);
-                }
-                if (!forceRefresh && dataCache.settings && dataCache.products && (now - dataCache.lastFetch) < CACHE_DURATION) {
-                    settings = dataCache.settings;
-                    products = dataCache.products;
-                    applySettingsToUI(settings);
-                    initTable();
+                syncViewModeUiState();
+                if (!forceRefresh && isDataCacheValid(now)) {
+                    applyCachedData();
                     return;
                 }
-                const settingRefs = Object.keys(SETTING_DOC_IDS).map(key =>
-                    db.collection('設定').doc(SETTING_DOC_IDS[key]).get()
-                );
-                const [exchangeRateDoc, internationalShippingDoc, platformCommissionDoc, productsSnapshot] = await Promise.all([
-                    ...settingRefs,
-                    db.collection('總表').orderBy('時間戳記', 'desc').limit(1000).get()
-                ]);
-                const settingDocs = [exchangeRateDoc, internationalShippingDoc, platformCommissionDoc];
-                const allExist = settingDocs.every(d => d.exists);
-                if (allExist) {
-                    settings.採購匯率 = settingDocs[0].data()?.value;
-                    settings.國際運費 = settingDocs[1].data()?.value;
-                    settings.平台抽成 = settingDocs[2].data()?.value;
-                    dataCache.settings = settings;
-                    applySettingsToUI(settings);
-                    try { await db.collection('設定').doc('global').delete(); } catch (e) { /* 若已不存在或權限不足則忽略 */ }
-                } else {
-                    const globalDoc = await db.collection('設定').doc('global').get();
-                    if (globalDoc.exists) {
-                        const legacy = globalDoc.data();
-                        settings.採購匯率 = legacy.採購匯率;
-                        settings.國際運費 = legacy.國際運費;
-                        settings.平台抽成 = legacy.平台抽成;
-                        dataCache.settings = settings;
-                        applySettingsToUI(settings);
-                        await writeSettingsToDocs(undefined, settings);
-                        await db.collection('設定').doc('global').delete();
-                    }
-                }
+                const { settingDocs, productsSnapshot } = await fetchSettingsAndProductsSnapshot();
+                await resolveSettingsFromDocs(settingDocs);
 
                 products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 products.forEach(p => recalculateProduct(p));
                 dataCache.products = products;
                 dataCache.lastFetch = now;
-                const updatedData = localStorage.getItem('updatedProductData');
-                if (updatedData) {
-                    try {
-                        const updatedProduct = JSON.parse(updatedData);
-                        const index = products.findIndex(p => p.id === updatedProduct.id);
-                        if (index !== -1) {
-                            products[index] = { ...products[index], ...updatedProduct };
-                            await db.collection('總表').doc(updatedProduct.id).update(updatedProduct);
-                        }
-                        localStorage.removeItem('updatedProductData');
-                    } catch (error) {
-                    }
-                }
+                await applyPendingUpdatedProductFromLocalStorage();
                 
                 initTable();
             } catch (e) { handleError(e, "載入數據時發生錯誤"); }
         }
 
         async function writeSettingsToDocs(previousSettings, newSettings) {
-            const Timestamp = firebase.firestore.FieldValue.serverTimestamp();
+            const Timestamp = serverTimestamp();
             const keys = ['採購匯率', '國際運費', '平台抽成'];
             for (const key of keys) {
                 const docId = SETTING_DOC_IDS[key];
-                const ref = db.collection('設定').doc(docId);
+                const ref = settingsDocRef(docId);
                 const newVal = newSettings[key];
                 await ref.set({ value: newVal ?? null, updatedAt: Timestamp });
             }
@@ -505,93 +624,100 @@
                     }
 
                     Object.assign(product, updatedData);
-                    batch.update(db.collection('總表').doc(product.id), updatedData);
+                    batch.update(productDocRef(product.id), updatedData);
                 }
 
                 await batch.commit();
                 refreshTableWithSearchState();
             } catch (e) { handleError(e, "重新計算商品數據時發生錯誤"); }
         }
+        const MESSAGE_TYPES = {
+            UPDATE_SETTINGS: 'updateSettings',
+            NEW_PRODUCT: 'newProduct',
+            UPDATE_PRODUCT: 'updateProduct',
+            CALCULATION_COMPLETE: 'calculationComplete',
+            UPDATE_PRODUCT_NAME: 'updateProductName',
+            UPDATE_PRODUCT_ID: 'updateProductId',
+            ADD_NEW_PRODUCT: 'addNewProduct'
+        };
+        async function handleUpdateSettingsMessage(eventData) {
+            const newSettings = eventData.settings;
+            if (!newSettings) return;
+            settings = newSettings;
+            applySettingsToUI(newSettings);
+            await writeSettingsToDocs(settings, newSettings);
+            await recalculateAllProducts();
+        }
+        async function handleNewProductMessage(eventData) {
+            if (!eventData.product.商品名稱 || !eventData.product.商品名稱.trim()) eventData.product.商品名稱 = `未命名商品_${Date.now()}`;
+            const originalName = eventData.product.商品名稱;
+            let safeId = createSafeId(originalName);
+            if (products.find(p => p.id === safeId)) {
+                eventData.product.商品名稱 = `${originalName}_${Date.now()}`;
+                safeId = createSafeId(eventData.product.商品名稱);
+            }
+            const productWithId = { id: safeId, ...eventData.product, 時間戳記: serverTimestamp() };
+            await productDocRef(safeId).set(productWithId);
+            products.unshift({ id: safeId, ...eventData.product });
+            currentPage = 1;
+            refreshTableWithSearchState();
+        }
+        async function handleUpdateProductMessage(eventData) {
+            const index = eventData.index;
+            if (index < 0 || index >= products.length) return;
+            const product = products[index];
+            await productDocRef(product.id).update(eventData.product);
+            products[index] = { ...product, ...eventData.product };
+            refreshTableWithSearchState();
+        }
+        async function handleCalculationCompleteMessage(eventData) {
+            const index = eventData.index;
+            if (index < 0 || index >= products.length) return;
+            const product = products[index];
+            const formattedProduct = normalizeProductFromExternal(eventData.product);
+            Object.assign(product, formattedProduct);
+            recalculateProduct(product);
+            await productDocRef(product.id).update(formattedProduct);
+            refreshTableWithSearchState();
+        }
+        function handleUpdateProductNameMessage(eventData) {
+            const product = products.find(p => p.id === eventData.productId);
+            if (!product) return;
+            product.商品名稱 = eventData.newName;
+            refreshTableWithSearchState();
+        }
+        function handleUpdateProductIdMessage(eventData) {
+            const oldId = eventData.oldId;
+            const newId = eventData.newId;
+            const updatedProduct = eventData.product;
+            const productIndex = products.findIndex(p => p.id === oldId);
+            if (productIndex === -1) return;
+            const merged = { ...products[productIndex], ...updatedProduct, id: newId };
+            // 改名搬移後視為最新資料，前端立即反映到第一列
+            products.splice(productIndex, 1);
+            products.unshift(merged);
+            currentSort = { column: null, direction: 'asc' };
+            refreshTableWithSearchState();
+        }
+        function handleAddNewProductMessage(eventData) {
+            products.unshift(eventData.product);
+            currentPage = 1;
+            refreshTableWithSearchState();
+        }
+        const MESSAGE_HANDLERS = {
+            [MESSAGE_TYPES.UPDATE_SETTINGS]: handleUpdateSettingsMessage,
+            [MESSAGE_TYPES.NEW_PRODUCT]: handleNewProductMessage,
+            [MESSAGE_TYPES.UPDATE_PRODUCT]: handleUpdateProductMessage,
+            [MESSAGE_TYPES.CALCULATION_COMPLETE]: handleCalculationCompleteMessage,
+            [MESSAGE_TYPES.UPDATE_PRODUCT_NAME]: handleUpdateProductNameMessage,
+            [MESSAGE_TYPES.UPDATE_PRODUCT_ID]: handleUpdateProductIdMessage,
+            [MESSAGE_TYPES.ADD_NEW_PRODUCT]: handleAddNewProductMessage
+        };
         window.addEventListener('message', async function(event) {
             try {
-                if (event.data.type === 'updateSettings') {
-                    const newSettings = event.data.settings;
-                    if (newSettings) {
-                        settings = newSettings;
-                        applySettingsToUI(newSettings);
-                        await writeSettingsToDocs(settings, newSettings);
-                        await recalculateAllProducts();
-                    }
-                }
-                else if (event.data.type === 'newProduct') {
-                    if (!event.data.product.商品名稱 || !event.data.product.商品名稱.trim()) event.data.product.商品名稱 = `未命名商品_${Date.now()}`;
-                    let originalName = event.data.product.商品名稱;
-                    let safeId = createSafeId(originalName);
-                    const existingProduct = products.find(p => p.id === safeId);
-                    if (existingProduct) {
-                        event.data.product.商品名稱 = `${originalName}_${Date.now()}`;
-                        safeId = createSafeId(event.data.product.商品名稱);
-                    }
-                    const productWithId = { id: safeId, ...event.data.product, 時間戳記: firebase.firestore.FieldValue.serverTimestamp() };
-                    await db.collection('總表').doc(safeId).set(productWithId);
-                    const newProduct = {
-                        id: safeId,
-                        ...event.data.product
-                    };
-                    products.unshift(newProduct);
-                    currentPage = 1;
-                    refreshTableWithSearchState();
-                }
-                else if (event.data.type === 'updateProduct') {
-                    const index = event.data.index;
-                    if (index >= 0 && index < products.length) {
-                        const product = products[index];
-                        await db.collection('總表').doc(product.id).update(event.data.product);
-                        products[index] = { ...product, ...event.data.product };
-                        refreshTableWithSearchState();
-                    }
-                }
-                else if (event.data.type === 'calculationComplete') {
-                    const index = event.data.index;
-                    if (index >= 0 && index < products.length) {
-                        const product = products[index];
-                        const formattedProduct = normalizeProductFromExternal(event.data.product);
-                        Object.assign(product, formattedProduct);
-                        recalculateProduct(product);
-                        await db.collection('總表').doc(product.id).update(formattedProduct);
-                        refreshTableWithSearchState();
-                    }
-                }
-                else if (event.data.type === 'updateProductName') {
-                    const productId = event.data.productId;
-                    const newName = event.data.newName;
-                    const product = products.find(p => p.id === productId);
-                    if (product) {
-                        product.商品名稱 = newName;
-                        refreshTableWithSearchState();
-                    }
-                }
-                else if (event.data.type === 'updateProductId') {
-                    const oldId = event.data.oldId;
-                    const newId = event.data.newId;
-                    const updatedProduct = event.data.product;
-                    
-                    const productIndex = products.findIndex(p => p.id === oldId);
-                    if (productIndex !== -1) {
-                        const merged = { ...products[productIndex], ...updatedProduct, id: newId };
-                        // 改名搬移後視為最新資料，前端立即反映到第一列
-                        products.splice(productIndex, 1);
-                        products.unshift(merged);
-                        currentSort = { column: null, direction: 'asc' };
-                        refreshTableWithSearchState();
-                    }
-                }
-                else if (event.data.type === 'addNewProduct') {
-                    const newProduct = event.data.product;
-                    products.unshift(newProduct);
-                    currentPage = 1;
-                    refreshTableWithSearchState();
-                }
+                const handler = MESSAGE_HANDLERS[event?.data?.type];
+                if (!handler) return;
+                await handler(event.data);
             } catch (e) { handleError(e, "處理消息時發生錯誤"); }
         });
 
@@ -612,7 +738,7 @@
                         const product = products[returnData.index];
                         if (product && product.id) {
                             const updatedProduct = normalizeProductFromExternal(returnData.product);
-                            await db.collection('總表').doc(product.id).update(updatedProduct);
+                            await productDocRef(product.id).update(updatedProduct);
                             products[returnData.index] = { ...product, ...updatedProduct };
                             recalculateProduct(products[returnData.index]);
                             refreshTableWithSearchState();
@@ -733,17 +859,23 @@
             const modal = $('errorModal');
             const modalBody = $('errorModalBody');
             if (!modal || !modalBody) return;
+            const modalHeader = modal.querySelector('.modal-header');
+            if (modalHeader) modalHeader.style.display = 'none';
             const safeName = (商品名稱 || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-            modalBody.innerHTML = `確定要刪除「${safeName}」嗎？`;
+            modalBody.innerHTML = `
+                <div style="font-weight:700;color:var(--danger-color);">⚠️ 正在刪除 ⚠️</div>
+                <hr style="border:none;border-top:1px solid rgba(0,255,204,.35);margin:10px 0;">
+                <div>「${safeName}」</div>
+            `;
             const footer = modal.querySelector('.modal-footer');
             if (!footer) return;
-            footer.innerHTML = '<button class="confirm" id="confirmSingleDeleteBtn">確定刪除</button><button class="cancel" onclick="closeModal(\'errorModal\')">取消</button>';
+            footer.innerHTML = '<button class="confirm" id="confirmSingleDeleteBtn">是的</button><button class="cancel" onclick="closeModal(\'errorModal\')">取消</button>';
             modal.classList.add('show');
             const confirmBtn = $('confirmSingleDeleteBtn');
             if (confirmBtn) {
                 confirmBtn.onclick = async () => {
                     try {
-                        if (db && product.id) await db.collection('總表').doc(product.id).delete();
+                        if (db && product.id) await productDocRef(product.id).delete();
                         products.splice(index, 1);
                         const totalPages = Math.ceil(products.length / itemsPerPage);
                         if (currentPage > totalPages && totalPages > 0) currentPage = 1;
@@ -794,11 +926,86 @@
             (cachedElements.searchInput && cachedElements.searchInput.value.trim()) ? searchTable() : initTable();
         }
 
+        function scrollTableContainerToTop() {
+            initCachedElements();
+            if (cachedElements.tableContainer) {
+                cachedElements.tableContainer.scrollTop = 0;
+            }
+        }
+
+        let tableScrollSnapTimer = null;
+        let tableScrollSnapLock = false;
+        function getAverageRowHeight() {
+            initCachedElements();
+            const tbody = cachedElements.tbody;
+            if (!tbody) return 0;
+            const rows = tbody.querySelectorAll('tr');
+            if (!rows.length) return 0;
+
+            const sampleCount = Math.min(rows.length, 5);
+            let totalHeight = 0;
+            let validCount = 0;
+            for (let i = 0; i < sampleCount; i++) {
+                const row = rows[i];
+                const cells = row.querySelectorAll('td');
+                if (cells.length > 0) {
+                    let rowCellTotal = 0;
+                    let rowCellCount = 0;
+                    cells.forEach((cell) => {
+                        const h = cell.getBoundingClientRect().height;
+                        if (h > 0) {
+                            rowCellTotal += h;
+                            rowCellCount++;
+                        }
+                    });
+                    if (rowCellCount > 0) {
+                        totalHeight += rowCellTotal / rowCellCount;
+                        validCount++;
+                        continue;
+                    }
+                }
+                const rowHeight = row.getBoundingClientRect().height;
+                if (rowHeight > 0) {
+                    totalHeight += rowHeight;
+                    validCount++;
+                }
+            }
+            return validCount > 0 ? totalHeight / validCount : 0;
+        }
+
+        function snapTableScrollToRow() {
+            initCachedElements();
+            const tableContainer = cachedElements.tableContainer;
+            if (!tableContainer || tableScrollSnapLock) return;
+
+            const active = document.activeElement;
+            if (active && active.classList && active.classList.contains('cell-edit-input')) return;
+
+            const rowHeight = getAverageRowHeight();
+            if (!rowHeight || rowHeight < 1) return;
+
+            const maxScrollTop = tableContainer.scrollHeight - tableContainer.clientHeight;
+            if (maxScrollTop <= 0) return;
+
+            const currentTop = tableContainer.scrollTop;
+            const snappedTop = Math.max(0, Math.min(maxScrollTop, Math.round(currentTop / rowHeight) * rowHeight));
+            if (Math.abs(snappedTop - currentTop) < 1) return;
+
+            tableScrollSnapLock = true;
+            tableContainer.scrollTo({ top: snappedTop, behavior: 'smooth' });
+            setTimeout(() => { tableScrollSnapLock = false; }, 160);
+        }
+
+        function scheduleTableScrollSnap() {
+            if (tableScrollSnapTimer) clearTimeout(tableScrollSnapTimer);
+            tableScrollSnapTimer = setTimeout(snapTableScrollToRow, 90);
+        }
+
         async function persistProductAndRefresh(product) {
             const updateData = { ...product };
             delete updateData.總重;
-            product.時間戳記 = updateData.時間戳記 = firebase.firestore.FieldValue.serverTimestamp();
-            await db.collection('總表').doc(product.id).update(updateData);
+            product.時間戳記 = updateData.時間戳記 = serverTimestamp();
+            await productDocRef(product.id).update(updateData);
             const idx = products.indexOf(product);
             if (idx > 0) {
                 products.splice(idx, 1);
@@ -900,20 +1107,32 @@
             if (currentPage > 1) {
                 const prevBtn = document.createElement('button');
                 prevBtn.textContent = '<';
-                prevBtn.onclick = () => { currentPage--; refresh(); };
+                prevBtn.onclick = () => {
+                    currentPage--;
+                    refresh();
+                    scrollTableContainerToTop();
+                };
                 cachedElements.pagination.appendChild(prevBtn);
             }
             for (let i = 1; i <= totalPages; i++) {
                 const btn = document.createElement('button');
                 btn.textContent = i;
                 if (i === currentPage) btn.classList.add('active');
-                btn.onclick = () => { currentPage = i; refresh(); };
+                btn.onclick = () => {
+                    currentPage = i;
+                    refresh();
+                    scrollTableContainerToTop();
+                };
                 cachedElements.pagination.appendChild(btn);
             }
             if (currentPage < totalPages) {
                 const nextBtn = document.createElement('button');
                 nextBtn.textContent = '>';
-                nextBtn.onclick = () => { currentPage++; refresh(); };
+                nextBtn.onclick = () => {
+                    currentPage++;
+                    refresh();
+                    scrollTableContainerToTop();
+                };
                 cachedElements.pagination.appendChild(nextBtn);
             }
         }
@@ -1003,14 +1222,64 @@
         function updateFilteredPagination(totalItems) {
             updatePaginationBar(totalItems, searchTable);
         }
-
-        function attachCellEditInput(cell, field, index, product, currentValue) {
+        function createCellEditInput(field) {
             const input = document.createElement('input');
             input.type = DECIMAL_FIELDS.includes(field) || INTEGER_FIELDS.includes(field) ? 'number' : 'text';
             if (DECIMAL_FIELDS.includes(field)) input.step = '0.01';
             else if (INTEGER_FIELDS.includes(field)) input.step = '1';
             input.value = '';
             input.className = 'cell-edit-input';
+            return input;
+        }
+        function restoreCellContent(cell, originalContent) {
+            cell.innerHTML = originalContent;
+        }
+        function notifyOpenerMessage(payload) {
+            if (window.opener && !window.opener.closed) window.opener.postMessage(payload, '*');
+        }
+        async function handleActualPriceFieldBlur({ cell, originalContent, field, product, index, currentValue, newValue }) {
+            if (newValue === '') {
+                restoreCellContent(cell, originalContent);
+                return;
+            }
+            if (newValue !== currentValue) {
+                try {
+                    product.最後修改欄位 = field;
+                    product[field] = newValue;
+                    recalculateProduct(product);
+                    await persistProductAndRefresh(product);
+                    notifyOpenerMessage({ type: 'updateProduct', index: products.indexOf(product), product });
+                } catch (e) {
+                    handleError(e, "更新商品數據時發生錯誤");
+                    restoreCellContent(cell, originalContent);
+                }
+            } else {
+                refreshTable();
+            }
+        }
+        async function handleGeneralFieldBlur({ cell, originalContent, field, product, index, currentValue, newValue }) {
+            if (newValue === '') {
+                restoreCellContent(cell, originalContent);
+                return;
+            }
+            if (newValue !== currentValue) {
+                try {
+                    product.最後修改欄位 = field;
+                    product[field] = INTEGER_FIELDS.includes(field) ? parseIntVal(newValue) : parseNum(newValue);
+                    recalculateProduct(product);
+                    await persistProductAndRefresh(product);
+                    notifyOpenerMessage({ type: 'updateField', index, field, value: newValue });
+                } catch (e) {
+                    handleError(e, "更新數據時發生錯誤");
+                    restoreCellContent(cell, originalContent);
+                }
+            } else {
+                restoreCellContent(cell, originalContent);
+            }
+        }
+
+        function attachCellEditInput(cell, field, index, product, currentValue) {
+            const input = createCellEditInput(field);
             const originalContent = cell.innerHTML;
             cell.innerHTML = '';
             cell.appendChild(input);
@@ -1028,36 +1297,10 @@
             input.addEventListener('blur', async function() {
                 const newValue = this.value.trim();
                 if (field === '實際定價') {
-                    if (newValue === '') { cell.innerHTML = originalContent; return; }
-                    if (newValue !== currentValue) {
-                        try {
-                            product.最後修改欄位 = field;
-                            product[field] = newValue;
-                            recalculateProduct(product);
-                            await persistProductAndRefresh(product);
-                            if (window.opener && !window.opener.closed)
-                                window.opener.postMessage({ type: 'updateProduct', index: products.indexOf(product), product }, '*');
-                        } catch (e) {
-                            handleError(e, "更新商品數據時發生錯誤");
-                            cell.innerHTML = originalContent;
-                        }
-                    } else refreshTable();
+                    await handleActualPriceFieldBlur({ cell, originalContent, field, product, index, currentValue, newValue });
                     return;
                 }
-                if (newValue === '') { cell.innerHTML = originalContent; return; }
-                if (newValue !== currentValue) {
-                    try {
-                        product.最後修改欄位 = field;
-                        product[field] = INTEGER_FIELDS.includes(field) ? parseIntVal(newValue) : parseNum(newValue);
-                        recalculateProduct(product);
-                        await persistProductAndRefresh(product);
-                        if (window.opener && !window.opener.closed)
-                            window.opener.postMessage({ type: 'updateField', index, field, value: newValue }, '*');
-                    } catch (e) {
-                        handleError(e, "更新數據時發生錯誤");
-                        cell.innerHTML = originalContent;
-                    }
-                } else cell.innerHTML = originalContent;
+                await handleGeneralFieldBlur({ cell, originalContent, field, product, index, currentValue, newValue });
             });
         }
 
@@ -1067,32 +1310,36 @@
             initCachedElements();
             const tableContainer = cachedElements.tableContainer;
             if (!tableContainer) return;
+            tableContainer.addEventListener('scroll', function() {
+                if (tableScrollSnapLock) return;
+                scheduleTableScrollSnap();
+            }, { passive: true });
             tableContainer.addEventListener('click', function(e) {
                 const btnEdit = e.target.closest('.商品名稱-action-edit');
                 const btnDelete = e.target.closest('.商品名稱-action-delete');
                 if (btnEdit) {
                     const idx = parseInt(btnEdit.dataset.index);
                     if (!isNaN(idx)) openEditPage(idx);
-                    document.querySelectorAll('.商品名稱-cell.show-actions').forEach(c => c.classList.remove('show-actions'));
+                    clearNameActionStates();
                     return;
                 }
                 if (btnDelete) {
                     const idx = parseInt(btnDelete.dataset.index);
                     if (!isNaN(idx)) showConfirmDeleteSingle(idx);
-                    document.querySelectorAll('.商品名稱-cell.show-actions').forEach(c => c.classList.remove('show-actions'));
+                    clearNameActionStates();
                     return;
                 }
                 const nameCell = e.target.closest('.商品名稱-cell');
                 if (nameCell && !e.target.closest('.商品名稱-action-btn')) {
                     clearSelection();
                     const had = nameCell.classList.contains('show-actions');
-                    document.querySelectorAll('.商品名稱-cell.show-actions').forEach(c => c.classList.remove('show-actions'));
+                    clearNameActionStates();
                     if (!had) nameCell.classList.add('show-actions');
                     return;
                 }
                 const cell = e.target.closest('.editable-cell');
                 if (!cell) return;
-                document.querySelectorAll('.商品名稱-cell.show-actions').forEach(c => c.classList.remove('show-actions'));
+                clearNameActionStates();
                 if (e.target.classList.contains('cell-edit-input')) return;
                 
                 const field = cell.dataset.field;
@@ -1206,20 +1453,47 @@
             document.addEventListener('click', function(e) { if (!e.target.closest('.batch-dropdown')) dropdown.classList.remove('show'); });
             dropdown.addEventListener('click', function(e) { e.stopPropagation(); });
         }
+        function initGlobalSettingInputs() {
+            [$('globalExchangeRate'), $('globalInternationalShipping'), $('globalPlatformCommission')]
+                .filter(Boolean)
+                .forEach(attachDecimalSettingInput);
+        }
+        function initHeaderSortBinding() {
+            const productTable = $('productTable');
+            if (productTable) {
+                productTable.addEventListener('click', function(e) {
+                    const th = e.target.closest('.sortable');
+                    if (th) sortTable(th.dataset.field);
+                });
+            }
+        }
+        function initSearchClearShortcut() {
+            const searchInput = cachedElements.searchInput;
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Delete') {
+                        e.preventDefault();
+                        this.value = '';
+                        searchTable();
+                    }
+                });
+            }
+        }
+        function initOutsideClickCloseNameActions() {
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.商品名稱-cell')) clearNameActionStates();
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
-            [$('globalExchangeRate'), $('globalInternationalShipping'), $('globalPlatformCommission')].filter(Boolean).forEach(attachDecimalSettingInput);
+            initGlobalSettingInputs();
             initBatchDropdown();
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.商品名稱-cell')) document.querySelectorAll('.商品名稱-cell.show-actions').forEach(c => c.classList.remove('show-actions'));
-            });
-            const productTable = $('productTable');
-            if (productTable) productTable.addEventListener('click', function(e) { const th = e.target.closest('.sortable'); if (th) sortTable(th.dataset.field); });
+            initOutsideClickCloseNameActions();
+            initHeaderSortBinding();
             updateTableHeaders();
             initCachedElements();
             loadData();
-            const searchInput = cachedElements.searchInput;
-            if (searchInput) searchInput.addEventListener('keydown', function(e) { if (e.key === 'Delete') { e.preventDefault(); this.value = ''; searchTable(); } });
+            initSearchClearShortcut();
         });
 
         function productToExportRow(product) {
@@ -1304,7 +1578,7 @@
                                 國際運費: settings.國際運費 || 0,
                                 採購匯率: settings.採購匯率 || 0,
                                 平台抽成: settings.平台抽成 || 0,
-                                時間戳記: firebase.firestore.FieldValue.serverTimestamp()
+                                時間戳記: serverTimestamp()
                             };
                             if (!productData.商品名稱) hasError = true;
                             if (productData.採購數量 <= 0) hasError = true;
@@ -1345,7 +1619,7 @@
                                 safeId = createSafeId(productData.商品名稱);
                             }
                             productData.id = safeId;
-                            await db.collection('總表').doc(safeId).set(productData);
+                            await productDocRef(safeId).set(productData);
                             products.unshift(productData);
                         }
                         initTable();
@@ -1369,6 +1643,8 @@
             const modal = $('errorModal');
             const modalBody = $('errorModalBody');
             if (!modal || !modalBody) return;
+            const modalHeader = modal.querySelector('.modal-header');
+            if (modalHeader) modalHeader.style.display = 'block';
             modalBody.innerHTML = message;
             const footer = modal.querySelector('.modal-footer');
             if (footer) {
