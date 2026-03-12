@@ -27,9 +27,12 @@ jobs:
       - name: 產生 API_KEY/config.js
         run: |
           mkdir -p API_KEY
-          printf "window.__FIREBASE_API_KEY__ = '%s';\n" "$FIREBASE_API_KEY" > API_KEY/config.js
-          printf "window.__FIREBASE_API_KEY_QUOTATION__ = '%s';\n" "$FIREBASE_API_KEY_QUOTATION" >> API_KEY/config.js
-          printf "window.__FIREBASE_API_KEY_PRICETOOLS__ = '%s';\n" "$FIREBASE_API_KEY_PRICETOOLS" >> API_KEY/config.js
+          KEY1=$(echo "$FIREBASE_API_KEY" | tr -d '[:space:]')
+          KEY2=$(echo "$FIREBASE_API_KEY_QUOTATION" | tr -d '[:space:]')
+          KEY3=$(echo "$FIREBASE_API_KEY_PRICETOOLS" | tr -d '[:space:]')
+          printf "window.__FIREBASE_API_KEY__ = '%s';\n" "$KEY1" > API_KEY/config.js
+          printf "window.__FIREBASE_API_KEY_QUOTATION__ = '%s';\n" "$KEY2" >> API_KEY/config.js
+          printf "window.__FIREBASE_API_KEY_PRICETOOLS__ = '%s';\n" "$KEY3" >> API_KEY/config.js
           printf '%s\n' "$TRANSPORT_CONFIG_JS" >> API_KEY/config.js
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
