@@ -55,6 +55,11 @@
         .modal-content-info { border: 1px solid var(--primary-color); }
         .modal-content-info .modal-body { color: var(--primary-color); text-align: center; font-size: 1.1em; }
         .modal-footer .btn-info { border: 1px solid var(--primary-color); color: var(--primary-color); background: var(--input-bg); }
+        .import-progress-wrap { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+        .import-progress-status { color: #fff; font-size: 0.9em; }
+        .import-progress-track { width: 100%; height: 10px; border-radius: 999px; background: rgba(255,255,255,0.15); overflow: hidden; border: 1px solid var(--border-subtle); }
+        .import-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, rgba(0,255,204,0.55), rgba(0,255,204,0.95)); transition: width 0.2s ease; }
+        .import-progress-text { color: var(--primary-color); font-size: 0.95em; font-weight: bold; }
         .modal-title-danger { color: var(--danger-color); text-align: center; margin: 0; }
         .modal-body { color: #fff; margin-bottom: 12px; text-align: center; flex: 1 1 auto; padding: 8px 0; }
         .modal-footer { display: flex; justify-content: center; gap: 8px; margin-top: 4px; }
@@ -318,6 +323,7 @@
         let currentPage = 1;
         const $ = (id) => document.getElementById(id);
         const $$ = (sel) => document.querySelector(sel);
+        let isImportingInProgress = false;
 
         const SETTING_DOC_IDS = { 採購匯率: '採購匯率', 國際運費: '國際運費', 平台抽成: '平台抽成' };
         let settings = {
@@ -370,6 +376,10 @@
                 定價毛利率: (revenue > 0 ? (定價損益 / revenue) * 100 : 0).toFixed(2),
                 定價報酬率: (單價成本 > 0 ? (定價損益 / 單價成本) * 100 : 0).toFixed(2)
             };
+        }
+        function getSafePlatformRate(commissionPercent) {
+            const rate = 1 - (parseNum(commissionPercent) / 100);
+            return rate > 0 ? rate : 0;
         }
 
         let isFullView = false;
@@ -493,7 +503,7 @@
                 settings.平台抽成 = legacy.平台抽成;
                 dataCache.settings = settings;
                 applySettingsToUI(settings);
-                await writeSettingsToDocs(undefined, settings);
+                await writeSettingsToDocs(settings);
                 await settingsDocRef('global').delete();
             }
         }
@@ -546,7 +556,7 @@
             } catch (e) { handleError(e, "載入數據時發生錯誤"); }
         }
 
-        async function writeSettingsToDocs(previousSettings, newSettings) {
+        async function writeSettingsToDocs(newSettings) {
             const Timestamp = serverTimestamp();
             const keys = ['採購匯率', '國際運費', '平台抽成'];
             for (const key of keys) {
@@ -562,9 +572,8 @@
                 const read = id => { const el = $(id); return !el ? undefined : (el.value === '' ? undefined : parseFloat(el.value)); };
                 const newV = { 採購匯率: read('globalExchangeRate'), 國際運費: read('globalInternationalShipping'), 平台抽成: read('globalPlatformCommission') };
                 if (settings.採購匯率 === newV.採購匯率 && settings.國際運費 === newV.國際運費 && settings.平台抽成 === newV.平台抽成) return;
-                const previousSettings = { ...settings };
                 settings = { ...settings, ...newV };
-                await writeSettingsToDocs(previousSettings, settings);
+                await writeSettingsToDocs(settings);
                 if (window.opener && !window.opener.closed) window.opener.postMessage({ type: 'updateSettings', settings }, '*');
                 products.forEach(p => recalculateProduct(p));
                 refreshTableWithSearchState();
@@ -587,10 +596,10 @@
                         const 採購總成本 = costAfterExchange + internationalShippingTotal;
                         const 單價成本 = 採購總成本 / parseNum(product.採購數量);
 
-                        const 建議定價 = 單價成本 / (1 - settings.平台抽成 / 100);
+                        const platformRate = getSafePlatformRate(settings.平台抽成);
+                        const 建議定價 = platformRate > 0 ? (單價成本 / platformRate) : 0;
                         const 實際定價 = parseNum(product.實際定價);
                         const priceForCalc = 實際定價 > 0 ? 實際定價 : 建議定價;
-                        const platformRate = 1 - settings.平台抽成 / 100;
                         const 定價損益 = (priceForCalc * platformRate) - 單價成本;
                         const revenue = priceForCalc * platformRate;
                         const rates = calcRates(定價損益, revenue, 單價成本);
@@ -607,10 +616,10 @@
                         };
                     } else {
                         const 單價成本 = parseNum(product.單價成本);
-                        const 建議定價 = 單價成本 / (1 - settings.平台抽成 / 100);
+                        const platformRate = getSafePlatformRate(settings.平台抽成);
+                        const 建議定價 = platformRate > 0 ? (單價成本 / platformRate) : 0;
                         const 實際定價 = parseNum(product.實際定價);
                         const priceForCalc = 實際定價 > 0 ? 實際定價 : 建議定價;
-                        const platformRate = 1 - settings.平台抽成 / 100;
                         const 定價損益 = (priceForCalc * platformRate) - 單價成本;
                         const revenue = priceForCalc * platformRate;
                         const rates = calcRates(定價損益, revenue, 單價成本);
@@ -645,7 +654,7 @@
             if (!newSettings) return;
             settings = newSettings;
             applySettingsToUI(newSettings);
-            await writeSettingsToDocs(settings, newSettings);
+            await writeSettingsToDocs(newSettings);
             await recalculateAllProducts();
         }
         async function handleNewProductMessage(eventData) {
@@ -731,6 +740,7 @@
 
         window.addEventListener('load', async function() {
             try {
+                await loadData();
                 const params = new URLSearchParams(window.location.search);
                 if (params.has('returnData')) {
                     const returnData = JSON.parse(decodeURIComponent(params.get('returnData')));
@@ -746,7 +756,6 @@
                     }
                 }
             } catch (e) { handleError(e, "處理返回數據時發生錯誤"); }
-            await loadData();
         });
         function recalculateProduct(product) {
             try {
@@ -792,8 +801,8 @@
                 }
 
                 // 計算建議定價和損益
-                const platformRate = 1 - (平台抽成 / 100);
-                const 建議定價 = 單價成本 / platformRate;
+                const platformRate = getSafePlatformRate(平台抽成);
+                const 建議定價 = platformRate > 0 ? (單價成本 / platformRate) : 0;
                 product.建議定價 = 建議定價.toFixed(2);
 
                 // 如果實際定價為 0 或未輸入，使用建議定價進行計算
@@ -878,7 +887,7 @@
                         if (db && product.id) await productDocRef(product.id).delete();
                         products.splice(index, 1);
                         const totalPages = Math.ceil(products.length / itemsPerPage);
-                        if (currentPage > totalPages && totalPages > 0) currentPage = 1;
+                        if (currentPage > totalPages) currentPage = 1;
                         closeModal('errorModal');
                         refreshTableWithSearchState();
                     } catch (e) {
@@ -888,7 +897,6 @@
                 };
             }
         }
-
         function toggleViewMode() {
             initCachedElements();
             isFullView = !isFullView;
@@ -1492,7 +1500,6 @@
             initHeaderSortBinding();
             updateTableHeaders();
             initCachedElements();
-            loadData();
             initSearchClearShortcut();
         });
 
@@ -1518,6 +1525,43 @@
                 '定價報酬率': (parseFloat(product.定價報酬率) || 0).toFixed(2) + '%'
             };
         }
+        const IMPORT_HEADER_ALIASES = {
+            商品名稱: ['商品名稱', '品名', '商品'],
+            採購價格: ['採購價格', '採購單價', '採購價'],
+            採購數量: ['採購數量', '數量'],
+            內地運費: ['內地運費', '內地物流', '內陸運費'],
+            單重: ['單重', '單件重量'],
+            總重: ['總重', '總重量'],
+            計材: ['計材', '材積'],
+            實際定價: ['實際定價', '售價', '實售價格']
+        };
+        const IMPORT_REQUIRED_FIELDS = ['商品名稱', '採購價格', '採購數量'];
+        function normalizeImportHeaderText(val) {
+            return String(val === undefined || val === null ? '' : val)
+                .replace(/\uFEFF/g, '')
+                .replace(/\s+/g, '')
+                .trim();
+        }
+        function resolveImportHeaderIndexes(headers) {
+            const normalizedHeaders = headers.map(normalizeImportHeaderText);
+            const indexes = {};
+            Object.keys(IMPORT_HEADER_ALIASES).forEach((field) => {
+                const normalizedAliases = IMPORT_HEADER_ALIASES[field].map(normalizeImportHeaderText);
+                indexes[field] = normalizedHeaders.findIndex((header) => normalizedAliases.includes(header));
+            });
+            const missingRequiredHeaders = IMPORT_REQUIRED_FIELDS.filter((field) => indexes[field] === -1);
+            return { indexes, missingRequiredHeaders };
+        }
+        function parseImportNumericCell(val, isInt = false) {
+            if (val === undefined || val === null || val === '' || val === '無') return 0;
+            const cleaned = String(val).trim().replace(/,/g, '').replace(/，/g, '');
+            if (cleaned === '' || cleaned === '無') return 0;
+            const num = isInt ? parseInt(cleaned, 10) : parseFloat(cleaned);
+            return Number.isFinite(num) ? num : 0;
+        }
+        function yieldToUi() {
+            return new Promise(resolve => setTimeout(resolve, 0));
+        }
 
         async function exportToExcel() {
             try {
@@ -1535,8 +1579,15 @@
                 if (!file) return;
 
                 const reader = new FileReader();
+                updateImportProgress(2, '正在讀取檔案...');
+                reader.onprogress = function(progressEvent) {
+                    if (!progressEvent.lengthComputable) return;
+                    const readProgress = Math.round((progressEvent.loaded / progressEvent.total) * 10);
+                    updateImportProgress(Math.max(2, readProgress), '正在讀取檔案...');
+                };
                 reader.onload = async function(e) {
                     try {
+                        updateImportProgress(12, '正在解析 Excel...');
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array' });
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -1545,70 +1596,78 @@
                             throw new Error("Excel 文件中沒有數據");
                         }
 
+                        updateImportProgress(15, '正在驗證資料...');
                         const headers = jsonData[0];
-                        const nameIndex = headers.indexOf('商品名稱');
-                        const priceIndex = headers.indexOf('採購價格');
-                        const quantityIndex = headers.indexOf('採購數量');
-                        const inlandShippingIndex = headers.indexOf('內地運費');
-                        const singleWeightIndex = headers.indexOf('單重');
-                        const totalWeightIndex = headers.indexOf('總重');
-                        const materialCountIndex = headers.indexOf('計材');
-                        const actualPriceIndex = headers.indexOf('實際定價');
+                        const { indexes, missingRequiredHeaders } = resolveImportHeaderIndexes(headers);
+                        if (missingRequiredHeaders.length > 0) {
+                            throw new Error(`缺少必要欄位：${missingRequiredHeaders.join('、')}`);
+                        }
                         const errors = [];
                         const validRows = [];
+                        const validateTotal = Math.max(jsonData.length - 1, 1);
                         for (let i = 1; i < jsonData.length; i++) {
                             const row = jsonData[i];
                             const rowNumber = i + 1;
                             const isEmptyRow = !row || row.every(cell => !cell || cell === '');
                             if (isEmptyRow) continue;
-                            let hasError = false;
-                            const parseCell = (val, isInt) => {
-                                if (val === undefined || val === null || val === '' || val === '無') return 0;
-                                return isInt ? parseIntVal(val) : parseNum(val);
-                            };
+                            const readCell = (idx) => (idx >= 0 ? row[idx] : '');
                             const productData = {
-                                商品名稱: row[nameIndex] || '',
-                                採購價格: parseCell(row[priceIndex]),
-                                採購數量: parseCell(row[quantityIndex], true),
-                                單重: parseCell(row[singleWeightIndex]),
-                                總重: parseCell(row[totalWeightIndex]),
-                                計材: parseCell(row[materialCountIndex], true),
-                                內地運費: parseCell(row[inlandShippingIndex]),
-                                實際定價: parseCell(row[actualPriceIndex]),
+                                商品名稱: readCell(indexes.商品名稱) || '',
+                                採購價格: parseImportNumericCell(readCell(indexes.採購價格)),
+                                採購數量: parseImportNumericCell(readCell(indexes.採購數量), true),
+                                單重: parseImportNumericCell(readCell(indexes.單重)),
+                                總重: parseImportNumericCell(readCell(indexes.總重)),
+                                計材: parseImportNumericCell(readCell(indexes.計材), true),
+                                內地運費: parseImportNumericCell(readCell(indexes.內地運費)),
+                                實際定價: parseImportNumericCell(readCell(indexes.實際定價)),
                                 國際運費: settings.國際運費 || 0,
                                 採購匯率: settings.採購匯率 || 0,
                                 平台抽成: settings.平台抽成 || 0,
                                 時間戳記: serverTimestamp()
                             };
-                            if (!productData.商品名稱) hasError = true;
-                            if (productData.採購數量 <= 0) hasError = true;
-                            if (productData.採購價格 <= 0) hasError = true;
+                            const rowErrors = [];
+                            if (!String(productData.商品名稱).trim()) rowErrors.push('商品名稱空白');
+                            if (productData.採購數量 <= 0) rowErrors.push('採購數量需大於 0');
+                            if (productData.採購價格 <= 0) rowErrors.push('採購價格需大於 0');
                             if (productData.採購數量 > 0) {
-                                if (productData.單重 > 0 && productData.總重 > 0) hasError = true;
-                                if (productData.單重 < 0) hasError = true;
-                                if (productData.總重 < 0) hasError = true;
+                                if (productData.單重 < 0) rowErrors.push('單重不可小於 0');
+                                if (productData.總重 < 0) rowErrors.push('總重不可小於 0');
                             }
-                            if (productData.內地運費 < 0) hasError = true;
-                            if (productData.計材 < 0) hasError = true;
-                            if (productData.實際定價 < 0) hasError = true;
-                            if (hasError) {
-                                errors.push(`第 ${rowNumber} 列資料有誤`);
+                            if (productData.內地運費 < 0) rowErrors.push('內地運費不可小於 0');
+                            if (productData.計材 < 0) rowErrors.push('計材不可小於 0');
+                            if (productData.實際定價 < 0) rowErrors.push('實際定價不可小於 0');
+                            if (rowErrors.length > 0) {
+                                errors.push(`第 ${rowNumber} 列資料有誤：${rowErrors.join('、')}`);
                             } else {
                                 validRows.push(productData);
                             }
+                            if ((i % 25 === 0) || i === jsonData.length - 1) {
+                                const percent = 15 + Math.round((i / validateTotal) * 30);
+                                updateImportProgress(Math.min(percent, 45), `正在驗證資料...（${Math.min(i, validateTotal)}/${validateTotal}）`);
+                                await yieldToUi();
+                            }
                         }
 
-                        if (errors.length > 0) { showErrorModal(errors.join('<br><br>')); event.target.value = ''; return; }
-                        for (const productData of validRows) {
+                        if (errors.length > 0) {
+                            isImportingInProgress = false;
+                            closeInfoModal();
+                            showErrorModal(errors.join('<br><br>'));
+                            event.target.value = '';
+                            return;
+                        }
+                        updateImportProgress(45, '正在寫入資料...');
+                        const saveTotal = validRows.length;
+                        for (let idx = 0; idx < validRows.length; idx++) {
+                            const productData = validRows[idx];
                             productData.採購匯率 = settings.採購匯率;
                             productData.平台抽成 = settings.平台抽成;
                             productData.國際運費 = settings.國際運費;
                             productData.幣別 = 'CNY';
                             if (productData.採購數量 > 0) {
-                                if (productData.單重 > 0)
-                                    productData.總重 = (productData.單重 * productData.採購數量).toFixed(6);
-                                else if (productData.總重 > 0)
+                                if (productData.總重 > 0)
                                     productData.單重 = (productData.總重 / productData.採購數量).toFixed(6);
+                                else if (productData.單重 > 0)
+                                    productData.總重 = (productData.單重 * productData.採購數量).toFixed(6);
                             }
                             recalculateProduct(productData);
                             if (!productData.商品名稱 || !productData.商品名稱.trim()) productData.商品名稱 = `未命名商品_${Date.now()}`;
@@ -1621,17 +1680,36 @@
                             productData.id = safeId;
                             await productDocRef(safeId).set(productData);
                             products.unshift(productData);
+                            const saved = idx + 1;
+                            const percent = saveTotal > 0 ? 45 + Math.round((saved / saveTotal) * 55) : 100;
+                            updateImportProgress(Math.min(percent, 100), `正在寫入資料...（${saved}/${saveTotal}）`);
+                            if (saved % 10 === 0 || saved === saveTotal) {
+                                await yieldToUi();
+                            }
                         }
                         initTable();
                         event.target.value = '';
-                        showInfoModal('資料匯入完成');
+                        updateImportProgress(100, '資料匯入完成');
+                        await new Promise(resolve => setTimeout(resolve, 250));
+                        isImportingInProgress = false;
+                        showInfoModal(`資料匯入完成，共 ${validRows.length} 筆`);
                     } catch (error) {
+                        isImportingInProgress = false;
+                        closeInfoModal();
                         showErrorModal(`<p>檔案匯入：發生錯誤</p><p>${error.message}</p>`);
                         event.target.value = '';
                     }
                 };
+                reader.onerror = function() {
+                    isImportingInProgress = false;
+                    closeInfoModal();
+                    showErrorModal(`<p>檔案讀取：發生錯誤</p><p>${reader.error ? reader.error.message : '未知錯誤'}</p>`);
+                    event.target.value = '';
+                };
                 reader.readAsArrayBuffer(file);
             } catch (error) {
+                isImportingInProgress = false;
+                closeInfoModal();
                 showErrorModal(`
                     <p>檔案讀取：發生錯誤</p>
                     <p>${error.message}</p>
@@ -1677,6 +1755,10 @@
             const modal = $('infoModal');
             const modalBody = $('infoModalBody');
             if (!modal || !modalBody) return;
+            const footer = modal.querySelector('.modal-footer');
+            if (footer) {
+                footer.innerHTML = '<button class="confirm btn-info" onclick="closeModal(\'infoModal\')">知道了</button>';
+            }
             modalBody.innerHTML = message || '資料匯入完成';
             modal.classList.add('show');
             if (autoClose) {
@@ -1688,7 +1770,32 @@
         function closeInfoModal() {
             closeModal('infoModal');
         }
+        function updateImportProgress(percent, statusText) {
+            const modal = $('infoModal');
+            const modalBody = $('infoModalBody');
+            if (!modal || !modalBody) return;
+            const safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
+            const status = statusText || '正在匯入資料...';
+            isImportingInProgress = safePercent < 100;
+            modalBody.innerHTML = `
+                <div class="import-progress-wrap">
+                    <div class="import-progress-status">${status}</div>
+                    <div class="import-progress-track">
+                        <div class="import-progress-fill" style="width:${safePercent}%"></div>
+                    </div>
+                    <div class="import-progress-text">${safePercent}%</div>
+                </div>
+            `;
+            const footer = modal.querySelector('.modal-footer');
+            if (footer) {
+                footer.innerHTML = isImportingInProgress
+                    ? '<button class="confirm btn-info" disabled>匯入中...</button>'
+                    : '<button class="confirm btn-info" onclick="closeModal(\'infoModal\')">知道了</button>';
+            }
+            modal.classList.add('show');
+        }
         function closeModal(id) {
+            if (id === 'infoModal' && isImportingInProgress) return;
             const modal = $(id);
             if (!modal) return;
             modal.classList.remove('show');
